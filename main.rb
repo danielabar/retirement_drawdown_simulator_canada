@@ -2,7 +2,9 @@
 
 require_relative "lib/retirement_plan"
 require_relative "lib/simulator"
+require_relative "lib/simulator_formatter"
 
 plan = RetirementPlan.new("inputs.yml")
-simulator = Simulator.new(plan)
-simulator.run
+results = Simulator.new(plan).run
+formatter = SimulatorFormatter.new(results)
+formatter.print_all

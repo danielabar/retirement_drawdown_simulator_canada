@@ -9,35 +9,28 @@ class Simulator
     @rrsp_balance = plan.rrsp_balance
     @taxable_balance = plan.taxable_balance
     @tfsa_balance = plan.tfsa_balance
+    @results = []
   end
 
   def run
-    print_summary
-    print_header
+    add_summary
     simulate_rrsp_drawdown
     simulate_taxable_drawdown
     simulate_tfsa_drawdown
+    @results
   end
 
   private
 
-  def print_header
-    puts format("%<age>-10s %<rrsp>-20s %<tfsa>-20s %<taxable>-20s %<note>-20s",
-                age: "Age",
-                rrsp: "RRSP",
-                tfsa: "TFSA",
-                taxable: "Taxable",
-                note: "Note")
-    puts "-" * 90
-  end
-
-  def print_summary
-    puts "Desired Income Including TFSA Contribution: #{format_currency(@plan.desired_income)}"
-    puts "RRSP Withholding Tax: #{format_currency(@plan.tax_withholding)}"
-    puts "Expected Refund: #{format_currency(@plan.expected_refund)}"
-    puts "RRSP Available After Tax: #{format_currency(@plan.rrsp_withdrawal_actual_amount_available)}"
-    puts "Amount Available in Subsequent Years: #{format_currency(@plan.amount_available_subsequent_years)}"
-    puts "-" * 90
+  def add_summary
+    @results << {
+      type: :summary,
+      desired_income: @plan.desired_income,
+      rrsp_withholding_tax: @plan.tax_withholding,
+      expected_refund: @plan.expected_refund,
+      rrsp_available_after_tax: @plan.rrsp_withdrawal_actual_amount_available,
+      amount_available_subsequent_years: @plan.amount_available_subsequent_years
+    }
   end
 
   def simulate_rrsp_drawdown
@@ -45,7 +38,7 @@ class Simulator
       @rrsp_balance -= @plan.annual_withdrawal_amount_rrsp
       @tfsa_balance += @plan.annual_tfsa_contribution
       apply_growth
-      print_yearly_status("RRSP Drawdown")
+      record_yearly_status("RRSP Drawdown")
       @age += 1
     end
   end
@@ -55,7 +48,7 @@ class Simulator
       @taxable_balance -= @plan.annual_withdrawal_amount_taxable
       @tfsa_balance += @plan.annual_tfsa_contribution
       apply_growth
-      print_yearly_status("Taxable Drawdown")
+      record_yearly_status("Taxable Drawdown")
       @age += 1
     end
   end
@@ -64,7 +57,7 @@ class Simulator
     while @tfsa_balance >= @plan.annual_withdrawal_amount_tfsa
       @tfsa_balance -= @plan.annual_withdrawal_amount_tfsa
       apply_growth
-      print_yearly_status("TFSA Drawdown")
+      record_yearly_status("TFSA Drawdown")
       @age += 1
     end
   end
@@ -75,16 +68,14 @@ class Simulator
     @tfsa_balance *= (1 + @plan.annual_growth_rate)
   end
 
-  def print_yearly_status(note)
-    puts format("%<age>-10d %<rrsp_balance>-20s %<tfsa_balance>-20s %<taxable_balance>-20s %<note>-20s",
-                age: @age,
-                rrsp_balance: format_currency(@rrsp_balance),
-                tfsa_balance: format_currency(@tfsa_balance),
-                taxable_balance: format_currency(@taxable_balance),
-                note: note)
-  end
-
-  def format_currency(amount)
-    "$#{format('%.2f', amount).reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse}"
+  def record_yearly_status(note)
+    @results << {
+      type: :yearly_status,
+      age: @age,
+      rrsp_balance: @rrsp_balance,
+      tfsa_balance: @tfsa_balance,
+      taxable_balance: @taxable_balance,
+      note: note
+    }
   end
 end
