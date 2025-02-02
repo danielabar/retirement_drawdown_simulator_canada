@@ -20,22 +20,22 @@ class Simulator
   private
 
   def print_header
-    puts format("%-10s %-20s %-20s %-20s %-20s",
-                "Age",
-                "RRSP",
-                "TFSA",
-                "Taxable",
-                "Note")
-    puts "-" * 90
+    puts format('%-10s %-20s %-20s %-20s %-20s',
+                'Age',
+                'RRSP',
+                'TFSA',
+                'Taxable',
+                'Note')
+    puts '-' * 90
   end
 
   def print_summary
-    puts "Desired Income: #{format_currency(@plan.desired_income)}"
+    puts "Desired Income Including TFSA Contribution: #{format_currency(@plan.desired_income)}"
     puts "RRSP Withholding Tax: #{format_currency(@plan.tax_withholding)}"
     puts "Expected Refund: #{format_currency(@plan.expected_refund)}"
     puts "RRSP Available After Tax: #{format_currency(@plan.rrsp_withdrawal_actual_amount_available)}"
     puts "Amount Available in Subsequent Years: #{format_currency(@plan.amount_available_subsequent_years)}"
-    puts "-" * 90
+    puts '-' * 90
   end
 
   def simulate_rrsp_drawdown
@@ -43,7 +43,7 @@ class Simulator
       @rrsp_balance -= @plan.annual_withdrawal_amount_rrsp
       @tfsa_balance += @plan.annual_tfsa_contribution
       apply_growth
-      print_yearly_status("RRSP Drawdown")
+      print_yearly_status('RRSP Drawdown')
       @age += 1
     end
   end
@@ -53,7 +53,7 @@ class Simulator
       @taxable_balance -= @plan.annual_withdrawal_amount_taxable
       @tfsa_balance += @plan.annual_tfsa_contribution
       apply_growth
-      print_yearly_status("Taxable Drawdown")
+      print_yearly_status('Taxable Drawdown')
       @age += 1
     end
   end
@@ -62,7 +62,7 @@ class Simulator
     while @tfsa_balance >= @plan.annual_withdrawal_amount_tfsa
       @tfsa_balance -= @plan.annual_withdrawal_amount_tfsa
       apply_growth
-      print_yearly_status("TFSA Drawdown")
+      print_yearly_status('TFSA Drawdown')
       @age += 1
     end
   end
@@ -74,7 +74,7 @@ class Simulator
   end
 
   def print_yearly_status(note)
-    puts format("%-10d %-20s %-20s %-20s %-20s",
+    puts format('%-10d %-20s %-20s %-20s %-20s',
                 @age,
                 format_currency(@rrsp_balance),
                 format_currency(@tfsa_balance),

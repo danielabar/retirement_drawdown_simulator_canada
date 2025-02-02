@@ -1,5 +1,6 @@
 # TODO
 
+- summary section is a little confusing
 - add column showing net worth
 - inflation
 - assuming constant rate of return

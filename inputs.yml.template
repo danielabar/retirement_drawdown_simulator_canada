@@ -1,36 +1,39 @@
-# Retirement assumptions
+# Age at which you plan to start retirement
 retirement_age: 60
 
-# Conservative because all calcs remain in todays dollars
-annual_growth_rate: 0.025
+# Conservative because all calculations are in today's dollars
+annual_growth_rate: 0.03
 
-# Assume we'll continue to make TFSA contributions during
-# RRSP and Taxable drawdown phases
+# Assume we'll continue to make TFSA contributions during RRSP and Taxable drawdown phases
 annual_tfsa_contribution: 7000
 
 # After tax amount, eg: variable + fixed + lumpy
 desired_spending: 40000
 
-# Have to withdraw more than desired_spending to account for taxes
+# Have to withdraw more than desired_spending + tfsa contribution to account for taxes
+# Add up your desired_spending and annual_tfsa_contribution, then figure out how much you'd actually need
+# to withdraw to be left with desired_spending + annual_tfsa_contribution
 # Use a tax calculator to figure this out: https://www.eytaxcalculators.com/en/2025-personal-tax-calculator.html
-annual_withdrawal_amount_rrsp: 47000
+annual_withdrawal_amount_rrsp: 56000
 
-# Account balances
+# Starting account balances
 accounts:
-  rrsp: 500000
+  rrsp: 600000
   taxable: 400000
-  tfsa: 100000
+  tfsa: 120000
 
-# Tax assumptions
+# Taxes
+# Withholding tax may be greater than your actual tax bill, you'll get a refund when you file your taxes.
+# In the first year of retirement, you'll have to have some extra cash available to "float" the difference.
+# In subsequent years, the previous year's tax refund will be used to fund part of next years spending.
 # Tax calculator: https://www.eytaxcalculators.com/en/2025-personal-tax-calculator.html
 # RRSP Withholding tax: https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/rrsps-related-plans/making-withdrawals/tax-rates-on-withdrawals.html
-# Note: Withholding tax may be greater than your actual tax bill, you'll get a refund when you file your taxes.
-# But in the first year of retirement, you'll have to have some extra cash available to "float" the difference.
 taxes:
   rrsp_withholding_rate: 0.3
   actual_tax_bill: 6360
 
 # Investment details
+# Unused - future capital gains tax determination
 investment:
-  market_price: 38.46
-  cost_per_share: 31.26
+  market_price: 35.12
+  cost_per_share: 29.34
