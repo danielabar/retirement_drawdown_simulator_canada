@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
-require "yaml"
-
 class RetirementPlan
   attr_reader :retirement_age, :annual_growth_rate, :annual_tfsa_contribution,
-              :desired_spending, :annual_withdrawal_amount_rrsp, :rrsp_balance, :taxable_balance, :tfsa_balance,
+              :desired_spending, :annual_withdrawal_amount_rrsp, :rrsp_account, :taxable_account, :tfsa_account,
               :rrsp_withholding_tax_rate, :actual_tax_bill, :market_price, :cost_per_share
 
   def initialize(config_path)
@@ -64,9 +62,9 @@ class RetirementPlan
   end
 
   def load_accounts(accounts)
-    @rrsp_balance = accounts["rrsp"]
-    @taxable_balance = accounts["taxable"]
-    @tfsa_balance = accounts["tfsa"]
+    @rrsp_account = Account.new(accounts["rrsp"])
+    @taxable_account = Account.new(accounts["taxable"])
+    @tfsa_account = Account.new(accounts["tfsa"])
   end
 
   def load_taxes(taxes)

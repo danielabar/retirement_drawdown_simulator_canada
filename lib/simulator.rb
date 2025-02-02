@@ -1,14 +1,13 @@
 # frozen_string_literal: true
 
-require_relative "retirement_plan"
-
+# TODO: Need some sensible stopping point for all loops to avoid exceeding reasonable human lifetime.
 class Simulator
   def initialize(plan)
     @plan = plan
     @age = plan.retirement_age
-    @rrsp_balance = plan.rrsp_balance
-    @taxable_balance = plan.taxable_balance
-    @tfsa_balance = plan.tfsa_balance
+    @rrsp_account = plan.rrsp_account
+    @taxable_account = plan.taxable_account
+    @tfsa_account = plan.tfsa_account
     @results = []
   end
 
@@ -34,9 +33,9 @@ class Simulator
   end
 
   def simulate_rrsp_drawdown
-    while @rrsp_balance >= @plan.annual_withdrawal_amount_rrsp
-      @rrsp_balance -= @plan.annual_withdrawal_amount_rrsp
-      @tfsa_balance += @plan.annual_tfsa_contribution
+    while @rrsp_account.balance >= @plan.annual_withdrawal_amount_rrsp
+      @rrsp_account.withdraw(@plan.annual_withdrawal_amount_rrsp)
+      @tfsa_account.deposit(@plan.annual_tfsa_contribution)
       apply_growth
       record_yearly_status("RRSP Drawdown")
       @age += 1
@@ -44,9 +43,9 @@ class Simulator
   end
 
   def simulate_taxable_drawdown
-    while @taxable_balance >= @plan.annual_withdrawal_amount_taxable
-      @taxable_balance -= @plan.annual_withdrawal_amount_taxable
-      @tfsa_balance += @plan.annual_tfsa_contribution
+    while @taxable_account.balance >= @plan.annual_withdrawal_amount_taxable
+      @taxable_account.withdraw(@plan.annual_withdrawal_amount_taxable)
+      @tfsa_account.deposit(@plan.annual_tfsa_contribution)
       apply_growth
       record_yearly_status("Taxable Drawdown")
       @age += 1
@@ -54,8 +53,8 @@ class Simulator
   end
 
   def simulate_tfsa_drawdown
-    while @tfsa_balance >= @plan.annual_withdrawal_amount_tfsa
-      @tfsa_balance -= @plan.annual_withdrawal_amount_tfsa
+    while @tfsa_account.balance >= @plan.annual_withdrawal_amount_tfsa
+      @tfsa_account.withdraw(@plan.annual_withdrawal_amount_tfsa)
       apply_growth
       record_yearly_status("TFSA Drawdown")
       @age += 1
@@ -63,18 +62,18 @@ class Simulator
   end
 
   def apply_growth
-    @rrsp_balance *= (1 + @plan.annual_growth_rate)
-    @taxable_balance *= (1 + @plan.annual_growth_rate)
-    @tfsa_balance *= (1 + @plan.annual_growth_rate)
+    @rrsp_account.apply_growth(@plan.annual_growth_rate)
+    @taxable_account.apply_growth(@plan.annual_growth_rate)
+    @tfsa_account.apply_growth(@plan.annual_growth_rate)
   end
 
   def record_yearly_status(note)
     @results << {
       type: :yearly_status,
       age: @age,
-      rrsp_balance: @rrsp_balance,
-      tfsa_balance: @tfsa_balance,
-      taxable_balance: @taxable_balance,
+      rrsp_balance: @rrsp_account.balance,
+      tfsa_balance: @tfsa_account.balance,
+      taxable_balance: @taxable_account.balance,
       note: note
     }
   end

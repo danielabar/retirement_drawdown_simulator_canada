@@ -1,3 +1,5 @@
+require:
+  - rubocop-rspec
 
 AllCops:
   NewCops: enable
@@ -7,3 +9,9 @@ Style/Documentation:
 
 Style/StringLiterals:
   EnforcedStyle: double_quotes
+
+RSpec/ExampleLength:
+  Max: 15
+
+RSpec/MultipleExpectations:
+  Max: 5

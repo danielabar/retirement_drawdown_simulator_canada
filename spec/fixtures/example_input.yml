@@ -1,0 +1,18 @@
+retirement_age: 60
+annual_growth_rate: 0.03
+annual_tfsa_contribution: 7000
+desired_spending: 40000
+annual_withdrawal_amount_rrsp: 56000
+
+accounts:
+  rrsp: 600000
+  taxable: 400000
+  tfsa: 120000
+
+taxes:
+  rrsp_withholding_rate: 0.3
+  actual_tax_bill: 6360
+
+investment:
+  market_price: 35.12
+  cost_per_share: 29.34

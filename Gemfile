@@ -6,4 +6,8 @@ source "https://rubygems.org"
 ruby "3.3.7"
 
 # Dependencies
+gem "debug"
+gem "rspec"
+gem "rspec-core"
 gem "rubocop", require: false
+gem "rubocop-rspec"
