@@ -1,0 +1,36 @@
+# Retirement assumptions
+retirement_age: 60
+
+# Conservative because all calcs remain in todays dollars
+annual_growth_rate: 0.025
+
+# Assume we'll continue to make TFSA contributions during
+# RRSP and Taxable drawdown phases
+annual_tfsa_contribution: 7000
+
+# After tax amount, eg: variable + fixed + lumpy
+desired_spending: 40000
+
+# Have to withdraw more than desired_spending to account for taxes
+# Use a tax calculator to figure this out: https://www.eytaxcalculators.com/en/2025-personal-tax-calculator.html
+annual_withdrawal_amount_rrsp: 47000
+
+# Account balances
+accounts:
+  rrsp: 500000
+  taxable: 400000
+  tfsa: 100000
+
+# Tax assumptions
+# Tax calculator: https://www.eytaxcalculators.com/en/2025-personal-tax-calculator.html
+# RRSP Withholding tax: https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/rrsps-related-plans/making-withdrawals/tax-rates-on-withdrawals.html
+# Note: Withholding tax may be greater than your actual tax bill, you'll get a refund when you file your taxes.
+# But in the first year of retirement, you'll have to have some extra cash available to "float" the difference.
+taxes:
+  rrsp_withholding_rate: 0.3
+  actual_tax_bill: 6360
+
+# Investment details
+investment:
+  market_price: 38.46
+  cost_per_share: 31.26
