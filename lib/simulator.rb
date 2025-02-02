@@ -1,4 +1,6 @@
-require_relative 'retirement_plan'
+# frozen_string_literal: true
+
+require_relative "retirement_plan"
 
 class Simulator
   def initialize(plan)
@@ -20,13 +22,13 @@ class Simulator
   private
 
   def print_header
-    puts format('%-10s %-20s %-20s %-20s %-20s',
-                'Age',
-                'RRSP',
-                'TFSA',
-                'Taxable',
-                'Note')
-    puts '-' * 90
+    puts format("%<age>-10s %<rrsp>-20s %<tfsa>-20s %<taxable>-20s %<note>-20s",
+                age: "Age",
+                rrsp: "RRSP",
+                tfsa: "TFSA",
+                taxable: "Taxable",
+                note: "Note")
+    puts "-" * 90
   end
 
   def print_summary
@@ -35,7 +37,7 @@ class Simulator
     puts "Expected Refund: #{format_currency(@plan.expected_refund)}"
     puts "RRSP Available After Tax: #{format_currency(@plan.rrsp_withdrawal_actual_amount_available)}"
     puts "Amount Available in Subsequent Years: #{format_currency(@plan.amount_available_subsequent_years)}"
-    puts '-' * 90
+    puts "-" * 90
   end
 
   def simulate_rrsp_drawdown
@@ -43,7 +45,7 @@ class Simulator
       @rrsp_balance -= @plan.annual_withdrawal_amount_rrsp
       @tfsa_balance += @plan.annual_tfsa_contribution
       apply_growth
-      print_yearly_status('RRSP Drawdown')
+      print_yearly_status("RRSP Drawdown")
       @age += 1
     end
   end
@@ -53,7 +55,7 @@ class Simulator
       @taxable_balance -= @plan.annual_withdrawal_amount_taxable
       @tfsa_balance += @plan.annual_tfsa_contribution
       apply_growth
-      print_yearly_status('Taxable Drawdown')
+      print_yearly_status("Taxable Drawdown")
       @age += 1
     end
   end
@@ -62,7 +64,7 @@ class Simulator
     while @tfsa_balance >= @plan.annual_withdrawal_amount_tfsa
       @tfsa_balance -= @plan.annual_withdrawal_amount_tfsa
       apply_growth
-      print_yearly_status('TFSA Drawdown')
+      print_yearly_status("TFSA Drawdown")
       @age += 1
     end
   end
@@ -74,12 +76,12 @@ class Simulator
   end
 
   def print_yearly_status(note)
-    puts format('%-10d %-20s %-20s %-20s %-20s',
-                @age,
-                format_currency(@rrsp_balance),
-                format_currency(@tfsa_balance),
-                format_currency(@taxable_balance),
-                note)
+    puts format("%<age>-10d %<rrsp_balance>-20s %<tfsa_balance>-20s %<taxable_balance>-20s %<note>-20s",
+                age: @age,
+                rrsp_balance: format_currency(@rrsp_balance),
+                tfsa_balance: format_currency(@tfsa_balance),
+                taxable_balance: format_currency(@taxable_balance),
+                note: note)
   end
 
   def format_currency(amount)

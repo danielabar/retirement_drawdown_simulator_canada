@@ -1,6 +1,8 @@
-require_relative 'lib/retirement_plan'
-require_relative 'lib/simulator'
+# frozen_string_literal: true
 
-plan = RetirementPlan.new('inputs.yml')
+require_relative "lib/retirement_plan"
+require_relative "lib/simulator"
+
+plan = RetirementPlan.new("inputs.yml")
 simulator = Simulator.new(plan)
 simulator.run

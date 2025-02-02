@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Might not be used
 class Account
   attr_accessor :balance
 
