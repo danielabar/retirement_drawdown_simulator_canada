@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Exit the script if any command fails
+set -e
+
+# Run rubocop
+echo "Running Rubocop..."
+bin/rubocop
+
+# Run RSpec tests
+echo "Running RSpec tests..."
+bin/rspec
+
+# Run main.rb
+echo "Running main.rb..."
+ruby main.rb
