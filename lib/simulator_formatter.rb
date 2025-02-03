@@ -1,26 +1,25 @@
 # frozen_string_literal: true
 
 class SimulatorFormatter
-  def initialize(simulation_results)
+  def initialize(simulation_results, first_year_cash_flow_results)
     @results = simulation_results
+    @first_year_cash_flow_results = first_year_cash_flow_results
   end
 
   def print_all
-    print_summary
+    print_first_year_cash_flow
     print_header
     print_yearly_results
   end
 
   private
 
-  def format_summary(summary)
-    {
-      desired_income: format_currency(summary[:desired_income]),
-      rrsp_withholding_tax: format_currency(summary[:rrsp_withholding_tax]),
-      expected_refund: format_currency(summary[:expected_refund]),
-      rrsp_available_after_tax: format_currency(summary[:rrsp_available_after_tax]),
-      amount_available_subsequent_years: format_currency(summary[:amount_available_subsequent_years])
-    }
+  def print_first_year_cash_flow
+    puts "=== First-Year Cash Flow Breakdown ==="
+    @first_year_cash_flow_results.each do |label, value|
+      puts "#{label}: #{format_currency(value)}"
+    end
+    puts "-" * 90
   end
 
   def print_summary

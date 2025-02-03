@@ -7,20 +7,6 @@ RSpec.describe Simulator do
   let(:plan) { RetirementPlan.new(config_path) }
 
   describe "#run" do
-    it "generates a summary in the results" do
-      simulator = described_class.new(plan)
-      results = simulator.run
-
-      summary = results.find { |r| r[:type] == :summary }
-      expect(summary).to include(
-        desired_income: plan.desired_income,
-        rrsp_withholding_tax: plan.tax_withholding,
-        expected_refund: plan.expected_refund,
-        rrsp_available_after_tax: plan.rrsp_withdrawal_actual_amount_available,
-        amount_available_subsequent_years: plan.amount_available_subsequent_years
-      )
-    end
-
     it "simulates RRSP drawdown until balance is less than withdrawal amount" do
       results = described_class.new(plan).run
 

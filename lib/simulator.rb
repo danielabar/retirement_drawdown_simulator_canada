@@ -12,7 +12,6 @@ class Simulator
   end
 
   def run
-    add_summary
     simulate_rrsp_drawdown
     simulate_taxable_drawdown
     simulate_tfsa_drawdown
@@ -20,17 +19,6 @@ class Simulator
   end
 
   private
-
-  def add_summary
-    @results << {
-      type: :summary,
-      desired_income: @plan.desired_income,
-      rrsp_withholding_tax: @plan.tax_withholding,
-      expected_refund: @plan.expected_refund,
-      rrsp_available_after_tax: @plan.rrsp_withdrawal_actual_amount_available,
-      amount_available_subsequent_years: @plan.amount_available_subsequent_years
-    }
-  end
 
   def simulate_rrsp_drawdown
     while @rrsp_account.balance >= @plan.annual_withdrawal_amount_rrsp
@@ -67,6 +55,7 @@ class Simulator
     @tfsa_account.apply_growth(@plan.annual_growth_rate)
   end
 
+  # They're all `yearly_status` type now
   def record_yearly_status(note)
     @results << {
       type: :yearly_status,

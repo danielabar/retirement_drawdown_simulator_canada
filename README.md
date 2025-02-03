@@ -109,11 +109,12 @@ investment:
 Running the program for the sample input:
 
 ```
+=== First-Year Cash Flow Breakdown ===
 Desired Income Including TFSA Contribution: $47,000.00
-RRSP Withholding Tax: $14,100.00
-Expected Refund: $7,740.00
-RRSP Available After Tax: $41,900.00
-Amount Available in Subsequent Years: $49,640.00
+RRSP Withholding Tax: $16,800.00
+Expected Tax Refund: $10,440.00
+RRSP Available After Withholding: $39,200.00
+Required Cash Buffer for First Year: $7,800.00
 ------------------------------------------------------------------------------------------
 Age        RRSP                 TFSA                 Taxable              Note
 ------------------------------------------------------------------------------------------

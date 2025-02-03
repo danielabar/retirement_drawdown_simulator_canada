@@ -1,6 +1,6 @@
 # TODO
 
-- summary section is a little confusing - need explanation for the concept that withholding tax likely greater than actual tax bill so for the first year you need some extra cash to float - show what this amount will be.
+- Add limit to simulator loops to stop at some reasonable max human lifetime - 120?
 - RRSP withdrawals could be less than 15K, in which case withholding tax is less: https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/rrsps-related-plans/making-withdrawals/tax-rates-on-withdrawals.html
 - add column showing net worth
 - inflation
