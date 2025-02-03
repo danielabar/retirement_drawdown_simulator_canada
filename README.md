@@ -6,13 +6,17 @@ This is a simple, assumption-heavy retirement drawdown calculator for Canadians.
 2. Withdraw from Taxable account next (enough for spending + TFSA contribution).
 3. Withdraw from TFSA last.
 
+The idea being to drain the RRSP as quickly as possible to avoid mandatory RRIF withdrawals at age 71, with potential large tax liability.
+
+It also models your first year of RRSP withdrawal and why you may need an additional cash buffer to cover some shortfall. See [first_year.md](first_year.md) for further details.
+
 ## Why I Built This
 
 When I started looking for a basic tool to simulate a retirement drawdown in Canada, I couldn’t find anything — just advice to hire a financial planner. While professional guidance is valuable, a simple, transparent tool should exist for those who want to explore their numbers on their own.
 
-Right now, the model is quite basic. It assumes constant returns, ignores RRIF minimums (because it attempts to drain the RRSP before mandatory withdrawals would kick in), CPP, and withdrawal fees or commissions — but these are all on my roadmap. This is just a starting point, and I hope to refine it over time.
+Right now, the model is quite basic. It assumes constant returns, ignores RRIF minimums (because it attempts to drain the RRSP before mandatory withdrawals would kick in), CPP, and withdrawal fees or commissions — but these are all on my roadmap. This is just a starting point, and I hope to refine it over time. See [TODO.md](TODO.md) for more details.
 
-If you’re looking for a flexible, tax-optimized model, this isn't it. But if you want a straightforward way to see how long your savings might last under a simple strategy, I hope this helps.
+If you’re looking for a flexible, multi-scenario, tax-optimized model, this isn't it. But if you want a straightforward way to see how long your savings might last under a very simple strategy, I hope this helps.
 
 ## Getting Started
 
