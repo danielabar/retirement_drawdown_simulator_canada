@@ -18,6 +18,10 @@ Right now, the model is quite basic. It assumes constant returns, ignores RRIF m
 
 If you’re looking for a flexible, multi-scenario, tax-optimized model, this isn't it. But if you want a straightforward way to see how long your savings might last under a very simple strategy, I hope this helps.
 
+### Disclaimer ⚠️
+
+This tool is for **informational and educational purposes only**. It does **not** constitute financial, tax, or investment advice. The calculations are based on **simplified assumptions** and **may not reflect your actual financial situation**. You should consult with a **qualified financial professional** before making any retirement, investment, or other financial decisions. Use this tool at your own risk.
+
 ## Getting Started
 
 ### Prerequisites
