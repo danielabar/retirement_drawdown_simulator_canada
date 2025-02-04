@@ -126,9 +126,9 @@ RSpec.describe Simulator do
         end.last[:note]).to eq("Exited TFSA Drawdown due to reaching max age")
       end
 
-      it "supports desired income withdrawals to at least max age" do
+      it "supports desired income withdrawals to max age" do
         results = described_class.new(plan).run
-        expect(results.select { |r| r[:type] == :yearly_status }.last[:age]).to be >= plan.max_age
+        expect(results.select { |r| r[:type] == :yearly_status }.last[:age]).to eq plan.max_age
       end
     end
   end
