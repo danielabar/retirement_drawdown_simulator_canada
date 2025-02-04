@@ -5,7 +5,7 @@ require_relative "../spec_helper"
 RSpec.describe FirstYearCashFlow do
   subject(:first_year_cash_flow) { described_class.new(plan).calculate }
 
-  let(:config_path) { File.join(__dir__, "..", "fixtures", "example_input.yml") }
+  let(:config_path) { File.join(__dir__, "..", "fixtures", "example_input_low_growth.yml") }
   let(:plan) { RetirementPlan.new(config_path) }
 
   describe "#calculate" do

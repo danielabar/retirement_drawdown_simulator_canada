@@ -3,7 +3,7 @@
 require_relative "../spec_helper"
 
 RSpec.describe RetirementPlan do
-  let(:config_path) { File.join(__dir__, "..", "fixtures", "example_input.yml") }
+  let(:config_path) { File.join(__dir__, "..", "fixtures", "example_input_low_growth.yml") }
   let(:plan) { described_class.new(config_path) }
 
   describe "instance variables" do
