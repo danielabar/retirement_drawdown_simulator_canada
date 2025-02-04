@@ -1,4 +1,5 @@
 retirement_age: 60
+max_age: 120
 annual_growth_rate: 0.03
 annual_tfsa_contribution: 7000
 desired_spending: 40000

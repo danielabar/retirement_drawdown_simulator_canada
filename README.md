@@ -74,6 +74,9 @@ Your financial inputs are stored in `inputs.yml`. Below is an example:
 # Age at which you plan to start retirement
 retirement_age: 60
 
+# Max age to prevent infinite loops
+max_age: 120
+
 # Conservative because all calculations are in today's dollars
 annual_growth_rate: 0.03
 

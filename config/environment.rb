@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "debug"
 require "yaml"
 require_relative "../lib/account"
 require_relative "../lib/retirement_plan"

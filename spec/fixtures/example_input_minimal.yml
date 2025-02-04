@@ -1,0 +1,19 @@
+retirement_age: 65
+max_age: 75
+annual_growth_rate: 0.01
+annual_tfsa_contribution: 10
+desired_spending: 30000
+annual_withdrawal_amount_rrsp: 33800
+
+accounts:
+  rrsp: 80000
+  taxable: 60000
+  tfsa: 30000
+
+taxes:
+  rrsp_withholding_rate: 0.3
+  actual_tax_bill: 3713
+
+investment:
+  market_price: 50.0
+  cost_per_share: 40.0

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class RetirementPlan
-  attr_reader :retirement_age, :annual_growth_rate, :annual_tfsa_contribution,
+  attr_reader :retirement_age, :max_age, :annual_growth_rate, :annual_tfsa_contribution,
               :desired_spending, :annual_withdrawal_amount_rrsp, :rrsp_account, :taxable_account, :tfsa_account,
               :rrsp_withholding_tax_rate, :actual_tax_bill, :market_price, :cost_per_share
 
@@ -55,6 +55,7 @@ class RetirementPlan
 
   def load_general_settings(config)
     @retirement_age = config["retirement_age"]
+    @max_age = config["max_age"]
     @annual_growth_rate = config["annual_growth_rate"]
     @annual_tfsa_contribution = config["annual_tfsa_contribution"]
     @desired_spending = config["desired_spending"]
