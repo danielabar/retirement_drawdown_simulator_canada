@@ -11,10 +11,6 @@ RSpec.describe RetirementPlan do
       expect(plan.retirement_age).to eq(60)
     end
 
-    it "loads the correct annual growth rate" do
-      expect(plan.annual_growth_rate).to eq(0.03)
-    end
-
     it "loads the correct annual TFSA contribution" do
       expect(plan.annual_tfsa_contribution).to eq(7000)
     end
@@ -35,6 +31,27 @@ RSpec.describe RetirementPlan do
     it "loads the correct investment values" do
       expect(plan.market_price).to eq(35.12)
       expect(plan.cost_per_share).to eq(29.34)
+    end
+  end
+
+  describe "growth rate loading" do
+    it "initializes ReturnSequence with correct growth rates" do
+      return_sequence_mock = instance_double(ReturnSequence)
+
+      # Use `allow` to stub the method
+      allow(ReturnSequence).to receive(:new).and_return(return_sequence_mock)
+
+      # Trigger the RetirementPlan initialization
+      described_class.new(config_path)
+
+      # Verify the method was called with the expected arguments
+      expect(ReturnSequence).to have_received(:new).with(
+        60,    # retirement_age
+        120,   # max_age
+        0.03,  # average growth
+        0.03,  # min growth
+        0.03   # max growth
+      )
     end
   end
 

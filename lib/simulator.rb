@@ -53,9 +53,10 @@ class Simulator
   end
 
   def apply_growth
-    @rrsp_account.apply_growth(@plan.annual_growth_rate)
-    @taxable_account.apply_growth(@plan.annual_growth_rate)
-    @tfsa_account.apply_growth(@plan.annual_growth_rate)
+    current_return = @plan.return_sequence.get_return_for_age(@age)
+    @rrsp_account.apply_growth(current_return)
+    @taxable_account.apply_growth(current_return)
+    @tfsa_account.apply_growth(current_return)
   end
 
   # They're all `yearly_status` type now
