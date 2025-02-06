@@ -12,6 +12,8 @@ class Simulator
   end
 
   def run
+    @return_sequence = ReturnSequence.new(@age, @max_age, @plan.annual_growth_rate["average"],
+                                          @plan.annual_growth_rate["min"], @plan.annual_growth_rate["max"])
     simulate_rrsp_drawdown
     simulate_taxable_drawdown
     simulate_tfsa_drawdown
@@ -53,7 +55,7 @@ class Simulator
   end
 
   def apply_growth
-    current_return = @plan.return_sequence.get_return_for_age(@age)
+    current_return = @return_sequence.get_return_for_age(@age)
     @rrsp_account.apply_growth(current_return)
     @taxable_account.apply_growth(current_return)
     @tfsa_account.apply_growth(current_return)

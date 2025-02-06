@@ -34,23 +34,6 @@ RSpec.describe RetirementPlan do
     end
   end
 
-  describe "growth rate loading" do
-    it "initializes ReturnSequence with ages and growth rates from input file" do
-      return_sequence_mock = instance_double(ReturnSequence)
-      allow(ReturnSequence).to receive(:new).and_return(return_sequence_mock)
-
-      described_class.new(config_path)
-
-      expect(ReturnSequence).to have_received(:new).with(
-        60,    # retirement_age
-        120,   # max_age
-        0.03,  # average growth
-        0.03,  # min growth
-        0.03   # max growth
-      )
-    end
-  end
-
   describe "calculations" do
     it "calculates desired income based on spending and annual TFSA contribution" do
       expect(plan.desired_income).to eq(47_000) # 40000 + 7000

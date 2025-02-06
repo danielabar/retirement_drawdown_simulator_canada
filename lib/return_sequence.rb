@@ -7,10 +7,13 @@ class ReturnSequence
     @avg = avg
     @min = min
     @max = max
-    @returns = generate_returns
+    @returns = nil
   end
 
   def get_return_for_age(age)
+    @returns ||= generate_returns
+    # temp debug
+    # puts "=== RETURN FOR AGE #{age} : #{@returns[age] || @avg} ==="
     @returns[age] || @avg
   end
 
