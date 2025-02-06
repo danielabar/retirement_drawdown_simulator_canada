@@ -4,6 +4,7 @@ require_relative "../spec_helper"
 
 RSpec.describe Simulator do
   describe "#run" do
+    # TODO: Also verify ror is populated
     context "when there are minimal balances to deplete quickly" do
       let(:config_path) { File.join(__dir__, "..", "fixtures", "example_input_minimal.yml") }
       let(:plan) { RetirementPlan.new(config_path) }

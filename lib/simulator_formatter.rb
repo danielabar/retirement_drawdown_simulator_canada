@@ -19,39 +19,31 @@ class SimulatorFormatter
     @first_year_cash_flow_results.each do |label, value|
       puts "#{label}: #{format_currency(value)}"
     end
-    puts "-" * 90
-  end
-
-  def print_summary
-    summary = @results.find { |r| r[:type] == :summary }
-    formatted_summary = format_summary(summary)
-
-    puts "=== Retirement Plan Summary ==="
-    puts "Desired Income Including TFSA Contribution: #{formatted_summary[:desired_income]}"
-    puts "RRSP Withholding Tax: #{formatted_summary[:rrsp_withholding_tax]}"
-    puts "Expected Refund: #{formatted_summary[:expected_refund]}"
-    puts "RRSP Available After Tax: #{formatted_summary[:rrsp_available_after_tax]}"
-    puts "Amount Available in Subsequent Years: #{formatted_summary[:amount_available_subsequent_years]}"
-    puts "-" * 90
+    puts "-" * 110
   end
 
   def print_header
-    puts format("%<age>-10s %<rrsp>-20s %<tfsa>-20s %<taxable>-20s %<note>-20s",
-                age: "Age", rrsp: "RRSP", tfsa: "TFSA", taxable: "Taxable", note: "Note")
-    puts "-" * 90
+    puts format("%<age>-10s %<rrsp>-20s %<tfsa>-20s %<taxable>-20s %<note>-20s %<rate_of_return>-20s",
+                age: "Age", rrsp: "RRSP", tfsa: "TFSA", taxable: "Taxable", note: "Note", rate_of_return: "RoR")
+    puts "-" * 110
   end
 
+  # TODO: They're all of type yearly_status now, maybe no longer need that check
   def print_yearly_results
     @results.each do |record|
       next unless record[:type] == :yearly_status
 
-      puts format("%<age>-10d %<rrsp>-20s %<tfsa>-20s %<taxable>-20s %<note>-20s",
-                  age: record[:age], rrsp: format_currency(record[:rrsp_balance]),
-                  tfsa: format_currency(record[:tfsa_balance]), taxable: format_currency(record[:taxable_balance]),
-                  note: record[:note])
+      puts format("%<age>-10d %<rrsp>-20s %<tfsa>-20s %<taxable>-20s %<note>-20s %<rate_of_return>-20s",
+                  age: record[:age],
+                  rrsp: format_currency(record[:rrsp_balance]),
+                  tfsa: format_currency(record[:tfsa_balance]),
+                  taxable: format_currency(record[:taxable_balance]),
+                  note: record[:note],
+                  rate_of_return: "#{(record[:rate_of_return] * 100).round(2)}%")
     end
   end
 
+  # TODO: Should there be a formatter class for this and rate_of_return formatting?
   def format_currency(amount)
     "$#{format('%.2f', amount).reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse}"
   end
