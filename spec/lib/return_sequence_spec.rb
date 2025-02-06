@@ -26,8 +26,19 @@ RSpec.describe ReturnSequence do
     it "returns the expected average return over all ages" do
       returns = (start_age..max_age).map { |age| return_sequence.get_return_for_age(age) }
       actual_avg = returns.sum / returns.size
-      # Allow for a small margin of error due to floating point precision and randomness
       expect(actual_avg).to be_within(0.001).of(avg)
+    end
+
+    it "raises an error when the average return cannot be generated after some maximum number of attempts" do
+      invalid_avg = 0.6
+      invalid_min = 0.7
+      invalid_max = 0.9
+
+      invalid_return_sequence = described_class.new(start_age, max_age, invalid_avg, invalid_min, invalid_max)
+
+      expect do
+        invalid_return_sequence.get_return_for_age(start_age)
+      end.to raise_error(/^Unable to generate a valid return sequence/)
     end
 
     context "when returns are constant" do

@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class ReturnSequence
+  MAX_LOOP_ATTEMPTS = 100
+
   def initialize(start_age, max_age, avg, min, max)
     @start_age = start_age
     @max_age = max_age
@@ -12,8 +14,6 @@ class ReturnSequence
 
   def get_return_for_age(age)
     @returns ||= generate_returns
-    # temp debug
-    # puts "=== RETURN FOR AGE #{age} : #{@returns[age] || @avg} ==="
     @returns[age] || @avg
   end
 
@@ -35,12 +35,16 @@ class ReturnSequence
 
   def variable_returns
     count = @max_age - @start_age + 1
+    attempts = 0
 
     loop do
+      attempts += 1
       returns = generate_random_returns(count - 1)
       final_return = calculate_final_return(returns, count)
 
       return build_return_sequence(returns, final_return) if valid_return?(final_return)
+
+      raise_max_attempts_error if attempts >= MAX_LOOP_ATTEMPTS
     end
   end
 
@@ -61,5 +65,9 @@ class ReturnSequence
   def build_return_sequence(returns, final_return)
     full_returns = returns + [final_return]
     (@start_age..@max_age).zip(full_returns).to_h
+  end
+
+  def raise_max_attempts_error
+    raise "Unable to generate a valid return sequence after #{MAX_LOOP_ATTEMPTS} attempts"
   end
 end
