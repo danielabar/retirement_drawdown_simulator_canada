@@ -4,8 +4,11 @@ retirement_age: 60
 # Max age to prevent infinite loops
 max_age: 120
 
-# Conservative because all calculations are in today's dollars
-annual_growth_rate: 0.03
+# Growth rate average, min, and max to generate variability
+annual_growth_rate:
+  average: 0.03
+  min: -0.3
+  max: 0.3
 
 # Assume we'll continue to make TFSA contributions during RRSP and Taxable drawdown phases
 annual_tfsa_contribution: 7000

@@ -1,9 +1,14 @@
 retirement_age: 65
 max_age: 75
-annual_growth_rate: 0.01
 annual_tfsa_contribution: 10
 desired_spending: 30000
 annual_withdrawal_amount_rrsp: 33800
+
+# ensure no variability so test can verify exact result
+annual_growth_rate:
+  average: 0.01
+  min: 0.01
+  max: 0.01
 
 accounts:
   rrsp: 80000

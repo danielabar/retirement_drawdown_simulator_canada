@@ -22,6 +22,7 @@ RSpec.describe Simulator do
             tfsa_balance: be_within(1).of(30_310),
             taxable_balance: be_within(1).of(60_600),
             note: "RRSP Drawdown",
+            rate_of_return: 0.01,
             type: :yearly_status
           )
         )
@@ -36,6 +37,7 @@ RSpec.describe Simulator do
             tfsa_balance: be_within(1).of(30_623),
             taxable_balance: be_within(1).of(61_206),
             note: "RRSP Drawdown",
+            rate_of_return: 0.01,
             type: :yearly_status
           )
         )
@@ -50,6 +52,7 @@ RSpec.describe Simulator do
             tfsa_balance: be_within(1).of(30_939),
             taxable_balance: be_within(1).of(31_507),
             note: "Taxable Drawdown",
+            rate_of_return: 0.01,
             type: :yearly_status
           )
         )
@@ -64,6 +67,7 @@ RSpec.describe Simulator do
             tfsa_balance: be_within(1).of(31_259),
             taxable_balance: be_within(1).of(1_512),
             note: "Taxable Drawdown",
+            rate_of_return: 0.01,
             type: :yearly_status
           )
         )
@@ -78,6 +82,7 @@ RSpec.describe Simulator do
             tfsa_balance: be_within(1).of(1_271),
             taxable_balance: be_within(1).of(1_528),
             note: "TFSA Drawdown",
+            rate_of_return: 0.01,
             type: :yearly_status
           )
         )
