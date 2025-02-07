@@ -1,5 +1,7 @@
 # TODO
 
+- currently all config loaded via RetirementPlan so it has a mix of plan-specific and config-related code, could these be separate?
+  - especially if want to start introducing config not related to plan such as choice of returns simulator
 - RRSP withdrawals could be less than 15K, in which case withholding tax is less: https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/rrsps-related-plans/making-withdrawals/tax-rates-on-withdrawals.html
 - add column showing net worth
 - inflation
