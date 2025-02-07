@@ -23,8 +23,9 @@ class SimulatorFormatter
   end
 
   def print_header
-    puts format("%<age>-10s %<rrsp>-20s %<tfsa>-20s %<taxable>-20s %<note>-20s %<rate_of_return>-20s",
+    puts format("%<age>-10s %<rrsp>-20s %<tfsa>-20s %<taxable>-20s %<note>-20s %<rate_of_return>10s",
                 age: "Age", rrsp: "RRSP", tfsa: "TFSA", taxable: "Taxable", note: "Note", rate_of_return: "RoR")
+
     puts "-" * 110
   end
 
@@ -33,7 +34,7 @@ class SimulatorFormatter
     @results.each do |record|
       next unless record[:type] == :yearly_status
 
-      puts format("%<age>-10d %<rrsp>-20s %<tfsa>-20s %<taxable>-20s %<note>-20s %<rate_of_return>-20s",
+      puts format("%<age>-10d %<rrsp>-20s %<tfsa>-20s %<taxable>-20s %<note>-20s %<rate_of_return>10s",
                   age: record[:age],
                   rrsp: format_currency(record[:rrsp_balance]),
                   tfsa: format_currency(record[:tfsa_balance]),

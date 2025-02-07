@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ReturnSequence
-  MAX_LOOP_ATTEMPTS = 100
+  MAX_LOOP_ATTEMPTS = 200
 
   def initialize(start_age, max_age, avg, min, max)
     @start_age = start_age
