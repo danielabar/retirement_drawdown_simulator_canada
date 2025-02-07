@@ -68,6 +68,6 @@ class ReturnSequence
   end
 
   def raise_max_attempts_error
-    raise "Unable to generate a valid return sequence after #{MAX_LOOP_ATTEMPTS} attempts"
+    raise "Unable to generate a return sequence after #{MAX_LOOP_ATTEMPTS} attempts"
   end
 end

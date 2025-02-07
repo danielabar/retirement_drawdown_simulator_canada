@@ -38,7 +38,7 @@ RSpec.describe ReturnSequence do
 
       expect do
         invalid_return_sequence.get_return_for_age(start_age)
-      end.to raise_error(/^Unable to generate a valid return sequence/)
+      end.to raise_error(/^Unable to generate a return sequence/)
     end
 
     context "when returns are constant" do
