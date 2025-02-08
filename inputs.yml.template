@@ -10,6 +10,9 @@ annual_growth_rate:
   min: -0.3
   max: 0.3
 
+# Choose the return sequence generator: mean, geometric_brownian_motion, constant
+return_sequence_type: constant
+
 # Assume we'll continue to make TFSA contributions during RRSP and Taxable drawdown phases
 annual_tfsa_contribution: 7000
 

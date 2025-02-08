@@ -28,10 +28,19 @@ class Simulator
   private
 
   def load_return_sequence
-    @return_sequence = ReturnSequence.new(@retirement_age, @max_age,
-                                          app_config.annual_growth_rate["average"],
-                                          app_config.annual_growth_rate["min"],
-                                          app_config.annual_growth_rate["max"])
+    type = app_config["return_sequence_type"] || "constant"
+    klass = case type
+            when "mean" then ReturnSequences::MeanReturnSequence
+            when "geometric_brownian_motion" then ReturnSequences::GeometricBrownianMotionSequence
+            when "constant" then ReturnSequences::ConstantReturnSequence
+            else
+              raise "Unknown return_sequence_type: #{type}"
+            end
+
+    @return_sequence = klass.new(retirement_age, max_age,
+                                 app_config.annual_growth_rate["average"],
+                                 app_config.annual_growth_rate["min"],
+                                 app_config.annual_growth_rate["max"])
   end
 
   def load_accounts
