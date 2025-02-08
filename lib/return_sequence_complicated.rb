@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-class ReturnSequence
+# Unused for now
+class ReturnSequenceComplicated
   attr_reader :returns
 
   def initialize(start_age, max_age, avg, min, max)
