@@ -99,7 +99,8 @@ RSpec.describe Simulator do
 
       it "simulates taxable drawdown until balance is below the withdrawal amount" do
         final_taxable_year = results.reverse.find { |r| r[:note] == "Taxable Drawdown" }
-        expect(final_taxable_year[:taxable_balance]).to be < 47_000 # desired_spending + annual_tfsa_contribution from fixture
+        # desired_spending + annual_tfsa_contribution from fixture
+        expect(final_taxable_year[:taxable_balance]).to be < 47_000
       end
 
       it "simulates TFSA drawdown until balance is depleted" do
