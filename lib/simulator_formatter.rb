@@ -19,29 +19,44 @@ class SimulatorFormatter
     @first_year_cash_flow_results.each do |label, value|
       puts "#{label}: #{format_currency(value)}"
     end
-    puts "-" * 110
+    puts "-" * 130
   end
 
   def print_header
-    puts format("%<age>-10s %<rrsp>-20s %<tfsa>-20s %<taxable>-20s %<note>-20s %<rate_of_return>10s",
-                age: "Age", rrsp: "RRSP", tfsa: "TFSA", taxable: "Taxable", note: "Note", rate_of_return: "RoR")
-
-    puts "-" * 110
+    puts formatted_header
+    puts "-" * 130
   end
 
-  # TODO: They're all of type yearly_status now, maybe no longer need that check
+  def formatted_header
+    format(
+      "%<age>-10s %<rrsp>-20s %<tfsa>-20s %<taxable>-20s %<total_balance>-20s %<note>-20s %<rate_of_return>10s",
+      age: "Age",
+      rrsp: "RRSP",
+      tfsa: "TFSA",
+      taxable: "Taxable",
+      total_balance: "Total Balance",
+      note: "Note",
+      rate_of_return: "RoR"
+    )
+  end
+
   def print_yearly_results
     @results.each do |record|
-      next unless record[:type] == :yearly_status
-
-      puts format("%<age>-10d %<rrsp>-20s %<tfsa>-20s %<taxable>-20s %<note>-20s %<rate_of_return>10s",
-                  age: record[:age],
-                  rrsp: format_currency(record[:rrsp_balance]),
-                  tfsa: format_currency(record[:tfsa_balance]),
-                  taxable: format_currency(record[:taxable_balance]),
-                  note: record[:note],
-                  rate_of_return: "#{(record[:rate_of_return] * 100).round(2)}%")
+      puts formatted_yearly_result(record)
     end
+  end
+
+  def formatted_yearly_result(record)
+    format(
+      "%<age>-10d %<rrsp>-20s %<tfsa>-20s %<taxable>-20s %<total_balance>-20s %<note>-20s %<rate_of_return>10s",
+      age: record[:age],
+      rrsp: format_currency(record[:rrsp_balance]),
+      tfsa: format_currency(record[:tfsa_balance]),
+      taxable: format_currency(record[:taxable_balance]),
+      total_balance: format_currency(record[:total_balance]), # Display the total balance
+      note: record[:note],
+      rate_of_return: "#{(record[:rate_of_return] * 100).round(2)}%"
+    )
   end
 
   # TODO: Should there be a formatter class for this and rate_of_return formatting?

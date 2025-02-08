@@ -75,8 +75,13 @@ class Simulator
       tfsa_balance: tfsa_account.balance,
       taxable_balance: taxable_account.balance,
       note: note,
-      rate_of_return: rate_of_return
+      rate_of_return: rate_of_return,
+      total_balance: total_balance
     }
+  end
+
+  def total_balance
+    rrsp_account.balance + taxable_account.balance + tfsa_account.balance
   end
 
   def record_exit_if_max_age_reached(phase_name)

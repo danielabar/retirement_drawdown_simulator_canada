@@ -4,11 +4,10 @@ annual_tfsa_contribution: 10
 desired_spending: 30000
 annual_withdrawal_amount_rrsp: 33800
 
-# ensure no variability so test can verify exact result
 annual_growth_rate:
   average: 0.01
-  min: 0.01
-  max: 0.01
+  min: -0.1
+  max: 0.1
 
 return_sequence_type: constant
 
