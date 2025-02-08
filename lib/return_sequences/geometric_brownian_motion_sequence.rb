@@ -10,16 +10,6 @@ module ReturnSequences
     private
 
     def generate_returns
-      return constant_returns if @avg == @min && @min == @max
-
-      variable_returns
-    end
-
-    def constant_returns
-      (@start_age..@max_age).to_h { |age| [age, @avg] }
-    end
-
-    def variable_returns
       sequence = {}
       drift    = Math.log(1 + @avg)
       sigma    = compute_sigma
