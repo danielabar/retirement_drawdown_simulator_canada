@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# TODO: remove - no longer used
 class ReturnSequence
   MAX_LOOP_ATTEMPTS = 200
 

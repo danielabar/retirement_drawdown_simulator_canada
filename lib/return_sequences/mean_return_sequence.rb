@@ -2,7 +2,7 @@
 
 module ReturnSequences
   class MeanReturnSequence < ReturnSequences::BaseSequence
-    MAX_LOOP_ATTEMPTS = 1000
+    MAX_LOOP_ATTEMPTS = 10
 
     def get_return_for_age(age)
       @returns ||= generate_returns
@@ -27,7 +27,7 @@ module ReturnSequences
     end
 
     def generate_random_returns(count)
-      Array.new(count) { rand(@min..@max) }
+      Array.new(count) { Kernel.rand(@min..@max) }
     end
 
     def adjust_returns_to_average(returns, target_avg)

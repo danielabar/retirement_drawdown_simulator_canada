@@ -2,6 +2,7 @@
 
 require "rspec"
 
+# TODO: remove - no longer used
 RSpec.describe ReturnSequence do
   subject(:return_sequence) { described_class.new(start_age, max_age, avg, min, max) }
 
