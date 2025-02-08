@@ -1,0 +1,5 @@
+return_sequence_type: "constant"
+annual_growth_rate:
+  average: 0.05
+  min: 0.05
+  max: 0.05
