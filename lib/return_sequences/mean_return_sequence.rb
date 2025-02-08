@@ -2,7 +2,7 @@
 
 module ReturnSequences
   class MeanReturnSequence < ReturnSequences::BaseSequence
-    MAX_LOOP_ATTEMPTS = 10
+    MAX_LOOP_ATTEMPTS = 1000
 
     def get_return_for_age(age)
       @returns ||= generate_returns
