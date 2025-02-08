@@ -10,6 +10,8 @@ annual_growth_rate:
   min: 0.01
   max: 0.01
 
+return_sequence_type: constant
+
 accounts:
   rrsp: 80000
   taxable: 60000

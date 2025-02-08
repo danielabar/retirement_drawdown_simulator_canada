@@ -1,77 +1,100 @@
 # frozen_string_literal: true
 
 class Simulator
-  def initialize(plan)
-    @plan = plan
-    @age = plan.retirement_age
-    @max_age = plan.max_age
-    @rrsp_account = plan.rrsp_account
-    @taxable_account = plan.taxable_account
-    @tfsa_account = plan.tfsa_account
+  attr_reader :app_config, :retirement_age, :max_age, :return_sequence, :results, :rrsp_account, :taxable_account,
+              :tfsa_account
+
+  attr_accessor :current_age
+
+  def initialize(app_config)
+    @app_config = app_config
+    @retirement_age = app_config["retirement_age"]
+    @max_age = app_config["max_age"]
+    @current_age = retirement_age
+
+    load_return_sequence
+    load_accounts
+
     @results = []
   end
 
   def run
-    @return_sequence = ReturnSequence.new(@age, @max_age, @plan.annual_growth_rate["average"],
-                                          @plan.annual_growth_rate["min"], @plan.annual_growth_rate["max"])
-    simulate_rrsp_drawdown
-    simulate_taxable_drawdown
-    simulate_tfsa_drawdown
-    @results
+    simulate_drawdown(rrsp_account, app_config["annual_withdrawal_amount_rrsp"], "RRSP Drawdown")
+    simulate_drawdown(taxable_account, annual_withdrawal_amount_taxable, "Taxable Drawdown")
+    simulate_drawdown(tfsa_account, annual_withdrawal_amount_tfsa, "TFSA Drawdown")
+    results
   end
 
   private
 
-  def simulate_rrsp_drawdown
-    while @rrsp_account.balance >= @plan.annual_withdrawal_amount_rrsp && @age < @plan.max_age
-      @rrsp_account.withdraw(@plan.annual_withdrawal_amount_rrsp)
-      @tfsa_account.deposit(@plan.annual_tfsa_contribution)
-      current_return = apply_growth
-      record_yearly_status("RRSP Drawdown", current_return)
-      @age += 1
-    end
-    record_yearly_status("Exited RRSP Drawdown due to reaching max age", current_return) if @age >= @plan.max_age
+  def load_return_sequence
+    @return_sequence = ReturnSequences::SequenceSelector.new(app_config, retirement_age, max_age).select
   end
 
-  def simulate_taxable_drawdown
-    while @taxable_account.balance >= @plan.annual_withdrawal_amount_taxable && @age < @plan.max_age
-      @taxable_account.withdraw(@plan.annual_withdrawal_amount_taxable)
-      @tfsa_account.deposit(@plan.annual_tfsa_contribution)
-      current_return = apply_growth
-      record_yearly_status("Taxable Drawdown", current_return)
-      @age += 1
-    end
-    record_yearly_status("Exited Taxable Drawdown due to reaching max age", current_return) if @age >= @plan.max_age
+  def load_accounts
+    @rrsp_account = Account.new(app_config.accounts["rrsp"])
+    @taxable_account = Account.new(app_config.accounts["taxable"])
+    @tfsa_account = Account.new(app_config.accounts["tfsa"])
   end
 
-  def simulate_tfsa_drawdown
-    while @tfsa_account.balance >= @plan.annual_withdrawal_amount_tfsa && @age < @plan.max_age
-      @tfsa_account.withdraw(@plan.annual_withdrawal_amount_tfsa)
-      current_return = apply_growth
-      record_yearly_status("TFSA Drawdown", current_return)
-      @age += 1
+  def simulate_drawdown(account, withdrawal_amount, phase_name)
+    while account.balance >= withdrawal_amount && current_age < max_age
+      process_year(account, withdrawal_amount, phase_name)
     end
-    record_yearly_status("Exited TFSA Drawdown due to reaching max age", current_return) if @age >= @plan.max_age
+    record_exit_if_max_age_reached(phase_name)
+  end
+
+  def process_year(account, withdrawal_amount, phase_name)
+    account.withdraw(withdrawal_amount)
+    handle_tfsa_contribution(phase_name)
+    current_return = apply_growth
+    record_yearly_status(phase_name, current_return)
+    self.current_age += 1
+  end
+
+  def handle_tfsa_contribution(phase_name)
+    # Only contribute to TFSA during RRSP or Taxable drawdown phases
+    return unless ["RRSP Drawdown", "Taxable Drawdown"].include?(phase_name)
+
+    tfsa_account.deposit(app_config["annual_tfsa_contribution"])
   end
 
   def apply_growth
-    current_return = @return_sequence.get_return_for_age(@age)
-    @rrsp_account.apply_growth(current_return)
-    @taxable_account.apply_growth(current_return)
-    @tfsa_account.apply_growth(current_return)
+    current_return = return_sequence.get_return_for_age(current_age)
+    [rrsp_account, taxable_account, tfsa_account].each do |account|
+      account.apply_growth(current_return)
+    end
     current_return
   end
 
-  # They're all `yearly_status` type now
   def record_yearly_status(note, rate_of_return)
-    @results << {
+    results << {
       type: :yearly_status,
-      age: @age,
-      rrsp_balance: @rrsp_account.balance,
-      tfsa_balance: @tfsa_account.balance,
-      taxable_balance: @taxable_account.balance,
+      age: current_age,
+      rrsp_balance: rrsp_account.balance,
+      tfsa_balance: tfsa_account.balance,
+      taxable_balance: taxable_account.balance,
       note: note,
       rate_of_return: rate_of_return
     }
+  end
+
+  def record_exit_if_max_age_reached(phase_name)
+    return unless current_age >= max_age
+
+    record_yearly_status("Exited #{phase_name} due to reaching max age",
+                         return_sequence.get_return_for_age(current_age))
+  end
+
+  def annual_withdrawal_amount_taxable
+    desired_income
+  end
+
+  def annual_withdrawal_amount_tfsa
+    app_config["desired_spending"]
+  end
+
+  def desired_income
+    app_config["desired_spending"] + app_config["annual_tfsa_contribution"]
   end
 end

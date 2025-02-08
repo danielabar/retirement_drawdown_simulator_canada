@@ -3,10 +3,9 @@
 RSpec.describe SimulatorFormatter do
   subject(:simulator_formatter) { described_class.new(simulation_results, first_year_cash_flow_results) }
 
-  let(:config_path) { File.join(__dir__, "..", "fixtures", "example_input_minimal.yml") }
-  let(:plan) { RetirementPlan.new(config_path) }
-  let(:simulation_results) { Simulator.new(plan).run }
-  let(:first_year_cash_flow_results) { FirstYearCashFlow.new(plan).calculate }
+  let(:app_config) { AppConfig.new(File.join(__dir__, "..", "fixtures", "example_input_minimal.yml")) }
+  let(:simulation_results) { Simulator.new(app_config).run }
+  let(:first_year_cash_flow_results) { FirstYearCashFlow.new(app_config).calculate }
 
   it "prints exactly the expected output" do
     expected_output = <<~OUTPUT

@@ -15,4 +15,5 @@
 - What if you reach age 71 and there's still funds in RRSP -> forced to RRIF and minimum withdrawals
 - Ignoring complexity of partial withdrawals - a little left in one account but not enough to fund that years spending so have to go to next account
 - COMPLICATED: Cash cushion to drawdown in case of severe market downturn, but how to replenish? When market goes back up beyond average sell more to refill?
-- run simulation n times and calculate percentile distributions of ages reached
+- run simulation `n` times and calculate percentile distributions of ages reached
+  - variation: define "success" (eg: reach max age with at least 1x of desired_spending) and include in results if simulation was successful
