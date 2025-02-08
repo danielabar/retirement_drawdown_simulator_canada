@@ -3,6 +3,7 @@
 class ReturnSequence
   MAX_LOOP_ATTEMPTS = 200
 
+  # TODO: Validation? Would it be overkill to bring in ActiveModel?
   def initialize(start_age, max_age, avg, min, max)
     @start_age = start_age
     @max_age = max_age
