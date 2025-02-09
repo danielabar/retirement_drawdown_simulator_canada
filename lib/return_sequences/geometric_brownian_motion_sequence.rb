@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
 module ReturnSequences
+  # Generate a sequence of returns for ages between `@start_age` and `@max_age`
+  # using a Geometric Brownian Motion (GBM) model.
+  # Returns are calculated based on a drift term (`@avg`),
+  # and a volatility term (`sigma`), with random shocks (`z`) introduced at each age.
+  # The resulting sequence is returned as a hash with age as the key and return as the value.
   class GeometricBrownianMotionSequence < ReturnSequences::BaseSequence
     def get_return_for_age(age)
       @returns ||= generate_returns
