@@ -9,9 +9,6 @@ class SimulationEvaluator
   end
 
   # TODO: Extract formatter from simulator_formatter private format_currency so can re-use it in explanation
-  # TODO: Better explanation in failure case - comparing to what withdrawal amount
-  # NOTE: It's currently possible to end simulation before max age even if total across all accounts is enough
-  # for another year or so of spending, because program currently doesn't handle multi-account withdrawals in a year.
   def evaluate
     last_result = @simulation_results.last
     if last_result[:age] >= @max_age && last_result[:total_balance] >= success_threshold
@@ -23,20 +20,35 @@ class SimulationEvaluator
 
   private
 
-  # TODO: Rather than `note` which could also be something like `Exited TFSA Drawdown due to reaching max age`,
-  # should introduce a `phase_name` instead in simulation_results, then check that here.
-  # TODO: Use WithdrawalAmountCalculator here, and others that need annual withdrawal amounts (eg: simulator)
   def success_threshold
-    last_result = @simulation_results.last
-    case last_result[:note]
-    when /RRSP Drawdown/
-      @success_factor * @app_config["annual_withdrawal_amount_rrsp"]
-    when /Taxable Drawdown/
-      @success_factor * (@app_config["desired_spending"] + @app_config["annual_tfsa_contribution"])
-    when /TFSA Drawdown/
-      @success_factor * @app_config["desired_spending"]
-    else
-      raise "Unknown drawdown phase: #{last_result[:note]}"
+    case drawdown_phase
+    when :rrsp then rrsp_threshold
+    when :taxable then taxable_threshold
+    when :tfsa then tfsa_threshold
+    else raise "Unknown drawdown phase: #{drawdown_phase}"
     end
+  end
+
+  # TODO: Rather than `note` which could also be something like `Exited TFSA Drawdown due to reaching max age`,
+  # should introduce a `phase_name` instead in simulation_results, then check that here to allow for more precision.
+  def drawdown_phase
+    case @simulation_results.last[:note]
+    when /RRSP Drawdown/ then :rrsp
+    when /Taxable Drawdown/ then :taxable
+    when /TFSA Drawdown/ then :tfsa
+    end
+  end
+
+  # TODO: Use WithdrawalAmountCalculator to determine the withdrawal amount
+  def rrsp_threshold
+    @success_factor * @app_config["annual_withdrawal_amount_rrsp"]
+  end
+
+  def taxable_threshold
+    @success_factor * (@app_config["desired_spending"] + @app_config["annual_tfsa_contribution"])
+  end
+
+  def tfsa_threshold
+    @success_factor * @app_config["desired_spending"]
   end
 end
