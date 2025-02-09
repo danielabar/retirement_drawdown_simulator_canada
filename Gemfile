@@ -11,3 +11,4 @@ gem "rspec"
 gem "rspec-core"
 gem "rubocop", require: false
 gem "rubocop-rspec"
+gem "tty-progressbar"

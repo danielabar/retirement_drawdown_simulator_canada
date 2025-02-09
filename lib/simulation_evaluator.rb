@@ -11,6 +11,7 @@ class SimulationEvaluator
   # TODO: Better explanation in failure case - comparing to what withdrawal amount
   # TODO: Logic isn't quite right, showing failure on total_balance $64,964.96 but desired_spending in TFSA phase is 42_272
   # oh because program doesn't yet handle cascading withdrawals, ends if not enough balance in current phase account
+  # but there might actually be enough for another year or so across all accounts
   def evaluate
     last_result = @results.last
     if last_result[:age] >= @max_age && last_result[:total_balance] >= success_threshold
