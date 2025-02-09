@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# TODO: A single app runner, and input/config to decide whether to run one simulation with output or this multi-run
+# Also would be nice for total_runs to be configurable
 require_relative "config/environment"
 require "tty-progressbar"
 
