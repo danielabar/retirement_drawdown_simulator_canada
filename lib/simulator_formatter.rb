@@ -1,15 +1,17 @@
 # frozen_string_literal: true
 
 class SimulatorFormatter
-  def initialize(simulation_results, first_year_cash_flow_results)
+  def initialize(simulation_results, first_year_cash_flow_results, evaluator_results)
     @results = simulation_results
     @first_year_cash_flow_results = first_year_cash_flow_results
+    @evaluator_results = evaluator_results
   end
 
   def print_all
     print_first_year_cash_flow
     print_header
     print_yearly_results
+    print_simulation_evaluation
   end
 
   private
@@ -57,6 +59,12 @@ class SimulatorFormatter
       note: record[:note],
       rate_of_return: "#{(record[:rate_of_return] * 100).round(2)}%"
     )
+  end
+
+  def print_simulation_evaluation
+    puts "-" * 130
+    puts "Simulation Result: #{@evaluator_results[:success] ? 'Success' : 'Failure'}"
+    puts @evaluator_results[:explanation]
   end
 
   # TODO: Should there be a formatter class for this and rate_of_return formatting?
