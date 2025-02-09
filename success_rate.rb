@@ -8,7 +8,6 @@ app_config = AppConfig.new("inputs.yml")
 success_count = 0
 total_runs = 10_000
 
-# Create a visually appealing progress bar
 bar = TTY::ProgressBar.new("Simulating... [:bar] :percent",
                            total: total_runs,
                            bar_format: :smooth,
