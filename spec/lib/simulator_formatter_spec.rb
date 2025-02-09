@@ -12,8 +12,8 @@ RSpec.describe SimulatorFormatter do
   let(:evaluator_results) { SimulationEvaluator.new(simulation_results, app_config).evaluate }
   let(:first_year_cash_flow_results) { FirstYearCashFlow.new(app_config).calculate }
 
-  it "prints exactly the expected output" do
-    expected_output = <<~OUTPUT
+  let(:expected_output) do
+    <<~OUTPUT
       === First-Year Cash Flow Breakdown ===
       Desired Income Including TFSA Contribution: $30,010.00
       RRSP Withholding Tax: $10,140.00
@@ -32,7 +32,9 @@ RSpec.describe SimulatorFormatter do
       Simulation Result: Failure
       Simulation failed. Max age 75 not reached. Final age is 69.
     OUTPUT
+  end
 
+  it "prints exactly the expected output" do
     expect { simulator_formatter.print_all }.to output(expected_output).to_stdout
   end
 end
