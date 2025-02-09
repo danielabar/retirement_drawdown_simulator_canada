@@ -9,9 +9,8 @@ class SimulationEvaluator
 
   # TODO: Extract formatter from simulator_formatter private format_currency so can re-use it in explanation
   # TODO: Better explanation in failure case - comparing to what withdrawal amount
-  # TODO: Logic isn't quite right, showing failure on total_balance $64,964.96 but desired_spending in TFSA phase is 42_272
-  # oh because program doesn't yet handle cascading withdrawals, ends if not enough balance in current phase account
-  # but there might actually be enough for another year or so across all accounts
+  # NOTE: It's currently possible to end simulation before max age even if total across all accounts is enough
+  # for another year or so of spending, because program currently doesn't handle multi-account withdrawals in a given year.
   def evaluate
     last_result = @results.last
     if last_result[:age] >= @max_age && last_result[:total_balance] >= success_threshold
