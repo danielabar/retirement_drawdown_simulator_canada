@@ -67,7 +67,7 @@ class SimulatorFormatter
     puts @evaluator_results[:explanation]
   end
 
-  # TODO: Should there be a formatter class for this and rate_of_return formatting?
+  # TODO: Common numeric formatter
   def format_currency(amount)
     "$#{format('%.2f', amount).reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse}"
   end
