@@ -1,16 +1,12 @@
 # frozen_string_literal: true
 
 class Simulator
-  attr_reader :app_config, :retirement_age, :max_age, :return_sequence, :results, :rrsp_account, :taxable_account,
-              :tfsa_account
-
-  attr_accessor :current_age
-
   def initialize(app_config)
     @app_config = app_config
     @retirement_age = app_config["retirement_age"]
     @max_age = app_config["max_age"]
     @current_age = retirement_age
+    @withdrawal_amounts = WithdrawalAmounts.new(app_config)
 
     load_return_sequence
     load_accounts
@@ -19,13 +15,18 @@ class Simulator
   end
 
   def run
-    simulate_drawdown(rrsp_account, app_config["annual_withdrawal_amount_rrsp"], "RRSP Drawdown")
-    simulate_drawdown(taxable_account, annual_withdrawal_amount_taxable, "Taxable Drawdown")
-    simulate_drawdown(tfsa_account, annual_withdrawal_amount_tfsa, "TFSA Drawdown")
+    simulate_drawdown(rrsp_account, withdrawal_amounts.annual_rrsp, "RRSP Drawdown")
+    simulate_drawdown(taxable_account, withdrawal_amounts.annual_taxable, "Taxable Drawdown")
+    simulate_drawdown(tfsa_account, withdrawal_amounts.annual_tfsa, "TFSA Drawdown")
     results
   end
 
   private
+
+  attr_accessor :current_age
+
+  attr_reader :app_config, :retirement_age, :max_age, :return_sequence, :results, :rrsp_account, :taxable_account,
+              :tfsa_account, :withdrawal_amounts
 
   def load_return_sequence
     @return_sequence = ReturnSequences::SequenceSelector.new(app_config, retirement_age, max_age).select
@@ -89,17 +90,5 @@ class Simulator
 
     record_yearly_status("Exited #{phase_name} due to reaching max age",
                          return_sequence.get_return_for_age(current_age))
-  end
-
-  def annual_withdrawal_amount_taxable
-    desired_income
-  end
-
-  def annual_withdrawal_amount_tfsa
-    app_config["desired_spending"]
-  end
-
-  def desired_income
-    app_config["desired_spending"] + app_config["annual_tfsa_contribution"]
   end
 end
