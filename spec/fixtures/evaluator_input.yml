@@ -1,0 +1,5 @@
+success_factor: 1
+max_age: 95
+annual_withdrawal_amount_rrsp: 30_000
+desired_spending: 20_000
+annual_tfsa_contribution: 5_000
