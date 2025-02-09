@@ -42,7 +42,8 @@ RSpec.describe SimulationEvaluator do
       it "fails because total balance is less than the 1x RRSP withdrawal amount" do
         expect(evaluator.evaluate).to eq(
           success: false,
-          explanation: "Simulation failed. Max age reached, but total balance of 15000 is below success threshold of 30000."
+          explanation: "Simulation failed. Max age reached, but total balance of 15000 " \
+                       "is below success threshold of 30000."
         )
       end
     end
@@ -83,7 +84,8 @@ RSpec.describe SimulationEvaluator do
       it "fails because total balance is less than the 1x desired spending plus TFSA contribution" do
         expect(evaluator.evaluate).to eq(
           success: false,
-          explanation: "Simulation failed. Max age reached, but total balance of 5000 is below success threshold of 25000."
+          explanation: "Simulation failed. Max age reached, but total balance of 5000 " \
+                       "is below success threshold of 25000."
         )
       end
     end
@@ -124,7 +126,8 @@ RSpec.describe SimulationEvaluator do
       it "fails because total balance is less than 1x desired spending" do
         expect(evaluator.evaluate).to eq(
           success: false,
-          explanation: "Simulation failed. Max age reached, but total balance of 8000 is below success threshold of 20000."
+          explanation: "Simulation failed. Max age reached, but total balance of 8000 " \
+                       "is below success threshold of 20000."
         )
       end
     end
@@ -154,7 +157,8 @@ RSpec.describe SimulationEvaluator do
       it "fails because total balance is less than 1.5x withdrawal amount" do
         expect(evaluator.evaluate).to eq(
           success: false,
-          explanation: "Simulation failed. Max age reached, but total balance of 40000 is below success threshold of 45000.0."
+          explanation: "Simulation failed. Max age reached, but total balance of 40000 " \
+                       "is below success threshold of 45000.0."
         )
       end
     end
