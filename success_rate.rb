@@ -5,10 +5,10 @@
 require_relative "config/environment"
 require "tty-progressbar"
 
-app_config = AppConfig.new("inputs.yml")
+app_config = AppConfig.new("inputs_fire.yml")
 
 success_count = 0
-total_runs = 10_000
+total_runs = 5_000
 
 bar = TTY::ProgressBar.new("Simulating... [:bar] :percent",
                            total: total_runs,

@@ -19,7 +19,7 @@ class SimulatorFormatter
   def print_first_year_cash_flow
     puts "=== First-Year Cash Flow Breakdown ==="
     @first_year_cash_flow_results.each do |label, value|
-      puts "#{label}: #{format_currency(value)}"
+      puts "#{label}: #{NumericFormatter.format_currency(value)}"
     end
     puts "-" * 130
   end
@@ -52,12 +52,12 @@ class SimulatorFormatter
     format(
       "%<age>-10d %<rrsp>-20s %<tfsa>-20s %<taxable>-20s %<total_balance>-20s %<note>-20s %<rate_of_return>10s",
       age: record[:age],
-      rrsp: format_currency(record[:rrsp_balance]),
-      tfsa: format_currency(record[:tfsa_balance]),
-      taxable: format_currency(record[:taxable_balance]),
-      total_balance: format_currency(record[:total_balance]), # Display the total balance
+      rrsp: NumericFormatter.format_currency(record[:rrsp_balance]),
+      tfsa: NumericFormatter.format_currency(record[:tfsa_balance]),
+      taxable: NumericFormatter.format_currency(record[:taxable_balance]),
+      total_balance: NumericFormatter.format_currency(record[:total_balance]),
       note: record[:note],
-      rate_of_return: "#{(record[:rate_of_return] * 100).round(2)}%"
+      rate_of_return: NumericFormatter.format_percentage(record[:rate_of_return])
     )
   end
 
@@ -65,10 +65,5 @@ class SimulatorFormatter
     puts "-" * 130
     puts "Simulation Result: #{@evaluator_results[:success] ? 'Success' : 'Failure'}"
     puts @evaluator_results[:explanation]
-  end
-
-  # TODO: Common numeric formatter
-  def format_currency(amount)
-    "$#{format('%.2f', amount).reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse}"
   end
 end

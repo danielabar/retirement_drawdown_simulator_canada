@@ -29,13 +29,13 @@ class SimulationEvaluator
     { success: false, explanation: "Simulation failed. Max age #{@max_age} not reached. Final age is #{age}." }
   end
 
-  # TODO: Common numeric formatter
   def build_explanation(status, total_balance, threshold = nil)
     if status == "successful"
-      "Simulation #{status} with total balance of #{total_balance}."
+      "Simulation #{status} with total balance of #{NumericFormatter.format_currency(total_balance)}."
     else
-      "Simulation #{status}. Max age reached, but total balance of #{total_balance} " \
-        "is below success threshold of #{threshold}."
+      "Simulation #{status}. Max age reached, but total balance of " \
+        "#{NumericFormatter.format_currency(total_balance)} is below success " \
+        "threshold of #{NumericFormatter.format_currency(threshold)}."
     end
   end
 
@@ -48,7 +48,6 @@ class SimulationEvaluator
     end
   end
 
-  # TODO: Would be better for results to have a discrete `phase` rather than having to regex match on `note`
   def drawdown_phase
     case @simulation_results.last[:note]
     when /RRSP Drawdown/ then :rrsp

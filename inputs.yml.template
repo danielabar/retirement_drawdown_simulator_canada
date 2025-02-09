@@ -18,9 +18,16 @@ success_factor: 1
 return_sequence_type: constant
 
 # Assume we'll continue to make TFSA contributions during RRSP and Taxable drawdown phases
+# If you don't want to do this, set to 0
 annual_tfsa_contribution: 7000
 
-# After tax amount, eg: variable + fixed + lumpy
+# After tax amount you need per year in retirement
+# To get an accurate number here, you should track your spending for at least a year
+# Or review a year's worth of past credit card statements and other sources of spending.
+# Add up:
+#   1. Variable spending (groceries, personal, entertainment, travel, etc.)
+#   2. Fixed spending (any constant recurring payments)
+#   3. Lumpy (eg: new car, replace roof, replace appliances etc. only happen every few years so divide amount by how many years expense occurs)
 desired_spending: 40000
 
 # Have to withdraw more than desired_spending + tfsa contribution to account for taxes
@@ -41,6 +48,7 @@ accounts:
 # In subsequent years, the previous year's tax refund will be used to fund part of next years spending.
 # Tax calculator: https://www.eytaxcalculators.com/en/2025-personal-tax-calculator.html
 # RRSP Withholding tax: https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/rrsps-related-plans/making-withdrawals/tax-rates-on-withdrawals.html
+# Assumption is you'll be withdrawing at least 15K which lands in 30% withholding tax.
 taxes:
   rrsp_withholding_rate: 0.3
   actual_tax_bill: 6360

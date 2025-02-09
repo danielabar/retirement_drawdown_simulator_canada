@@ -16,7 +16,7 @@ RSpec.describe SimulationEvaluator do
       it "is successful because max age reached and total bal is >= 1x RRSP withdrawal amount" do
         expect(evaluator.evaluate).to eq(
           success: true,
-          explanation: "Simulation successful with total balance of 30000."
+          explanation: "Simulation successful with total balance of $30,000.00."
         )
       end
     end
@@ -42,8 +42,8 @@ RSpec.describe SimulationEvaluator do
       it "fails because total balance is less than the 1x RRSP withdrawal amount" do
         expect(evaluator.evaluate).to eq(
           success: false,
-          explanation: "Simulation failed. Max age reached, but total balance of 15000 " \
-                       "is below success threshold of 30000."
+          explanation: "Simulation failed. Max age reached, but total balance of $15,000.00 " \
+                       "is below success threshold of $30,000.00."
         )
       end
     end
@@ -58,7 +58,7 @@ RSpec.describe SimulationEvaluator do
       it "is successful because max age reached and total bal >= 1x desired spending plus TFSA contribution" do
         expect(evaluator.evaluate).to eq(
           success: true,
-          explanation: "Simulation successful with total balance of 80000."
+          explanation: "Simulation successful with total balance of $80,000.00."
         )
       end
     end
@@ -84,8 +84,8 @@ RSpec.describe SimulationEvaluator do
       it "fails because total balance is less than the 1x desired spending plus TFSA contribution" do
         expect(evaluator.evaluate).to eq(
           success: false,
-          explanation: "Simulation failed. Max age reached, but total balance of 5000 " \
-                       "is below success threshold of 25000."
+          explanation: "Simulation failed. Max age reached, but total balance of $5,000.00 " \
+                       "is below success threshold of $25,000.00."
         )
       end
     end
@@ -100,7 +100,7 @@ RSpec.describe SimulationEvaluator do
       it "is successful because max age reached and total bal >= 1x desired spending" do
         expect(evaluator.evaluate).to eq(
           success: true,
-          explanation: "Simulation successful with total balance of 60000."
+          explanation: "Simulation successful with total balance of $60,000.00."
         )
       end
     end
@@ -126,8 +126,8 @@ RSpec.describe SimulationEvaluator do
       it "fails because total balance is less than 1x desired spending" do
         expect(evaluator.evaluate).to eq(
           success: false,
-          explanation: "Simulation failed. Max age reached, but total balance of 8000 " \
-                       "is below success threshold of 20000."
+          explanation: "Simulation failed. Max age reached, but total balance of $8,000.00 " \
+                       "is below success threshold of $20,000.00."
         )
       end
     end
@@ -143,7 +143,7 @@ RSpec.describe SimulationEvaluator do
       it "requires a total balance of 1.5x the withdrawal amount to succeed" do
         expect(evaluator.evaluate).to eq(
           success: true,
-          explanation: "Simulation successful with total balance of 45000."
+          explanation: "Simulation successful with total balance of $45,000.00."
         )
       end
     end
@@ -157,8 +157,8 @@ RSpec.describe SimulationEvaluator do
       it "fails because total balance is less than 1.5x withdrawal amount" do
         expect(evaluator.evaluate).to eq(
           success: false,
-          explanation: "Simulation failed. Max age reached, but total balance of 40000 " \
-                       "is below success threshold of 45000.0."
+          explanation: "Simulation failed. Max age reached, but total balance of $40,000.00 " \
+                       "is below success threshold of $45,000.00."
         )
       end
     end
@@ -172,7 +172,7 @@ RSpec.describe SimulationEvaluator do
       it "requires a total balance of 2x the withdrawal amount to succeed" do
         expect(evaluator.evaluate).to eq(
           success: true,
-          explanation: "Simulation successful with total balance of 60000."
+          explanation: "Simulation successful with total balance of $60,000.00."
         )
       end
     end
