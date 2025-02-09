@@ -13,7 +13,7 @@ RSpec.describe SimulationEvaluator do
         [{ age: 95, total_balance: 30_000, note: "RRSP Drawdown" }]
       end
 
-      it "is successful because max_age reached and total bal is >= 1x RRSP withdrawal amount" do
+      it "is successful because max age reached and total bal is >= 1x RRSP withdrawal amount" do
         expect(evaluator.evaluate).to eq(
           success: true,
           explanation: "Simulation successful with total balance of 30000."
@@ -29,7 +29,7 @@ RSpec.describe SimulationEvaluator do
       it "fails because max age was not reached" do
         expect(evaluator.evaluate).to eq(
           success: false,
-          explanation: "Simulation failed. Max age reached without sufficient balance."
+          explanation: "Simulation failed. Max age 95 not reached. Final age is 80."
         )
       end
     end
@@ -42,7 +42,7 @@ RSpec.describe SimulationEvaluator do
       it "fails because total balance is less than the 1x RRSP withdrawal amount" do
         expect(evaluator.evaluate).to eq(
           success: false,
-          explanation: "Simulation failed. Max age reached without sufficient balance."
+          explanation: "Simulation failed. Max age reached, but total balance of 15000 is below success threshold of 30000."
         )
       end
     end
@@ -70,7 +70,7 @@ RSpec.describe SimulationEvaluator do
       it "fails because max age was not reached" do
         expect(evaluator.evaluate).to eq(
           success: false,
-          explanation: "Simulation failed. Max age reached without sufficient balance."
+          explanation: "Simulation failed. Max age 95 not reached. Final age is 85."
         )
       end
     end
@@ -83,7 +83,7 @@ RSpec.describe SimulationEvaluator do
       it "fails because total balance is less than the 1x desired spending plus TFSA contribution" do
         expect(evaluator.evaluate).to eq(
           success: false,
-          explanation: "Simulation failed. Max age reached without sufficient balance."
+          explanation: "Simulation failed. Max age reached, but total balance of 5000 is below success threshold of 25000."
         )
       end
     end
@@ -111,7 +111,7 @@ RSpec.describe SimulationEvaluator do
       it "fails because max age was not reached" do
         expect(evaluator.evaluate).to eq(
           success: false,
-          explanation: "Simulation failed. Max age reached without sufficient balance."
+          explanation: "Simulation failed. Max age 95 not reached. Final age is 80."
         )
       end
     end
@@ -124,7 +124,7 @@ RSpec.describe SimulationEvaluator do
       it "fails because total balance is less than 1x desired spending" do
         expect(evaluator.evaluate).to eq(
           success: false,
-          explanation: "Simulation failed. Max age reached without sufficient balance."
+          explanation: "Simulation failed. Max age reached, but total balance of 8000 is below success threshold of 20000."
         )
       end
     end
@@ -154,7 +154,7 @@ RSpec.describe SimulationEvaluator do
       it "fails because total balance is less than 1.5x withdrawal amount" do
         expect(evaluator.evaluate).to eq(
           success: false,
-          explanation: "Simulation failed. Max age reached without sufficient balance."
+          explanation: "Simulation failed. Max age reached, but total balance of 40000 is below success threshold of 45000.0."
         )
       end
     end

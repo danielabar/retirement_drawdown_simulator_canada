@@ -8,17 +8,35 @@ class SimulationEvaluator
     @max_age = app_config["max_age"]
   end
 
-  # TODO: Extract formatter from simulator_formatter private format_currency so can re-use it in explanation
   def evaluate
     last_result = @simulation_results.last
-    if last_result[:age] >= @max_age && last_result[:total_balance] >= success_threshold
-      { success: true, explanation: "Simulation successful with total balance of #{last_result[:total_balance]}." }
-    else
-      { success: false, explanation: "Simulation failed. Max age reached without sufficient balance." }
-    end
+    return failure_due_to_max_age(last_result[:age]) if last_result[:age] < @max_age
+
+    success_or_failure_based_on_balance(last_result)
   end
 
   private
+
+  def success_or_failure_based_on_balance(last_result)
+    if last_result[:total_balance] >= success_threshold
+      { success: true, explanation: build_explanation("successful", last_result[:total_balance]) }
+    else
+      { success: false, explanation: build_explanation("failed", last_result[:total_balance], success_threshold) }
+    end
+  end
+
+  def failure_due_to_max_age(age)
+    { success: false, explanation: "Simulation failed. Max age #{@max_age} not reached. Final age is #{age}." }
+  end
+
+  def build_explanation(status, total_balance, threshold = nil)
+    if status == "successful"
+      "Simulation #{status} with total balance of #{total_balance}."
+    else
+      "Simulation #{status}. Max age reached, but total balance of #{total_balance} " \
+        "is below success threshold of #{threshold}."
+    end
+  end
 
   def success_threshold
     case drawdown_phase
@@ -29,8 +47,6 @@ class SimulationEvaluator
     end
   end
 
-  # TODO: Rather than `note` which could also be something like `Exited TFSA Drawdown due to reaching max age`,
-  # should introduce a `phase_name` instead in simulation_results, then check that here to allow for more precision.
   def drawdown_phase
     case @simulation_results.last[:note]
     when /RRSP Drawdown/ then :rrsp
@@ -39,7 +55,6 @@ class SimulationEvaluator
     end
   end
 
-  # TODO: Use WithdrawalAmountCalculator to determine the withdrawal amount
   def rrsp_threshold
     @success_factor * @app_config["annual_withdrawal_amount_rrsp"]
   end
