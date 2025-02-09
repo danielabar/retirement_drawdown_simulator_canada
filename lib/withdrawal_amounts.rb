@@ -10,7 +10,7 @@ class WithdrawalAmounts
   end
 
   def annual_taxable
-    app_config["desired_spending"] + @app_config["annual_tfsa_contribution"]
+    app_config["desired_spending"] + app_config["annual_tfsa_contribution"]
   end
 
   def annual_tfsa

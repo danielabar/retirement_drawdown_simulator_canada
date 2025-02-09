@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class FirstYearCashFlow
-  attr_reader :app_config
-
   def initialize(app_config)
     @app_config = app_config
   end
@@ -18,6 +16,8 @@ class FirstYearCashFlow
   end
 
   private
+
+  attr_reader :app_config
 
   def desired_income
     app_config["desired_spending"] + app_config["annual_tfsa_contribution"]

@@ -4,6 +4,7 @@ class SimulationEvaluator
   def initialize(simulation_results, app_config)
     @simulation_results = simulation_results
     @app_config = app_config
+    @withdrawal_amounts = WithdrawalAmounts.new(app_config)
     @success_factor = app_config["success_factor"]
     @max_age = app_config["max_age"]
   end
@@ -16,6 +17,8 @@ class SimulationEvaluator
   end
 
   private
+
+  attr_reader :withdrawal_amounts
 
   def success_or_failure_based_on_balance(last_result)
     if last_result[:total_balance] >= success_threshold
@@ -57,14 +60,14 @@ class SimulationEvaluator
   end
 
   def rrsp_threshold
-    @success_factor * @app_config["annual_withdrawal_amount_rrsp"]
+    @success_factor * withdrawal_amounts.annual_rrsp
   end
 
   def taxable_threshold
-    @success_factor * (@app_config["desired_spending"] + @app_config["annual_tfsa_contribution"])
+    @success_factor * withdrawal_amounts.annual_taxable
   end
 
   def tfsa_threshold
-    @success_factor * @app_config["desired_spending"]
+    @success_factor * withdrawal_amounts.annual_tfsa
   end
 end
