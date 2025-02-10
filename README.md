@@ -14,7 +14,7 @@ You can also run the same scenario over and over with different options for rand
 
 ## Why I Built This
 
-When I started looking for a basic tool to simulate a retirement drawdown in Canada, I couldn’t find anything — just advice to hire a financial planner. While professional guidance is valuable, a simple, transparent tool should exist for those who want to see how long their savings might last under a simple strategy.
+When I started looking for a basic tool to simulate a retirement drawdown in Canada, I couldn’t find anything — just advice to hire a financial planner. While professional guidance is valuable, a simple, transparent tool should exist for those who want to see how long their savings might last under a simple strategy. But something that considered initial withdrawals from an RRSP have to be higher than desired spending to account for taxes. Because RRSP withdrawals count as income and are subject to federal and provincial income tax.
 
 Specifically, this tool could be useful for someone who has three accounts from which they wish to drawdown in retirement: an RRSP, taxable account, and TFSA. It assumes the same investments are held in all of them so the same rate of return can be applied.
 

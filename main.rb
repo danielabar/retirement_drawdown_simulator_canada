@@ -2,4 +2,4 @@
 
 require_relative "config/environment"
 
-AppRunner.new("inputs_example.yml", ARGV[0]).run
+Run::AppRunner.new("inputs.yml", ARGV[0]).run
