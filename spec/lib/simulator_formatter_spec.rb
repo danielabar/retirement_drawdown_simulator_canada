@@ -3,14 +3,17 @@
 require_relative "../spec_helper"
 
 RSpec.describe SimulatorFormatter do
-  subject(:simulator_formatter) { described_class.new(simulation_results, first_year_cash_flow_results) }
+  subject(:simulator_formatter) do
+    described_class.new(simulation_results, first_year_cash_flow_results, evaluator_results)
+  end
 
   let(:app_config) { AppConfig.new(File.join(__dir__, "..", "fixtures", "example_input_minimal.yml")) }
   let(:simulation_results) { Simulator.new(app_config).run }
+  let(:evaluator_results) { SimulationEvaluator.new(simulation_results, app_config).evaluate }
   let(:first_year_cash_flow_results) { FirstYearCashFlow.new(app_config).calculate }
 
-  it "prints exactly the expected output" do
-    expected_output = <<~OUTPUT
+  let(:expected_output) do
+    <<~OUTPUT
       === First-Year Cash Flow Breakdown ===
       Desired Income Including TFSA Contribution: $30,010.00
       RRSP Withholding Tax: $10,140.00
@@ -25,8 +28,13 @@ RSpec.describe SimulatorFormatter do
       67         $13,120.53           $30,939.63           $31,507.96           $75,568.12           Taxable Drawdown           1.0%
       68         $13,251.73           $31,259.13           $1,512.94            $46,023.80           Taxable Drawdown           1.0%
       69         $13,384.25           $1,271.72            $1,528.07            $16,184.04           TFSA Drawdown              1.0%
+      ----------------------------------------------------------------------------------------------------------------------------------
+      Simulation Result: Failure
+      Simulation failed. Max age 75 not reached. Final age is 69.
     OUTPUT
+  end
 
+  it "prints exactly the expected output" do
     expect { simulator_formatter.print_all }.to output(expected_output).to_stdout
   end
 end
