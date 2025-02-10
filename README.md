@@ -8,7 +8,7 @@ This is a simple retirement drawdown calculator for Canadians. It models the fol
 
 The idea being to drain the RRSP as quickly as possible to avoid mandatory RRIF withdrawals at age 71, with potential large tax liability. Although there's a trade-off in needing to withdraw more earlier for additional TFSA contributions can increase your tax bracket. This application let's you try out different scenarios to see what works best for you.
 
-It also models your first year of RRSP withdrawal and why you may need an additional cash buffer to cover some shortfall. See [first_year.md](first_year.md) for further details.
+It also models your first year of RRSP withdrawal and why you may need an additional cash buffer to cover some shortfall. See [First Year Shortfall](docs/first_year.md) for further details.
 
 You can also run the same scenario over and over with different options for randomized returns, to see what your chances of success are.
 
@@ -18,7 +18,7 @@ When I started looking for a basic tool to simulate a retirement drawdown in Can
 
 Specifically, this tool could be useful for someone who has three accounts from which they wish to drawdown in retirement: an RRSP, taxable account, and TFSA. It assumes the same investments are held in all of them so the same rate of return can be applied.
 
-There are many assumptions and some things such as RRIF withdrawals, capital gains, and CPP are not handled, although planned. See [TODO.md](TODO.md) for more details.
+There are many assumptions and some things such as RRIF withdrawals, capital gains, and CPP are not handled, although planned. See the [roadmap](docs/roadmap.md) for more details.
 
 ### Disclaimer ⚠️
 
@@ -66,7 +66,7 @@ Run the script with:
 ruby main.rb
 ```
 
-The output will display a table showing account balances each year until depletion.
+The output will display a table showing account balances each year until depletion, and whether your plan was successful or failed.
 
 Or to run the simulation multiple times to see what percentage of scenarios are successful, run:
 
@@ -264,7 +264,7 @@ Success is defined as making it to `max_age` with at least `success_factor` * an
 
 For example, suppose `max_age` is `105`, `desired_spending` is `40000` and success_factor is `1.5`. Then if the scenario shows that there's still 40000 * 1.5 = `$60,000` left by age `105`, this is considered a success.
 
-> [!IMPORTANT]
+> [!NOTE]
 > The 4% rule research considers reaching the end of life with even just `$1.00` a "success". Realistically, most people would be freaking out if they were getting on in their 90's and their account balance was dwindling down like that.
 
 ### ⚠️ Important: Keep `inputs.yml` Private
