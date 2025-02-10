@@ -50,11 +50,13 @@ desired_spending: 40000
 # Use a tax calculator to figure this out: https://www.eytaxcalculators.com/en/2025-personal-tax-calculator.html
 annual_withdrawal_amount_rrsp: 56000
 
-# Starting account balances
+# Starting account balances.
+# Set cash_cushion balance to 0 if you don't want to use it
 accounts:
   rrsp: 600000
   taxable: 400000
   tfsa: 120000
+  cash_cushion: 40000
 
 # Taxes
 # Withholding tax may be greater than your actual tax bill, you'll get a refund when you file your taxes.

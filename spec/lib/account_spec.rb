@@ -64,5 +64,14 @@ RSpec.describe Account do
         expect(account.balance).to be_within(0.01).of(9_000.00)
       end
     end
+
+    context "when initialized with a given rate" do
+      let(:account) { described_class.new(initial_balance, 0.03) }
+
+      it "uses the given_rate instead of the provided rate" do
+        account.apply_growth(0.05) # Should use 0.03 instead
+        expect(account.balance).to be_within(0.01).of(10_300.00)
+      end
+    end
   end
 end

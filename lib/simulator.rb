@@ -33,11 +33,30 @@ class Simulator
   end
 
   def load_accounts
+    load_rrsp_account
+    load_taxable_account
+    load_tfsa_account
+    load_cash_cushion
+  end
+
+  def load_rrsp_account
     @rrsp_account = Account.new(app_config.accounts["rrsp"])
+  end
+
+  def load_taxable_account
     @taxable_account = Account.new(app_config.accounts["taxable"])
+  end
+
+  def load_tfsa_account
     @tfsa_account = Account.new(app_config.accounts["tfsa"])
   end
 
+  def load_cash_cushion
+    @cash_cushion = Account.new(app_config.accounts["cash_cushion"], app_config.annual_growth_rate["savings"])
+  end
+
+  # TODO: Will need to know `current_return = return_sequence.get_return_for_age(current_age)`
+  # before transacting, but only if there is a cash cushion and it has sufficient balance.
   def simulate_drawdown(account, withdrawal_amount, phase_name)
     while account.balance >= withdrawal_amount && current_age < max_age
       process_year(account, withdrawal_amount, phase_name)
