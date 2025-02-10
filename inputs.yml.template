@@ -1,27 +1,41 @@
+# Mode can be 'detailed' for a single run with detailed output, or 'success_rate'
+mode: detailed
+
+# For success_rate mode
+total_runs: 5000
+
 # Age at which you plan to start retirement
 retirement_age: 60
 
 # Max age to prevent infinite loops
-max_age: 120
-
-# Growth rate average, min, and max to generate variability
-annual_growth_rate:
-  average: 0.03
-  min: -0.3
-  max: 0.3
+max_age: 105
 
 # Success factor: defines the multiplier for total_balance needed by max_age for success.
 # Supports fractional, eg: 1.5
 success_factor: 1
 
+# Growth rate average, min, and max to generate variability
+# Enter the "real" return rather than nominal as inflation isn't handled currently.
+# For example if you're invested in broad market index funds or ETF's and using
+# an average return of 8%, but inflation is around 3%, then put 5% real return here.
+# The min and max are to constrain volatility. For example the market has dropped
+# by 30% and has grown by that much as well.
+annual_growth_rate:
+  average: 0.05
+  min: -0.3
+  max: 0.3
+
 # Choose the return sequence generator: mean, geometric_brownian_motion, constant
-return_sequence_type: constant
+# If using `success_rate` mode, then choose either `mean` or `geometric_brownian_motion`
+# `constant` returns are conceptually easy to understand, and produce pleasing predictable results,
+# but are unrealistic as the market doesn't actually do this.
+return_sequence_type: geometric_brownian_motion
 
 # Assume we'll continue to make TFSA contributions during RRSP and Taxable drawdown phases
 # If you don't want to do this, set to 0
 annual_tfsa_contribution: 7000
 
-# After tax amount you need per year in retirement
+# After tax amount you need per year in retirement (NOT including TFSA contribution, this is your spending number).
 # To get an accurate number here, you should track your spending for at least a year
 # Or review a year's worth of past credit card statements and other sources of spending.
 # Add up:
