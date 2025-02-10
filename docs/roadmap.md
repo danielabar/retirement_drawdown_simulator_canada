@@ -25,6 +25,7 @@
 
 ## Refactor
 
+- right-align numbers in output table
 - test coverage
 - CI
 - `simulation_formatter` could be better named `simulation_printer`
