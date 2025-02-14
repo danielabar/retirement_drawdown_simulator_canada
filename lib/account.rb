@@ -2,9 +2,10 @@
 
 class Account
   # TODO: Should be read-only for public access?
-  attr_accessor :balance
+  attr_accessor :name, :balance
 
-  def initialize(balance, given_rate = nil)
+  def initialize(name, balance, given_rate = nil)
+    @name = name
     @balance = balance
     @given_rate = given_rate
   end

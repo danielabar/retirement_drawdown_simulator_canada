@@ -19,12 +19,16 @@
 - Transaction costs (RRSP withdrawal fee, TFSA withdrawal fee, ETF selling commission)
 - During RRSP drawdown phase, taxable account is growing, and distributions are taxable (T3 issued)
 - What if you reach age 71 and there's still funds in RRSP -> forced to RRIF and minimum withdrawals
+- visual/chart https://github.com/red-data-tools/unicode_plot.rb and https://red-data-tools.github.io/unicode_plot.rb/0.0.5/ of returns, and total_balance over time
+- support choice of multiple drawdown strategies
 - validation on loading AppConfig, consider bringing in ActiveModel for this, and easier to access attributes via `.` rather than `[...]`.
 - make it easier to specify alternate input files
+- support choice of output types, currently its only ConsolePrinter
 - Replay a particular sequence with alternate inputs
 
 ## Refactor
 
+- should AppConfig load/reference instance of all other classes needed, to simplify and not need loading code, such as accounts elsewhere?
 - right-align numbers in output table
 - test coverage
 - CI

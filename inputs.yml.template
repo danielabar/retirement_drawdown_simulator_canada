@@ -20,10 +20,12 @@ success_factor: 1
 # an average return of 8%, but inflation is around 3%, then put 5% real return here.
 # The min and max are to constrain volatility. For example the market has dropped
 # by 30% and has grown by that much as well.
+# Set a downturn_threshold so if market return is below this amount, use cash_cushion.
 annual_growth_rate:
   average: 0.05
   min: -0.3
   max: 0.3
+  downturn_threshold: -0.2
 
 # Choose the return sequence generator: mean, geometric_brownian_motion, constant
 # If using `success_rate` mode, then choose either `mean` or `geometric_brownian_motion`
@@ -32,7 +34,7 @@ annual_growth_rate:
 return_sequence_type: geometric_brownian_motion
 
 # Assume we'll continue to make TFSA contributions during RRSP and Taxable drawdown phases
-# If you don't want to do this, set to 0
+# If you don't want to make any TFSA contributions during drawdown, set this to 0.
 annual_tfsa_contribution: 7000
 
 # After tax amount you need per year in retirement (NOT including TFSA contribution, this is your spending number).
@@ -44,8 +46,8 @@ annual_tfsa_contribution: 7000
 #   3. Lumpy (eg: new car, replace roof, replace appliances etc. only happen every few years so divide amount by how many years expense occurs)
 desired_spending: 40000
 
-# Have to withdraw more than desired_spending + tfsa contribution to account for taxes
-# Add up your desired_spending and annual_tfsa_contribution, then figure out how much you'd actually need
+# Have to withdraw more than desired_spending (and optional tfsa contribution) to account for taxes
+# Add up your desired_spending (and annual_tfsa_contribution if making), then figure out how much you'd actually need
 # to withdraw to be left with desired_spending + annual_tfsa_contribution
 # Use a tax calculator to figure this out: https://www.eytaxcalculators.com/en/2025-personal-tax-calculator.html
 annual_withdrawal_amount_rrsp: 56000

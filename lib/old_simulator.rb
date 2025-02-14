@@ -26,7 +26,7 @@ class Simulator
   attr_accessor :current_age
 
   attr_reader :app_config, :retirement_age, :max_age, :return_sequence, :results, :rrsp_account, :taxable_account,
-              :tfsa_account, :withdrawal_amounts
+              :tfsa_account, :withdrawal_amounts, :cash_cushion
 
   def load_return_sequence
     @return_sequence = ReturnSequences::SequenceSelector.new(app_config, retirement_age, max_age).select
@@ -59,16 +59,36 @@ class Simulator
   # before transacting, but only if there is a cash cushion and it has sufficient balance.
   def simulate_drawdown(account, withdrawal_amount, phase_name)
     while account.balance >= withdrawal_amount && current_age < max_age
-      process_year(account, withdrawal_amount, phase_name)
+      # process_year(account, withdrawal_amount, phase_name)
+      process_year(phase_name)
     end
     record_exit_if_max_age_reached(phase_name)
   end
 
-  def process_year(account, withdrawal_amount, phase_name)
-    account.withdraw(withdrawal_amount)
+  # def process_year(account, withdrawal_amount, phase_name)
+  #   account.withdraw(withdrawal_amount)
+  #   handle_tfsa_contribution(phase_name)
+  #   current_return = apply_growth
+  #   record_yearly_status(phase_name, current_return)
+  #   self.current_age += 1
+  # end
+  def process_year(phase_name)
+    current_return = return_sequence.get_return_for_age(current_age)
+
+    spending_strategy = SpendingStrategy.new(
+      cash_cushion,
+      { rrsp: rrsp_account, taxable: taxable_account, tfsa: tfsa_account },
+      withdrawal_amounts, # Inject the WithdrawalAmounts instance
+      app_config.taxes["rrsp_withholding_rate"],
+      app_config.annual_growth_rate["downturn_threshold"]
+    )
+
+    spending_strategy.execute(current_return, phase_name)
+
     handle_tfsa_contribution(phase_name)
-    current_return = apply_growth
+    apply_growth
     record_yearly_status(phase_name, current_return)
+
     self.current_age += 1
   end
 

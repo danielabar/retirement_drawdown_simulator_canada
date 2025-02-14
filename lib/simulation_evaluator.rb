@@ -51,11 +51,13 @@ class SimulationEvaluator
     end
   end
 
+  # TODO: Does it even make sense to match on note?
+  # Maybe should have something more precise to indicate what phase we were in?
   def drawdown_phase
     case @simulation_results.last[:note]
-    when /RRSP Drawdown/ then :rrsp
-    when /Taxable Drawdown/ then :taxable
-    when /TFSA Drawdown/ then :tfsa
+    when /rrsp/ then :rrsp
+    when /taxable/ then :taxable
+    when /tfsa/ then :tfsa
     end
   end
 
