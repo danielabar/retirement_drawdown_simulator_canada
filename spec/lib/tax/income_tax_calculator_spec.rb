@@ -33,5 +33,13 @@ RSpec.describe Tax::IncomeTaxCalculator do
         expect(result[:federal_tax]).to be_within(1).of(3_580.00)
       end
     end
+
+    context "when unknown province code" do
+      let(:province_code) { "ZZ" }
+
+      it "raises an error" do
+        expect { calculator.calculate(gross_income, province_code) }.to raise_error(ArgumentError)
+      end
+    end
   end
 end
