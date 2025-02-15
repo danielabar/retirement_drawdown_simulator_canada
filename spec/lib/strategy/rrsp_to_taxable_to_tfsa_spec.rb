@@ -133,4 +133,20 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
       end
     end
   end
+
+  describe "#total_balance" do
+    it "includes the cash cushion balance in the total balance" do
+      # 80,000 (RRSP) + 60,000 (Taxable) + 30,000 (TFSA) + 30,000 (Cash Cushion)
+      expect(strategy.total_balance).to eq(200_000)
+    end
+
+    context "when cash cushion balance is zero" do
+      before { strategy.cash_cushion.withdraw(30_000) } # Empty cash cushion
+
+      it "does not include the cash cushion balance when it's zero" do
+        # 80,000 (RRSP) + 60,000 (Taxable) + 30,000 (TFSA)
+        expect(strategy.total_balance).to eq(170_000)
+      end
+    end
+  end
 end

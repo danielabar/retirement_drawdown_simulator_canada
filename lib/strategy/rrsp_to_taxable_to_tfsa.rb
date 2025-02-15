@@ -31,7 +31,7 @@ module Strategy
     end
 
     def total_balance
-      rrsp_account.balance + taxable_account.balance + tfsa_account.balance
+      rrsp_account.balance + taxable_account.balance + tfsa_account.balance + cash_cushion.balance
     end
 
     private
