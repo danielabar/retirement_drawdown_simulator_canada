@@ -31,9 +31,7 @@ module Simulation
     end
 
     def formatted_header
-      format(
-        "%<age>-10s %<rrsp>-20s %<tfsa>-20s %<taxable>-20s %<cash_cushion>-20s " \
-        "%<total_balance>-20s %<note>-20s %<rate_of_return>10s",
+      format_header_string(
         age: "Age",
         rrsp: "RRSP",
         tfsa: "TFSA",
@@ -52,9 +50,7 @@ module Simulation
     end
 
     def formatted_yearly_result(record)
-      format(
-        "%<age>-10d %<rrsp>-20s %<tfsa>-20s %<taxable>-20s %<cash_cushion>-20s " \
-        "%<total_balance>-20s %<note>-20s %<rate_of_return>10s",
+      format_header_string(
         age: record[:age],
         rrsp: NumericFormatter.format_currency(record[:rrsp_balance]),
         tfsa: NumericFormatter.format_currency(record[:tfsa_balance]),
@@ -63,6 +59,14 @@ module Simulation
         total_balance: NumericFormatter.format_currency(record[:total_balance]),
         note: record[:note],
         rate_of_return: NumericFormatter.format_percentage(record[:rate_of_return])
+      )
+    end
+
+    def format_header_string(values)
+      format(
+        "%<age>-10s %<rrsp>-20s %<tfsa>-20s %<taxable>-20s %<cash_cushion>-20s " \
+        "%<total_balance>-20s %<note>-20s %<rate_of_return>10s",
+        values
       )
     end
 
