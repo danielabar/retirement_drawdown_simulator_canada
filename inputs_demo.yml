@@ -1,0 +1,78 @@
+# Mode can be 'detailed' for a single run with detailed output, or 'success_rate'
+mode: detailed
+
+# For success_rate mode
+total_runs: 5000
+
+# Age at which you plan to start retirement
+retirement_age: 60
+
+# Max age to prevent infinite loops
+max_age: 105
+
+# Success factor: defines the multiplier for total_balance needed by max_age for success.
+# Supports fractional, eg: 1.5
+success_factor: 1
+
+# Growth rate average, min, and max to generate variability
+# Enter the "real" return rather than nominal as inflation isn't handled currently.
+# For example if you're invested in broad market index funds or ETF's and using
+# an average return of 8%, but inflation is around 3%, then put 5% real return here.
+# The min and max are to constrain volatility. For example the market has dropped
+# by 30% and has grown by that much as well.
+# Set a downturn_threshold so if market return is below this amount, use cash_cushion.
+annual_growth_rate:
+  average: 0.05
+  min: -0.3
+  max: 0.3
+  downturn_threshold: -0.2
+
+# Choose the return sequence generator: mean, geometric_brownian_motion, constant
+# If using `success_rate` mode, then choose either `mean` or `geometric_brownian_motion`
+# `constant` returns are conceptually easy to understand, and produce pleasing predictable results,
+# but are unrealistic as the market doesn't actually do this.
+return_sequence_type: geometric_brownian_motion
+
+# Assume we'll continue to make TFSA contributions during RRSP and Taxable drawdown phases
+# If you don't want to make any TFSA contributions during drawdown, set this to 0.
+annual_tfsa_contribution: 7000
+
+# After tax amount you need per year in retirement (NOT including TFSA contribution, this is your spending number).
+# To get an accurate number here, you should track your spending for at least a year
+# Or review a year's worth of past credit card statements and other sources of spending.
+# Add up:
+#   1. Variable spending (groceries, personal, entertainment, travel, etc.)
+#   2. Fixed spending (any constant recurring payments)
+#   3. Lumpy (eg: new car, replace roof, replace appliances etc. only happen every few years so divide amount by how many years expense occurs)
+desired_spending: 40000
+
+# Have to withdraw more than desired_spending (and optional tfsa contribution) to account for taxes
+# Add up your desired_spending (and annual_tfsa_contribution if making), then figure out how much you'd actually need
+# to withdraw to be left with desired_spending + annual_tfsa_contribution
+# Use a tax calculator to figure this out: https://www.eytaxcalculators.com/en/2025-personal-tax-calculator.html
+annual_withdrawal_amount_rrsp: 56000
+
+# Starting account balances.
+# Set cash_cushion balance to 0 if you don't want to use it
+accounts:
+  rrsp: 600000
+  taxable: 400000
+  tfsa: 120000
+  cash_cushion: 40000
+
+# Taxes
+# Withholding tax may be greater than your actual tax bill, you'll get a refund when you file your taxes.
+# In the first year of retirement, you'll have to have some extra cash available to "float" the difference.
+# In subsequent years, the previous year's tax refund will be used to fund part of next years spending.
+# Tax calculator: https://www.eytaxcalculators.com/en/2025-personal-tax-calculator.html
+# RRSP Withholding tax: https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/rrsps-related-plans/making-withdrawals/tax-rates-on-withdrawals.html
+# Assumption is you'll be withdrawing at least 15K which lands in 30% withholding tax.
+taxes:
+  rrsp_withholding_rate: 0.3
+  actual_tax_bill: 6360
+
+# Investment details
+# Unused - future capital gains tax determination
+investment:
+  market_price: 35.12
+  cost_per_share: 29.34
