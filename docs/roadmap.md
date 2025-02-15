@@ -24,12 +24,12 @@
 
 ## Refactor
 
-- WIP namespacing, eg: `simulation` for `simulation`, `simulation_evaluator`, and `simulation_formatter`
+- WIP namespacing: `simulation_formatter` should be in `simulation`
+  - `simulation_formatter` could be better named `simulation_printer`
 - WIP rewrite tests loading AppConfig with hash rather than yaml - easier to maintain tests when don't have to have separate fixture file to understand input numbers
 - right-align numbers in output table (maybe this will be handled by tty-table feature)
 - test coverage
 - CI
-- `simulation_formatter` could be better named `simulation_printer`
 - should AppConfig load/reference instance of all other classes needed, to simplify and not need loading code, such as accounts elsewhere?
 
 ## Analysis

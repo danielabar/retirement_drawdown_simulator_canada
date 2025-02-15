@@ -9,7 +9,7 @@ RSpec.describe SimulatorFormatter do
 
   let(:app_config) { AppConfig.new(File.join(__dir__, "..", "fixtures", "example_input_minimal.yml")) }
   let(:simulation_results) { Simulation::Simulator.new(app_config).run }
-  let(:evaluator_results) { SimulationEvaluator.new(simulation_results, app_config).evaluate }
+  let(:evaluator_results) { Simulation::SimulationEvaluator.new(simulation_results, app_config).evaluate }
   let(:first_year_cash_flow_results) { FirstYearCashFlow.new(app_config).calculate }
 
   let(:expected_output) do

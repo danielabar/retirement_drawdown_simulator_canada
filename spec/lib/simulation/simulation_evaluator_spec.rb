@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "../spec_helper"
+require_relative "../../spec_helper"
 
-RSpec.describe SimulationEvaluator do
-  let(:fixture_file) { "evaluator_input.yml" }
-  let(:app_config) { AppConfig.new(File.join(__dir__, "..", "fixtures", fixture_file)) }
+RSpec.describe Simulation::SimulationEvaluator do
+  let(:base_fixture_path) { File.expand_path("../../fixtures", __dir__) }
+  let(:app_config) { AppConfig.new(File.join(base_fixture_path, "evaluator_input.yml")) }
   let(:evaluator) { described_class.new(simulation_results, app_config) }
 
   describe "evaluating RRSP Drawdown" do
@@ -135,7 +135,7 @@ RSpec.describe SimulationEvaluator do
 
   describe "evaluating with different success factors" do
     context "when success factor is 1.5 and balance is 1.5x withdrawal amount" do
-      let(:fixture_file) { "evaluator_input_success_factor_1_5.yml" }
+      let(:app_config) { AppConfig.new(File.join(base_fixture_path, "evaluator_input_success_factor_1_5.yml")) }
       let(:simulation_results) do
         [{ age: 95, total_balance: 45_000, note: "rrsp" }]
       end
@@ -149,7 +149,7 @@ RSpec.describe SimulationEvaluator do
     end
 
     context "when success factor is 1.5 and balance is less than 1.5x withdrawal amount" do
-      let(:fixture_file) { "evaluator_input_success_factor_1_5.yml" }
+      let(:app_config) { AppConfig.new(File.join(base_fixture_path, "evaluator_input_success_factor_1_5.yml")) }
       let(:simulation_results) do
         [{ age: 95, total_balance: 40_000, note: "rrsp" }]
       end
@@ -164,7 +164,7 @@ RSpec.describe SimulationEvaluator do
     end
 
     context "when success factor is 2.0 and balance is 2x withdrawal amount" do
-      let(:fixture_file) { "evaluator_input_success_factor_1_5.yml" }
+      let(:app_config) { AppConfig.new(File.join(base_fixture_path, "evaluator_input_success_factor_1_5.yml")) }
       let(:simulation_results) do
         [{ age: 95, total_balance: 60_000, note: "rrsp" }]
       end

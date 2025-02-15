@@ -37,7 +37,7 @@ module Run
 
     def simulate_once
       simulation_results = Simulation::Simulator.new(app_config).run
-      evaluator_results = SimulationEvaluator.new(simulation_results, app_config).evaluate
+      evaluator_results = Simulation::SimulationEvaluator.new(simulation_results, app_config).evaluate
       evaluator_results[:success] ? 1 : 0
     end
 
