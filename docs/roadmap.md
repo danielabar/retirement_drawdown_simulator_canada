@@ -36,7 +36,9 @@
 
 Document insights discovered from using this tool to analyze scenarios such as:
 
-- How does classic FIRE fare
+- How does classic FIRE fare (40K desired spending, save 25x === 1M)
+  - 30 year retirement
+  - 40 - 50 year retirement (success rate seems to drop significantly when going over 30 years!)
 - Does draining down RRSP faster by also contributing to TFSA during this time help or hinder success rate
-- How does use of cash cushion compare to having it invested in taxable account
-- Given `geometric_brownian_motion` returns generator, what is the actual safe withdrawal rate
+- How does use of cash cushion compare to having it invested in taxable account (no difference!)
+- Given `geometric_brownian_motion` returns generator, what is the actual safe withdrawal rate (depends on how many years)
