@@ -42,25 +42,22 @@ class SimulationEvaluator
     end
   end
 
-  # TODO: The notion of phases is not quite right now
-  # that we could go back and withdraw from a previous account
-  # if the balance has grown since we last left it.
   def success_threshold
     case drawdown_phase
     when :rrsp then rrsp_threshold
     when :taxable then taxable_threshold
     when :tfsa then tfsa_threshold
+    when :cash_cushion then cash_cushion_threshold
     else raise "Unknown drawdown phase: #{drawdown_phase}"
     end
   end
 
-  # TODO: Does it even make sense to match on note?
-  # Maybe should have something more precise to indicate what phase we were in?
   def drawdown_phase
     case @simulation_results.last[:note]
     when /rrsp/ then :rrsp
     when /taxable/ then :taxable
     when /tfsa/ then :tfsa
+    when /cash_cushion/ then :cash_cushion
     end
   end
 
@@ -74,5 +71,9 @@ class SimulationEvaluator
 
   def tfsa_threshold
     @success_factor * withdrawal_amounts.annual_tfsa
+  end
+
+  def cash_cushion_threshold
+    @success_factor * withdrawal_amounts.annual_cash_cushion
   end
 end
