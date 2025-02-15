@@ -1,8 +1,10 @@
 #!/bin/bash
 
-# Exit the script if any command fails
 set -e
 
-# Run main.rb
-echo "Running main.rb..."
+echo "Running main.rb in detailed mode..."
 ruby main.rb
+
+echo ""
+echo "Running main.rb in success_rate mode..."
+ruby main.rb success_rate

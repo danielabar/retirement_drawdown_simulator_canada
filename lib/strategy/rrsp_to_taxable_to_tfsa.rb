@@ -51,7 +51,6 @@ module Strategy
 
     private
 
-    # TODO: Maybe AppConfig should be responsible for loading accounts as this info is needed throughout app.
     def load_accounts
       @rrsp_account = Account.new("rrsp", app_config.accounts["rrsp"])
       @taxable_account = Account.new("taxable", app_config.accounts["taxable"])
