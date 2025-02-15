@@ -1,23 +1,22 @@
 # frozen_string_literal: true
 
 class WithdrawalAmounts
+  ACCOUNT_WITHDRAWAL_METHODS = {
+    "rrsp" => :annual_rrsp,
+    "taxable" => :annual_taxable,
+    "tfsa" => :annual_tfsa,
+    "cash_cushion" => :annual_cash_cushion
+  }.freeze
+
   def initialize(app_config)
     @app_config = app_config
   end
 
   def annual_amount(account)
-    case account.name
-    when "rrsp"
-      annual_rrsp
-    when "taxable"
-      annual_taxable
-    when "tfsa"
-      annual_tfsa
-    when "cash_cushion"
-      annual_cash_cushion
-    else
-      raise ArgumentError, "Unknown account type: #{account.name}"
-    end
+    method_name = ACCOUNT_WITHDRAWAL_METHODS[account.name]
+    raise ArgumentError, "Unknown account type: #{account.name}" unless method_name
+
+    send(method_name)
   end
 
   def annual_rrsp
