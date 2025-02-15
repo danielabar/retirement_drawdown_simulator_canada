@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# TODO: tests
 module Strategy
   class RrspToTaxableToTfsa
     attr_reader :app_config, :withdrawal_amounts, :rrsp_account, :taxable_account, :tfsa_account, :cash_cushion
