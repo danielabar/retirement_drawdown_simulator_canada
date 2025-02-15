@@ -25,14 +25,16 @@ module Tax
 
     def calculate_federal_tax(gross_income)
       fed_config = @tax_config["federal"]
-      calculate_tax(gross_income, fed_config["brackets"],
+      calculate_tax(gross_income,
+                    fed_config["brackets"],
                     fed_config["rates"],
                     fed_config["exemption"])
     end
 
     def calculate_provincial_tax(gross_income, province_code)
       province_data = province_data_for(province_code)
-      calculate_tax(gross_income, province_data["brackets"],
+      calculate_tax(gross_income,
+                    province_data["brackets"],
                     province_data["rates"],
                     province_data["exemption"])
     end
@@ -52,21 +54,30 @@ module Tax
       [income - exemption, 0].max
     end
 
+    # Computes the total tax for the given taxable income across all tax brackets.
     def compute_tax(taxable, brackets, rates)
       tax = 0
       previous_bracket = 0
 
       (brackets + [Float::INFINITY]).zip(rates).each do |bracket, rate|
-        if taxable > bracket
-          tax += (bracket - previous_bracket) * rate
-          previous_bracket = bracket
-        else
-          tax += (taxable - previous_bracket) * rate
-          break
-        end
+        segment_tax, new_previous = compute_tax_for_segment(taxable, previous_bracket, bracket, rate)
+        tax += segment_tax
+        break if taxable <= bracket
+
+        previous_bracket = new_previous
       end
 
       tax
+    end
+
+    # Computes the tax for a single bracket segment.
+    # Returns a two-element array: [tax_for_segment, updated_previous_bracket]
+    def compute_tax_for_segment(taxable, previous_bracket, bracket, rate)
+      if taxable > bracket
+        [(bracket - previous_bracket) * rate, bracket]
+      else
+        [(taxable - previous_bracket) * rate, previous_bracket]
+      end
     end
   end
 end
