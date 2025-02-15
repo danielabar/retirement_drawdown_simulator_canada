@@ -24,7 +24,7 @@ RSpec.describe Tax::IncomeTaxCalculator do
     context "when in AB (Alberta)" do
       let(:province_code) { "AB" }
 
-      fit "calculates correct tax values for AB with 40,000 income" do
+      it "calculates correct tax values for AB with 40,000 income" do
         result = calculator.calculate(gross_income, province_code)
 
         expect(result[:total_tax]).to be_within(1).of(5_348)
