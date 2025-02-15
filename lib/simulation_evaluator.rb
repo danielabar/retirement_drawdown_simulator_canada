@@ -42,6 +42,9 @@ class SimulationEvaluator
     end
   end
 
+  # TODO: The notion of phases is not quite right now
+  # that we could go back and withdraw from a previous account
+  # if the balance has grown since we last left it.
   def success_threshold
     case drawdown_phase
     when :rrsp then rrsp_threshold

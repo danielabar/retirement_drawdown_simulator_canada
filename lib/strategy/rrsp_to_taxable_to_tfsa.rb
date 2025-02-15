@@ -30,7 +30,11 @@ module Strategy
 
     def transact(current_account)
       current_account.withdraw(withdrawal_amounts.annual_amount(current_account))
-      tfsa_account.deposit(app_config["annual_tfsa_contribution"]) if app_config["annual_tfsa_contribution"].positive?
+
+      # Ensure we do not contribute to TFSA if withdrawing from TFSA
+      return unless current_account.name != "tfsa" && app_config["annual_tfsa_contribution"].positive?
+
+      tfsa_account.deposit(app_config["annual_tfsa_contribution"])
     end
 
     # TODO: Debatable whether this belongs here in strategy or in Simulation::Simulator
