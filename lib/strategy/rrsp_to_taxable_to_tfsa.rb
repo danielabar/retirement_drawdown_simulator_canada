@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# TODO: tests
 module Strategy
   class RrspToTaxableToTfsa
     attr_reader :app_config, :withdrawal_amounts, :rrsp_account, :taxable_account, :tfsa_account, :cash_cushion
@@ -38,11 +37,18 @@ module Strategy
     private
 
     def load_accounts
-      @rrsp_account = Account.new("rrsp", app_config.accounts["rrsp"])
-      @taxable_account = Account.new("taxable", app_config.accounts["taxable"])
-      @tfsa_account = Account.new("tfsa", app_config.accounts["tfsa"])
-      @cash_cushion = Account.new("cash_cushion", app_config.accounts["cash_cushion"],
-                                  app_config.annual_growth_rate["savings"])
+      @rrsp_account = create_account("rrsp")
+      @taxable_account = create_account("taxable")
+      @tfsa_account = create_account("tfsa")
+      @cash_cushion = create_cash_cushion
+    end
+
+    def create_account(name)
+      Account.new(name, app_config.accounts[name])
+    end
+
+    def create_cash_cushion
+      Account.new("cash_cushion", app_config.accounts["cash_cushion"], app_config.annual_growth_rate["savings"])
     end
 
     def select_cash_cushion(market_return)

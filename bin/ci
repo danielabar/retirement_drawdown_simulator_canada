@@ -14,3 +14,6 @@ bin/rspec
 # Run main.rb
 echo "Running main.rb..."
 ruby main.rb
+echo ""
+echo "Running main.rb in success_rate mode..."
+ruby main.rb success_rate
