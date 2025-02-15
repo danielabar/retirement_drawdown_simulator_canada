@@ -6,7 +6,6 @@ module Simulation
       @retirement_age = app_config["retirement_age"]
       @max_age = app_config["max_age"]
       @return_sequence = ReturnSequences::SequenceSelector.new(app_config, @retirement_age, @max_age).select
-      # There's only one strategy for now, in the future we could have a selection of strategies.
       @strategy = Strategy::RrspToTaxableToTfsa.new(app_config)
       @results = []
     end
@@ -28,8 +27,6 @@ module Simulation
 
     attr_reader :retirement_age, :max_age, :return_sequence, :strategy, :results
 
-    # TODO: Maybe accounts should be loaded by app config,
-    # so we wouldn't need to go through strategy to get account balances.
     def record_yearly_status(age, account, market_return)
       results << {
         age: age,

@@ -8,7 +8,6 @@ module Run
 
     def run
       first_year_cash_flow_results = FirstYearCashFlow.new(app_config).calculate
-      # WIP on rewriting simulator and moving to namespace
       # TODO: Maybe we should just access simulator.results instead of returning results from `run` method
       simulation_results = Simulation::Simulator.new(app_config).run
       # TODO: Evaluator should also move to simulator namespace

@@ -2,13 +2,8 @@
 
 ## Enhancements
 
-- Cash cushion to drawdown in case of severe market downturn
-  - simpler: drawdown only, let user specify when market drops below x, use cash cushion if possible
-  - complicated: refill when market high returns
-  - configurable interest rate on savings (counts as taxable income but maybe ignore this for first attempt)
-  - partial or not? Simplest would be you have exactly a year's worth and get one chance at dealing with downturn, and don't contribute to TFSA during this time.
-  - interesting to compare success rate of this, vs dump the cash in taxable investment account
 - Reverse tax calculator - too cumbersome to experiment with different spending/tfsa contribution amounts because need to experiment with external tax calculator each time to find required withdrawal to achieve desired after-tax income.
+- Cash cushion refill if needed when market return is high (would need to track what original balance was or have user specify how many years worth they want to keep in this bucket)
 - Cascading/multi-account withdrawals - a little left in one account but not enough to fund that years spending so have to go to next account
 - Inflation (simple: constant, complicated: varying).
 - Tiered withholding tax: RRSP withdrawals could be less than 15K, in which case withholding tax is less: https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/rrsps-related-plans/making-withdrawals/tax-rates-on-withdrawals.html
@@ -29,13 +24,13 @@
 
 ## Refactor
 
-- should AppConfig load/reference instance of all other classes needed, to simplify and not need loading code, such as accounts elsewhere?
-- rewrite tests loading AppConfig with hash rather than yaml - easier to maintain tests when don't have to have separate fixture file to understand input numbers
+- WIP namespacing, eg: `simulation` for `simulation`, `simulation_evaluator`, and `simulation_formatter`
+- WIP rewrite tests loading AppConfig with hash rather than yaml - easier to maintain tests when don't have to have separate fixture file to understand input numbers
 - right-align numbers in output table (maybe this will be handled by tty-table feature)
 - test coverage
 - CI
 - `simulation_formatter` could be better named `simulation_printer`
-- namespacing, eg: `simulation` for `simulation`, `simulation_evaluator`, and `simulation_formatter`
+- should AppConfig load/reference instance of all other classes needed, to simplify and not need loading code, such as accounts elsewhere?
 
 ## Analysis
 
