@@ -11,22 +11,8 @@ module Strategy
       load_accounts
     end
 
-    # Interesting side effect:
-    # Because we're not handling partial withdrawals (mixed from two accounts),
-    # there's always a little left in any given account, and as growth is applied,
-    # the following year, this logic may choose to withdraw from it again even though it was nearly depleted before.
-    # TODO: Reduce the complexity of this method re: Rubocop Metrics/AbcSize
     def select_account(market_return)
-      if market_return < app_config.annual_growth_rate["downturn_threshold"] &&
-         @cash_cushion.balance >= withdrawal_amounts.annual_cash_cushion
-        return @cash_cushion
-      end
-
-      return @rrsp_account if @rrsp_account.balance >= withdrawal_amounts.annual_rrsp
-      return @taxable_account if @taxable_account.balance >= withdrawal_amounts.annual_taxable
-      return @tfsa_account if @tfsa_account.balance >= withdrawal_amounts.annual_tfsa
-
-      nil # Indicate that funds have run out
+      select_cash_cushion(market_return) || select_investment_account
     end
 
     def transact(current_account)
@@ -39,7 +25,6 @@ module Strategy
       tfsa_account.deposit(app_config["annual_tfsa_contribution"])
     end
 
-    # TODO: Debatable whether this belongs here in strategy or in Simulation::Simulator
     def apply_growth(market_return)
       [rrsp_account, taxable_account, tfsa_account, cash_cushion].each do |account|
         account.apply_growth(market_return)
@@ -58,6 +43,24 @@ module Strategy
       @tfsa_account = Account.new("tfsa", app_config.accounts["tfsa"])
       @cash_cushion = Account.new("cash_cushion", app_config.accounts["cash_cushion"],
                                   app_config.annual_growth_rate["savings"])
+    end
+
+    def select_cash_cushion(market_return)
+      cash_cushion if withdraw_from_cash_cushion?(market_return)
+    end
+
+    def select_investment_account
+      [rrsp_account, taxable_account, tfsa_account].find { |account| sufficient_balance?(account) }
+    end
+
+    def withdraw_from_cash_cushion?(market_return)
+      market_return < app_config.annual_growth_rate["downturn_threshold"] &&
+        cash_cushion.balance >= withdrawal_amounts.annual_cash_cushion
+    end
+
+    def sufficient_balance?(account)
+      balance_needed = withdrawal_amounts.public_send("annual_#{account.name}")
+      account.balance >= balance_needed
     end
   end
 end
