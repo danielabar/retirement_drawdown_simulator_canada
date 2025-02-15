@@ -2,13 +2,8 @@
 
 ## Enhancements
 
-- Cash cushion to drawdown in case of severe market downturn
-  - simpler: drawdown only, let user specify when market drops below x, use cash cushion if possible
-  - complicated: refill when market high returns
-  - configurable interest rate on savings (counts as taxable income but maybe ignore this for first attempt)
-  - partial or not? Simplest would be you have exactly a year's worth and get one chance at dealing with downturn, and don't contribute to TFSA during this time.
-  - interesting to compare success rate of this, vs dump the cash in taxable investment account
 - Reverse tax calculator - too cumbersome to experiment with different spending/tfsa contribution amounts because need to experiment with external tax calculator each time to find required withdrawal to achieve desired after-tax income.
+- Cash cushion refill if needed when market return is high (would need to track what original balance was or have user specify how many years worth they want to keep in this bucket)
 - Cascading/multi-account withdrawals - a little left in one account but not enough to fund that years spending so have to go to next account
 - Inflation (simple: constant, complicated: varying).
 - Tiered withholding tax: RRSP withdrawals could be less than 15K, in which case withholding tax is less: https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/rrsps-related-plans/making-withdrawals/tax-rates-on-withdrawals.html
@@ -19,22 +14,30 @@
 - Transaction costs (RRSP withdrawal fee, TFSA withdrawal fee, ETF selling commission)
 - During RRSP drawdown phase, taxable account is growing, and distributions are taxable (T3 issued)
 - What if you reach age 71 and there's still funds in RRSP -> forced to RRIF and minimum withdrawals
+- instead of space separated console "table" output, consider gem, should make it easier to add columns? https://github.com/piotrmurach/tty-table
+- visual/chart https://github.com/red-data-tools/unicode_plot.rb and https://red-data-tools.github.io/unicode_plot.rb/0.0.5/ of returns, and total_balance over time
+- support choice of multiple drawdown strategies
 - validation on loading AppConfig, consider bringing in ActiveModel for this, and easier to access attributes via `.` rather than `[...]`.
 - make it easier to specify alternate input files
+- support choice of output types, currently its only ConsolePrinter
 - Replay a particular sequence with alternate inputs
 
 ## Refactor
 
+- WIP rewrite tests loading AppConfig with hash rather than yaml - easier to maintain tests when don't have to have separate fixture file to understand input numbers
+- right-align numbers in output table (maybe this will be handled by tty-table feature)
 - test coverage
 - CI
-- `simulation_formatter` could be better named `simulation_printer`
-- namespacing, eg: `simulation` for `simulation`, `simulation_evaluator`, and `simulation_formatter`
+- `simulation_formatter` could be better named `simulation_printer` (worry about this later if adding more printer options like console, pdf, html, etc)
+- should AppConfig load/reference instance of all other classes needed, to simplify and not need loading code, such as accounts elsewhere?
 
 ## Analysis
 
 Document insights discovered from using this tool to analyze scenarios such as:
 
-- How does classic FIRE fare
+- How does classic FIRE fare (40K desired spending, save 25x === 1M)
+  - 30 year retirement
+  - 40 - 50 year retirement (success rate seems to drop significantly when going over 30 years!)
 - Does draining down RRSP faster by also contributing to TFSA during this time help or hinder success rate
-- How does use of cash cushion compare to having it invested in taxable account
-- Given `geometric_brownian_motion` returns generator, what is the actual safe withdrawal rate
+- How does use of cash cushion compare to having it invested in taxable account (no difference!)
+- Given `geometric_brownian_motion` returns generator, what is the actual safe withdrawal rate (depends on how many years)

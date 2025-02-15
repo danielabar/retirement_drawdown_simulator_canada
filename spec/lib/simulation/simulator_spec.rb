@@ -1,15 +1,17 @@
 # frozen_string_literal: true
 
-require_relative "../spec_helper"
+require_relative "../../spec_helper"
 
-RSpec.describe Simulator do
+RSpec.describe Simulation::Simulator do
+  let(:base_fixture_path) { File.expand_path("../../fixtures", __dir__) }
+
   describe "#run" do
     context "when there are minimal balances to deplete quickly" do
-      let(:app_config) { AppConfig.new(File.join(__dir__, "..", "fixtures", "example_input_minimal.yml")) }
+      let(:app_config) { AppConfig.new(File.join(base_fixture_path, "example_input_minimal.yml")) }
       let!(:results) { described_class.new(app_config).run }
 
       it "simulation runs up to age 69" do
-        expect(results.select { |r| r[:type] == :yearly_status }.last[:age]).to eq(69)
+        expect(results.last[:age]).to eq(69)
       end
 
       it "verifies withdrawals for age 65" do
@@ -20,9 +22,8 @@ RSpec.describe Simulator do
             rrsp_balance: be_within(1).of(46_662),
             tfsa_balance: be_within(1).of(30_310),
             taxable_balance: be_within(1).of(60_600),
-            note: "RRSP Drawdown",
+            note: "rrsp",
             rate_of_return: 0.01,
-            type: :yearly_status,
             total_balance: be_within(1).of(137_572.10)
           )
         )
@@ -36,9 +37,8 @@ RSpec.describe Simulator do
             rrsp_balance: be_within(1).of(12_990),
             tfsa_balance: be_within(1).of(30_623),
             taxable_balance: be_within(1).of(61_206),
-            note: "RRSP Drawdown",
+            note: "rrsp",
             rate_of_return: 0.01,
-            type: :yearly_status,
             total_balance: be_within(1).of(104_819.92)
           )
         )
@@ -52,9 +52,8 @@ RSpec.describe Simulator do
             rrsp_balance: be_within(1).of(13_120),
             tfsa_balance: be_within(1).of(30_939),
             taxable_balance: be_within(1).of(31_507),
-            note: "Taxable Drawdown",
+            note: "taxable",
             rate_of_return: 0.01,
-            type: :yearly_status,
             total_balance: be_within(1).of(75_568.12)
           )
         )
@@ -68,9 +67,8 @@ RSpec.describe Simulator do
             rrsp_balance: be_within(1).of(13_251),
             tfsa_balance: be_within(1).of(31_259),
             taxable_balance: be_within(1).of(1_512),
-            note: "Taxable Drawdown",
+            note: "taxable",
             rate_of_return: 0.01,
-            type: :yearly_status,
             total_balance: be_within(1).of(46_023.80)
           )
         )
@@ -84,9 +82,8 @@ RSpec.describe Simulator do
             rrsp_balance: be_within(1).of(13_384),
             tfsa_balance: be_within(1).of(1_271),
             taxable_balance: be_within(1).of(1_528),
-            note: "TFSA Drawdown",
+            note: "tfsa",
             rate_of_return: 0.01,
-            type: :yearly_status,
             total_balance: be_within(1).of(16_184.04)
           )
         )
@@ -94,42 +91,36 @@ RSpec.describe Simulator do
     end
 
     context "when there is a low growth rate" do
-      let(:app_config) { AppConfig.new(File.join(__dir__, "..", "fixtures", "example_input_low_growth.yml")) }
+      let(:app_config) { AppConfig.new(File.join(base_fixture_path, "example_input_low_growth.yml")) }
       let!(:results) { described_class.new(app_config).run }
 
       it "simulates RRSP drawdown until balance is less than withdrawal amount" do
-        final_rrsp_year = results.reverse.find { |r| r[:note] == "RRSP Drawdown" }
+        final_rrsp_year = results.reverse.find { |r| r[:note] == "rrsp" }
         expect(final_rrsp_year[:rrsp_balance]).to be < 56_000 # annual_withdrawal_amount_rrsp from fixture
       end
 
       it "simulates taxable drawdown until balance is below the withdrawal amount" do
-        final_taxable_year = results.reverse.find { |r| r[:note] == "Taxable Drawdown" }
+        final_taxable_year = results.reverse.find { |r| r[:note] == "taxable" }
         # desired_spending + annual_tfsa_contribution from fixture
         expect(final_taxable_year[:taxable_balance]).to be < 47_000
       end
 
       it "simulates TFSA drawdown until balance is depleted" do
-        final_year = results.select { |r| r[:type] == :yearly_status }.last
+        final_year = results.last
         expect(final_year[:tfsa_balance]).to be < 40_000 # desired_spending from fixture
       end
 
-      it "supports desired income withdrawals up to age 101" do
-        expect(results.select { |r| r[:type] == :yearly_status }.last[:age]).to eq 101
+      it "supports desired income withdrawals up to age 105" do
+        expect(results.last[:age]).to eq 105
       end
     end
 
     context "when there is a high growth rate" do
-      let(:app_config) { AppConfig.new(File.join(__dir__, "..", "fixtures", "example_input_high_growth.yml")) }
+      let(:app_config) { AppConfig.new(File.join(base_fixture_path, "example_input_high_growth.yml")) }
       let!(:results) { described_class.new(app_config).run }
 
-      it "exits TFSA drawdown early" do
-        expect(results.select do |r|
-          r[:type] == :yearly_status
-        end.last[:note]).to eq("Exited TFSA Drawdown due to reaching max age")
-      end
-
       it "supports desired income withdrawals to max age" do
-        expect(results.select { |r| r[:type] == :yearly_status }.last[:age]).to eq 120 # max age from fixture
+        expect(results.last[:age]).to eq 120 # max age from fixture
       end
     end
   end

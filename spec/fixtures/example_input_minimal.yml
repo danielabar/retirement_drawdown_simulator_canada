@@ -8,6 +8,7 @@ annual_growth_rate:
   average: 0.01
   min: -0.1
   max: 0.1
+  downturn_threshold: -0.1
 
 return_sequence_type: constant
 
@@ -15,6 +16,7 @@ accounts:
   rrsp: 80000
   taxable: 60000
   tfsa: 30000
+  cash_cushion: 0
 
 taxes:
   rrsp_withholding_rate: 0.3

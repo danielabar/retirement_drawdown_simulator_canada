@@ -4,7 +4,7 @@ module Run
   class AppRunner
     def initialize(config_file, mode_override = nil)
       @app_config = AppConfig.new(config_file)
-      @mode = mode_override || @app_config["mode"]
+      @mode = mode_override || @app_config["mode"] || "detailed"
     end
 
     def run

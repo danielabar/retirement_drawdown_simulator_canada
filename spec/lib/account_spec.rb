@@ -3,7 +3,7 @@
 require_relative "../spec_helper"
 
 RSpec.describe Account do
-  subject(:account) { described_class.new(initial_balance) }
+  subject(:account) { described_class.new("rrsp", initial_balance) }
 
   let(:initial_balance) { 10_000 }
 
@@ -62,6 +62,15 @@ RSpec.describe Account do
       it "decreases the balance by 10%" do
         account.apply_growth(-0.10)
         expect(account.balance).to be_within(0.01).of(9_000.00)
+      end
+    end
+
+    context "when initialized with a given rate" do
+      let(:account) { described_class.new("cash_cushion", initial_balance, 0.03) }
+
+      it "uses the given_rate instead of the provided rate" do
+        account.apply_growth(0.05) # Should use 0.03 instead
+        expect(account.balance).to be_within(0.01).of(10_300.00)
       end
     end
   end

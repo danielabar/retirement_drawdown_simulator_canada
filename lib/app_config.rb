@@ -5,8 +5,8 @@ require "yaml"
 class AppConfig
   attr_reader :data
 
-  def initialize(config_path)
-    @data = YAML.load_file(config_path)
+  def initialize(config)
+    @data = config.is_a?(String) ? YAML.load_file(config) : config
   end
 
   def [](key)

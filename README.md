@@ -5,6 +5,7 @@ This is a simple retirement drawdown calculator for Canadians. It models the fol
 1. Withdraw from RRSP first (enough for spending + optional TFSA contribution).
 2. Withdraw from Taxable account next (enough for spending + optional TFSA contribution).
 3. Withdraw from TFSA last.
+4. Optionally if you specify a cash cushion (i.e. amount of savings you have in an easily accessible liquid account like a high interest savings account), then the simulation will drawdown from the cash cushion rather than investment accounts during periods of market downturns.
 
 The idea being to drain the RRSP as quickly as possible to avoid mandatory RRIF withdrawals at age 71, with potential large tax liability. Although there's a trade-off in needing to withdraw more earlier for additional TFSA contributions can increase your tax bracket. This application let's you try out different scenarios to see what works best for you.
 
@@ -101,10 +102,12 @@ success_factor: 1
 # an average return of 8%, but inflation is around 3%, then put 5% real return here.
 # The min and max are to constrain volatility. For example the market has dropped
 # by 30% and has grown by that much as well.
+# Set a downturn_threshold so if market return is below this amount, use cash_cushion.
 annual_growth_rate:
   average: 0.05
   min: -0.3
   max: 0.3
+  downturn_threshold: -0.2
 
 # Choose the return sequence generator: mean, geometric_brownian_motion, constant
 # If using `success_rate` mode, then choose either `mean` or `geometric_brownian_motion`
@@ -113,7 +116,7 @@ annual_growth_rate:
 return_sequence_type: geometric_brownian_motion
 
 # Assume we'll continue to make TFSA contributions during RRSP and Taxable drawdown phases
-# If you don't want to do this, set to 0
+# If you don't want to make any TFSA contributions during drawdown, set this to 0.
 annual_tfsa_contribution: 7000
 
 # After tax amount you need per year in retirement (NOT including TFSA contribution, this is your spending number).
@@ -122,20 +125,22 @@ annual_tfsa_contribution: 7000
 # Add up:
 #   1. Variable spending (groceries, personal, entertainment, travel, etc.)
 #   2. Fixed spending (any constant recurring payments)
-#   3. Lumpy (eg: new car, replace roof, new appliances, computer, etc. only happen every few years so divide amount by how many years expense occurs)
+#   3. Lumpy (eg: new car, replace roof, replace appliances etc. only happen every few years so divide amount by how many years expense occurs)
 desired_spending: 40000
 
-# Have to withdraw more than desired_spending + tfsa contribution to account for taxes.
-# Add up your desired_spending and annual_tfsa_contribution, then figure out how much you'd actually need
+# Have to withdraw more than desired_spending (and optional tfsa contribution) to account for taxes
+# Add up your desired_spending (and annual_tfsa_contribution if making), then figure out how much you'd actually need
 # to withdraw to be left with desired_spending + annual_tfsa_contribution
 # Use a tax calculator to figure this out: https://www.eytaxcalculators.com/en/2025-personal-tax-calculator.html
 annual_withdrawal_amount_rrsp: 56000
 
-# Starting account balances
+# Starting account balances.
+# Set cash_cushion balance to 0 if you don't want to use it
 accounts:
   rrsp: 600000
   taxable: 400000
   tfsa: 120000
+  cash_cushion: 40000
 
 # Taxes
 # Withholding tax may be greater than your actual tax bill, you'll get a refund when you file your taxes.
@@ -164,58 +169,58 @@ Required Cash Buffer for First Year: $7,800.00
 ----------------------------------------------------------------------------------------------------------------------------------
 Age        RRSP                 TFSA                 Taxable              Total Balance        Note                        RoR
 ----------------------------------------------------------------------------------------------------------------------------------
-60         $552,323.56          $128,943.19          $406,120.27          $1,087,387.02        RRSP Drawdown             1.53%
-61         $531,298.71          $145,522.89          $434,738.93          $1,111,560.53        RRSP Drawdown             7.05%
-62         $538,432.81          $172,782.56          $492,485.46          $1,203,700.83        RRSP Drawdown            13.28%
-63         $482,311.31          $179,737.28          $492,361.43          $1,154,410.02        RRSP Drawdown            -0.03%
-64         $418,483.32          $183,308.38          $483,320.61          $1,085,112.31        RRSP Drawdown            -1.84%
-65         $410,596.72          $215,568.54          $547,473.08          $1,173,638.33        RRSP Drawdown            13.27%
-66         $381,535.78          $239,477.29          $589,065.15          $1,210,078.22        RRSP Drawdown              7.6%
-67         $348,287.15          $263,703.34          $630,234.32          $1,242,224.80        RRSP Drawdown             6.99%
-68         $305,492.45          $282,933.50          $658,707.80          $1,247,133.75        RRSP Drawdown             4.52%
-69         $288,124.82          $334,827.91          $760,704.65          $1,383,657.38        RRSP Drawdown            15.48%
-70         $211,421.40          $311,339.97          $692,856.71          $1,215,618.07        RRSP Drawdown            -8.92%
-71         $179,695.49          $368,059.09          $801,068.78          $1,348,823.36        RRSP Drawdown            15.62%
-72         $128,380.85          $389,265.63          $831,411.77          $1,349,058.25        RRSP Drawdown             3.79%
-73         $74,810.72           $409,568.52          $859,322.79          $1,343,702.03        RRSP Drawdown             3.36%
-74         $18,512.91           $409,973.58          $845,718.35          $1,274,204.84        RRSP Drawdown            -1.58%
-75         $16,736.25           $376,957.11          $722,066.27          $1,115,759.63        Taxable Drawdown          -9.6%
-76         $16,013.28           $367,370.98          $645,904.85          $1,029,289.12        Taxable Drawdown         -4.32%
-77         $18,649.68           $436,006.68          $697,507.36          $1,152,163.72        Taxable Drawdown         16.46%
-78         $17,583.58           $417,682.51          $613,321.56          $1,048,587.65        Taxable Drawdown         -5.72%
-79         $17,685.05           $427,133.31          $569,589.74          $1,014,408.11        Taxable Drawdown          0.58%
-80         $18,086.98           $443,999.80          $534,466.57          $996,553.35          Taxable Drawdown          2.27%
-81         $17,879.22           $445,819.22          $481,867.10          $945,565.53          Taxable Drawdown         -1.15%
-82         $16,033.98           $406,085.79          $389,986.43          $812,106.20          Taxable Drawdown        -10.32%
-83         $18,806.52           $484,514.98          $402,294.31          $905,615.82          Taxable Drawdown         17.29%
-84         $19,791.29           $517,252.29          $373,898.67          $910,942.25          Taxable Drawdown          5.24%
-85         $17,359.11           $459,826.16          $286,725.61          $763,910.88          Taxable Drawdown        -12.29%
-86         $19,100.99           $513,669.27          $263,780.59          $796,550.85          Taxable Drawdown         10.03%
-87         $16,566.89           $451,592.88          $188,020.65          $656,180.42          Taxable Drawdown        -13.27%
-88         $17,311.01           $479,191.22          $147,354.78          $643,857.02          Taxable Drawdown          4.49%
-89         $15,071.86           $423,303.08          $87,374.04           $525,748.97          Taxable Drawdown        -12.93%
-90         $17,934.04           $512,018.67          $48,041.16           $577,993.88          Taxable Drawdown         18.99%
-91         $20,016.02           $579,271.94          $1,162.03            $600,449.99          Taxable Drawdown         11.61%
-92         $19,756.83           $532,288.86          $1,146.98            $553,192.67          TFSA Drawdown            -1.29%
-93         $19,949.96           $497,101.15          $1,158.20            $518,209.31          TFSA Drawdown             0.98%
-94         $22,799.72           $522,396.00          $1,323.64            $546,519.36          TFSA Drawdown            14.28%
-95         $22,729.34           $480,906.83          $1,319.55            $504,955.72          TFSA Drawdown            -0.31%
-96         $22,501.80           $436,493.06          $1,306.34            $460,301.20          TFSA Drawdown             -1.0%
-97         $27,428.66           $483,306.82          $1,592.37            $512,327.85          TFSA Drawdown             21.9%
-98         $25,848.97           $417,775.60          $1,500.66            $445,125.24          TFSA Drawdown            -5.76%
-99         $27,182.81           $397,269.37          $1,578.10            $426,030.28          TFSA Drawdown             5.16%
-100        $26,003.10           $341,764.09          $1,509.61            $369,276.80          TFSA Drawdown            -4.34%
-101        $24,839.21           $288,257.25          $1,442.04            $314,538.50          TFSA Drawdown            -4.48%
-102        $27,947.49           $279,323.16          $1,622.49            $308,893.14          TFSA Drawdown            12.51%
-103        $26,135.11           $223,803.25          $1,517.28            $251,455.64          TFSA Drawdown            -6.48%
-104        $20,957.00           $147,386.57          $1,216.66            $169,560.23          TFSA Drawdown           -19.81%
-105        $20,957.00           $147,386.57          $1,216.66            $169,560.23          Exited TFSA Drawdown due to reaching max age      9.79%
+60         $535,622.03          $125,044.11          $393,839.73          $1,054,505.87        rrsp                     -1.54%
+61         $732,539.78          $201,674.57          $601,522.13          $1,535,736.48        rrsp                     52.73%
+62         $782,960.14          $241,499.28          $696,142.15          $1,720,601.57        rrsp                     15.73%
+63         $657,247.50          $224,669.17          $629,384.83          $1,511,301.49        rrsp                     -9.59%
+64         $633,713.43          $244,178.75          $663,370.11          $1,541,262.30        rrsp                       5.4%
+65         $560,697.28          $243,780.45          $643,831.00          $1,448,308.74        rrsp                     -2.95%
+66         $520,633.16          $258,698.88          $664,160.04          $1,443,492.08        rrsp                      3.16%
+67         $496,542.43          $283,946.09          $709,772.09          $1,490,260.61        rrsp                      6.87%
+68         $478,739.54          $316,172.48          $771,312.66          $1,566,224.68        rrsp                      8.67%
+69         $431,850.74          $330,137.74          $787,936.58          $1,549,925.06        rrsp                      2.16%
+70         $392,404.01          $351,986.01          $822,639.00          $1,567,029.02        rrsp                       4.4%
+71         $441,395.79          $471,025.64          $1,079,384.84        $1,991,806.27        rrsp                     31.21%
+72         $353,699.29          $438,710.88          $990,611.89          $1,783,022.06        rrsp                     -8.22%
+73         $322,972.19          $483,549.10          $1,074,708.97        $1,881,230.26        rrsp                      8.49%
+74         $258,714.85          $475,376.61          $1,041,468.65        $1,775,560.12        rrsp                     -3.09%
+75         $199,392.21          $474,470.12          $1,024,398.24        $1,698,260.57        rrsp                     -1.64%
+76         $142,808.83          $479,511.30          $1,020,230.57        $1,642,550.71        rrsp                     -0.41%
+77         $85,593.50           $479,700.09          $1,005,947.24        $1,571,240.83        rrsp                      -1.4%
+78         $35,527.02           $584,283.88          $1,207,640.53        $1,827,451.44        rrsp                     20.05%
+79         $40,459.87           $673,382.37          $1,321,792.96        $2,035,635.20        taxable                  13.88%
+80         $49,453.73           $831,625.13          $1,558,167.75        $2,439,246.62        taxable                  22.23%
+81         $51,963.01           $881,176.88          $1,587,844.24        $2,520,984.14        taxable                   5.07%
+82         $50,673.74           $866,139.99          $1,502,613.78        $2,419,427.51        taxable                  -2.48%
+83         $40,958.66           $705,743.15          $1,176,546.10        $1,923,247.91        taxable                 -19.17%
+84         $52,916.92           $920,835.17          $1,459,327.62        $2,433,079.71        taxable                   29.2%
+85         $52,500.41           $920,532.15          $1,401,211.15        $2,374,243.70        taxable                  -0.79%
+86         $53,693.07           $948,603.01          $1,384,974.93        $2,387,271.00        taxable                   2.27%
+87         $55,754.63           $992,293.66          $1,389,346.87        $2,437,395.16        taxable                   3.84%
+88         $56,148.99           $1,006,361.84        $1,351,841.52        $2,414,352.36        taxable                   0.71%
+89         $141.30              $961,045.00          $1,282,049.99        $2,243,236.29        rrsp                     -5.16%
+90         $162.91              $1,116,080.71        $1,423,916.72        $2,540,160.33        taxable                  15.29%
+91         $165.21              $1,138,948.00        $1,396,370.30        $2,535,483.51        taxable                   1.41%
+92         $164.65              $1,142,086.64        $1,344,823.49        $2,487,074.78        taxable                  -0.34%
+93         $145.62              $1,016,277.80        $1,147,823.98        $2,164,247.41        taxable                 -11.56%
+94         $146.88              $1,032,085.69        $1,110,299.35        $2,142,531.91        taxable                   0.86%
+95         $144.84              $1,024,680.25        $1,048,558.22        $2,073,383.31        taxable                  -1.39%
+96         $167.86              $1,195,612.02        $1,160,703.67        $2,356,483.55        taxable                  15.89%
+97         $163.10              $1,168,531.62        $1,082,142.81        $2,250,837.53        taxable                  -2.83%
+98         $163.46              $1,178,169.63        $1,037,465.78        $2,215,798.88        taxable                   0.22%
+99         $176.76              $1,281,587.08        $1,071,043.42        $2,352,807.26        taxable                   8.14%
+100        $183.62              $1,338,608.38        $1,063,795.48        $2,402,587.48        taxable                   3.88%
+101        $225.18              $1,650,098.13        $1,246,880.11        $2,897,203.42        taxable                  22.63%
+102        $234.18              $1,723,338.41        $1,247,843.71        $2,971,416.30        taxable                    4.0%
+103        $265.62              $1,962,633.44        $1,362,054.97        $3,324,954.02        taxable                  13.42%
+104        $265.63              $1,969,735.28        $1,315,122.96        $3,285,123.86        taxable                   0.01%
+105        $225.06              $1,674,849.39        $1,074,455.94        $2,749,530.39        taxable                 -15.27%
 ----------------------------------------------------------------------------------------------------------------------------------
 Simulation Result: Success
-Simulation successful with total balance of $169,560.23.
+Simulation successful with total balance of $2,749,530.39.
 ```
 
-Here's another run where a bad initial sequence of returns causes the money to run out by age 76:
+Here's another run where a bad initial sequence of returns causes the money to run out by age 83:
 ```
 ruby main.rb
 
@@ -228,26 +233,33 @@ Required Cash Buffer for First Year: $7,800.00
 ----------------------------------------------------------------------------------------------------------------------------------
 Age        RRSP                 TFSA                 Taxable              Total Balance        Note                        RoR
 ----------------------------------------------------------------------------------------------------------------------------------
-60         $522,986.13          $122,094.19          $384,548.62          $1,029,628.94        RRSP Drawdown            -3.86%
-61         $463,458.99          $128,119.14          $381,644.14          $973,222.27          RRSP Drawdown            -0.76%
-62         $394,557.67          $130,840.88          $369,560.19          $894,958.74          RRSP Drawdown            -3.17%
-63         $313,339.43          $127,573.49          $342,032.65          $782,945.56          RRSP Drawdown            -7.45%
-64         $257,685.84          $134,754.64          $342,493.07          $734,933.55          RRSP Drawdown             0.13%
-65         $211,868.17          $148,911.28          $359,784.21          $720,563.66          RRSP Drawdown             5.05%
-66         $140,704.97          $140,743.89          $324,783.61          $606,232.46          RRSP Drawdown            -9.73%
-67         $91,371.31           $159,371.43          $350,344.29          $601,087.02          RRSP Drawdown             7.87%
-68         $41,960.42           $197,363.80          $415,607.89          $654,932.11          RRSP Drawdown            18.63%
-69         $36,947.34           $179,948.11          $324,569.70          $541,465.15          Taxable Drawdown        -11.95%
-70         $38,262.32           $193,601.70          $287,448.55          $519,312.57          Taxable Drawdown          3.56%
-71         $37,878.19           $198,587.79          $238,034.61          $474,500.60          Taxable Drawdown          -1.0%
-72         $30,560.53           $165,870.47          $154,128.80          $350,559.81          Taxable Drawdown        -19.32%
-73         $23,410.39           $132,424.57          $82,064.25           $237,899.22          Taxable Drawdown         -23.4%
-74         $19,670.53           $117,151.19          $29,462.66           $166,284.39          Taxable Drawdown        -15.98%
-75         $19,464.05           $76,341.33           $29,153.39           $124,958.77          TFSA Drawdown            -1.05%
-76         $16,498.65           $30,804.63           $24,711.79           $72,015.07           TFSA Drawdown           -15.24%
+60         $511,317.37          $119,370.05          $375,968.66          $1,006,656.08        rrsp                     -6.01%
+61         $463,932.41          $128,761.09          $383,082.34          $975,775.83          rrsp                      1.89%
+62         $373,177.50          $124,194.56          $350,444.60          $847,816.66          rrsp                     -8.52%
+63         $338,307.56          $139,934.61          $373,790.88          $852,033.05          rrsp                      6.66%
+64         $271,769.64          $141,449.86          $359,838.09          $773,057.60          rrsp                     -3.73%
+65         $250,937.12          $172,645.14          $418,486.74          $842,069.00          rrsp                      16.3%
+66         $159,736.00          $147,205.41          $342,917.76          $649,859.16          rrsp                    -18.06%
+67         $111,937.63          $166,397.27          $370,029.69          $648,364.59          rrsp                      7.91%
+68         $57,751.26           $179,019.22          $382,026.93          $618,797.41          rrsp                      3.24%
+69         $1,774.78            $188,517.68          $387,158.00          $577,450.45          rrsp                      1.34%
+70         $1,898.33            $209,128.45          $363,837.77          $574,864.55          taxable                   6.96%
+71         $1,712.40            $194,959.35          $285,804.51          $482,476.26          taxable                  -9.79%
+72         $1,905.96            $224,788.74          $265,798.86          $492,493.56          taxable                   11.3%
+73         $1,609.84            $195,776.44          $184,804.76          $382,191.04          taxable                 -15.54%
+74         $1,772.80            $223,303.25          $151,754.56          $376,830.61          taxable                  10.12%
+75         $1,691.30            $219,714.83          $99,938.37           $321,344.50          taxable                   -4.6%
+76         $1,625.15            $217,847.51          $50,867.83           $270,340.49          taxable                  -3.91%
+77         $1,630.68            $225,612.93          $3,881.00            $231,124.60          taxable                   0.34%
+78         $1,761.29            $200,480.33          $4,191.86            $206,433.49          tfsa                      8.01%
+79         $1,724.06            $157,087.49          $4,103.24            $162,914.78          tfsa                     -2.11%
+80         $1,908.35            $129,603.66          $4,541.86            $136,053.87          tfsa                     10.69%
+81         $2,015.17            $94,619.33           $4,796.09            $101,430.59          tfsa                       5.6%
+82         $2,839.04            $76,949.38           $6,756.88            $86,545.30           tfsa                     40.88%
+83         $2,764.35            $35,977.30           $6,579.12            $45,320.77           tfsa                     -2.63%
 ----------------------------------------------------------------------------------------------------------------------------------
 Simulation Result: Failure
-Simulation failed. Max age 105 not reached. Final age is 76.
+Simulation failed. Max age 105 not reached. Final age is 83.
 ```
 
 You can use the `success_rate` mode (either specify it in `inputs.yml` or override it at the command line as shown below) to run the simulation 5000 times (or however many times you specify in `total_runs`). In this case, it calculates the percentage of successful scenarios:
@@ -255,9 +267,10 @@ You can use the `success_rate` mode (either specify it in `inputs.yml` or overri
 ```
 ruby main.rb success_rate
 
+Running main.rb in success_rate mode...
 Simulating... [████████████████████████████████████████] 100%
 
-Simulation Success Rate: 66.74%
+Simulation Success Rate: 69.26% ✅
 ```
 
 Success is defined as making it to `max_age` with at least `success_factor` * annual withdrawals in that phase, money left.
