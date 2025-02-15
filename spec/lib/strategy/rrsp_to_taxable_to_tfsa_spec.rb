@@ -84,4 +84,53 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
       end
     end
   end
+
+  describe "#transact" do
+    context "when given RRSP account" do
+      it "depletes the account by the RRSP withdrawal amount" do
+        # annual_withdrawal_amount_rrsp
+        expect { strategy.transact(strategy.rrsp_account) }
+          .to change { strategy.rrsp_account.balance }.by(-33_800)
+      end
+
+      it "makes a TFSA deposit" do
+        expect { strategy.transact(strategy.rrsp_account) }
+          .to change { strategy.tfsa_account.balance }.by(10)
+      end
+    end
+
+    context "when given taxable account" do
+      it "depletes the account by the taxable withdrawal amount" do
+        # desired_spending + annual_tfsa_contribution
+        expect { strategy.transact(strategy.taxable_account) }
+          .to change { strategy.taxable_account.balance }.by(-30_010)
+      end
+
+      it "makes a TFSA deposit" do
+        expect { strategy.transact(strategy.taxable_account) }
+          .to change { strategy.tfsa_account.balance }.by(10)
+      end
+    end
+
+    context "when given TFSA account" do
+      it "depletes the account by the TFSA withdrawal amount" do
+        # desired_spending only
+        expect { strategy.transact(strategy.tfsa_account) }
+          .to change { strategy.tfsa_account.balance }.by(-30_000)
+      end
+    end
+
+    context "when given cash cushion account" do
+      it "depletes the account by the cash cushion withdrawal amount" do
+        # desired_spending only
+        expect { strategy.transact(strategy.cash_cushion) }
+          .to change { strategy.cash_cushion.balance }.by(-30_000)
+      end
+
+      it "does NOT make a TFSA deposit (failing test for bug)" do
+        expect { strategy.transact(strategy.cash_cushion) }
+          .not_to(change { strategy.tfsa_account.balance })
+      end
+    end
+  end
 end

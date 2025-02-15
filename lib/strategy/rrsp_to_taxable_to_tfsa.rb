@@ -32,8 +32,9 @@ module Strategy
     def transact(current_account)
       current_account.withdraw(withdrawal_amounts.annual_amount(current_account))
 
-      # Ensure we do not contribute to TFSA if withdrawing from TFSA
-      return unless current_account.name != "tfsa" && app_config["annual_tfsa_contribution"].positive?
+      # Ensure we do not contribute to TFSA if withdrawing from TFSA or cash cushion
+      return unless !%w[tfsa
+                        cash_cushion].include?(current_account.name) && app_config["annual_tfsa_contribution"].positive?
 
       tfsa_account.deposit(app_config["annual_tfsa_contribution"])
     end
