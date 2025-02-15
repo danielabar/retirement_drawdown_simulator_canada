@@ -3,15 +3,8 @@
 require_relative "../../spec_helper"
 
 RSpec.describe Simulation::SimulatorFormatter do
-  subject(:simulator_formatter) do
-    described_class.new(simulation_results, first_year_cash_flow_results, evaluator_results)
-  end
-
   let(:base_fixture_path) { File.expand_path("../../fixtures", __dir__) }
   let(:app_config) { AppConfig.new(File.join(base_fixture_path, "example_input_minimal.yml")) }
-  let(:simulation_results) { Simulation::Simulator.new(app_config).run }
-  let(:evaluator_results) { Simulation::SimulationEvaluator.new(simulation_results, app_config).evaluate }
-  let(:first_year_cash_flow_results) { FirstYearCashFlow.new(app_config).calculate }
 
   let(:expected_output) do
     <<~OUTPUT
@@ -36,6 +29,12 @@ RSpec.describe Simulation::SimulatorFormatter do
   end
 
   it "prints exactly the expected output" do
+    simulation_results = Simulation::Simulator.new(app_config).run
+    evaluator_results = Simulation::SimulationEvaluator.new(simulation_results, app_config).evaluate
+    first_year_cash_flow_results = FirstYearCashFlow.new(app_config).calculate
+    simulator_formatter = described_class.new(simulation_results, first_year_cash_flow_results,
+                                              evaluator_results)
+
     expect { simulator_formatter.print_all }.to output(expected_output).to_stdout
   end
 end
