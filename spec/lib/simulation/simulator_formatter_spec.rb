@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
-require_relative "../spec_helper"
+require_relative "../../spec_helper"
 
-RSpec.describe SimulatorFormatter do
+RSpec.describe Simulation::SimulatorFormatter do
   subject(:simulator_formatter) do
     described_class.new(simulation_results, first_year_cash_flow_results, evaluator_results)
   end
 
-  let(:app_config) { AppConfig.new(File.join(__dir__, "..", "fixtures", "example_input_minimal.yml")) }
+  let(:base_fixture_path) { File.expand_path("../../fixtures", __dir__) }
+  let(:app_config) { AppConfig.new(File.join(base_fixture_path, "example_input_minimal.yml")) }
   let(:simulation_results) { Simulation::Simulator.new(app_config).run }
   let(:evaluator_results) { Simulation::SimulationEvaluator.new(simulation_results, app_config).evaluate }
   let(:first_year_cash_flow_results) { FirstYearCashFlow.new(app_config).calculate }
