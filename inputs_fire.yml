@@ -1,16 +1,18 @@
 # Experimenting with the "canonical" FIRE scenario.
 # 1M portfolio, 40K/year, retire early based on 4% rule.
-# Ignoring taxes!
-# Success rate is ~70-72%, NOT the 95% that's often reported in personal finance articles.
+# Success rate is only ~55%, NOT the 95% that's often reported in personal finance articles,
+# Even with cash cushion to use during market downturns.
 retirement_age: 45
-max_age: 105
-annual_tfsa_contribution: 0
+max_age: 95
+province_code: ONT
+annual_tfsa_contribution: 3000
 
 # Growth rate average, min, and max to generate variability
 annual_growth_rate:
-  average: 0.06
+  average: 0.05
   min: -0.3
   max: 0.3
+  downturn_threshold: -0.2
 
 # Success factor: defines the multiplier for total_balance needed for success
 success_factor: 1
@@ -25,6 +27,7 @@ accounts:
   rrsp: 600000
   taxable: 200000
   tfsa: 200000
+  cash_cushion: 80000
 
 taxes:
   rrsp_withholding_rate: 0.3
