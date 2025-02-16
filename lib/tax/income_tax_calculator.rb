@@ -9,9 +9,9 @@ module Tax
     end
 
     def calculate(gross_income, province_code)
-      federal_tax    = calculate_federal_tax(gross_income)
+      federal_tax = calculate_federal_tax(gross_income)
       provincial_tax = calculate_provincial_tax(gross_income, province_code)
-      total_tax      = federal_tax + provincial_tax
+      total_tax = federal_tax + provincial_tax
 
       {
         federal_tax: federal_tax,
@@ -24,59 +24,48 @@ module Tax
     private
 
     def calculate_federal_tax(gross_income)
-      fed_config = @tax_config["federal"]
-      calculate_tax(gross_income,
-                    fed_config["brackets"],
-                    fed_config["rates"],
-                    fed_config["exemption"])
+      federal_brackets = @tax_config["federal"]["brackets"]
+      federal_rates = @tax_config["federal"]["rates"]
+      federal_exemption = @tax_config["federal"]["exemption"]
+
+      tax_before_credit = apply_progressive_tax(gross_income, federal_brackets, federal_rates)
+      tax_credit = federal_exemption * federal_rates.first # Apply lowest tax rate to exemption
+      [tax_before_credit - tax_credit, 0].max # Tax can't be negative
     end
 
     def calculate_provincial_tax(gross_income, province_code)
       province_data = province_data_for(province_code)
-      calculate_tax(gross_income,
-                    province_data["brackets"],
-                    province_data["rates"],
-                    province_data["exemption"])
+      provincial_brackets = province_data["brackets"]
+      provincial_rates = province_data["rates"]
+      provincial_exemption = province_data["exemption"]
+
+      tax_before_credit = apply_progressive_tax(gross_income, provincial_brackets, provincial_rates)
+      tax_credit = provincial_exemption * provincial_rates.first # Apply lowest tax rate to exemption
+      [tax_before_credit - tax_credit, 0].max # Tax can't be negative
+    end
+
+    def apply_progressive_tax(income, brackets, rates)
+      tax = 0
+      previous_bracket = 0
+
+      brackets.each_with_index do |bracket, index|
+        if income > bracket
+          tax += (bracket - previous_bracket) * rates[index]
+          previous_bracket = bracket
+        else
+          tax += (income - previous_bracket) * rates[index]
+          return tax
+        end
+      end
+
+      # Apply top rate to any income above the last bracket
+      tax += (income - previous_bracket) * rates.last if income > previous_bracket
+      tax
     end
 
     def province_data_for(province_code)
       @tax_config.fetch(province_code) do
         raise ArgumentError, "Invalid province code: #{province_code}"
-      end
-    end
-
-    def calculate_tax(income, brackets, rates, exemption)
-      taxable = taxable_income(income, exemption)
-      compute_tax(taxable, brackets, rates)
-    end
-
-    def taxable_income(income, exemption)
-      [income - exemption, 0].max
-    end
-
-    # Computes the total tax for the given taxable income across all tax brackets.
-    def compute_tax(taxable, brackets, rates)
-      tax = 0
-      previous_bracket = 0
-
-      (brackets + [Float::INFINITY]).zip(rates).each do |bracket, rate|
-        segment_tax, new_previous = compute_tax_for_segment(taxable, previous_bracket, bracket, rate)
-        tax += segment_tax
-        break if taxable <= bracket
-
-        previous_bracket = new_previous
-      end
-
-      tax
-    end
-
-    # Computes the tax for a single bracket segment.
-    # Returns a two-element array: [tax_for_segment, updated_previous_bracket]
-    def compute_tax_for_segment(taxable, previous_bracket, bracket, rate)
-      if taxable > bracket
-        [(bracket - previous_bracket) * rate, bracket]
-      else
-        [(taxable - previous_bracket) * rate, previous_bracket]
       end
     end
   end

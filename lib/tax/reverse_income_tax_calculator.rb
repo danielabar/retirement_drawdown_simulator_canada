@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "yaml"
+
 module Tax
   class ReverseIncomeTaxCalculator
     CONFIG_PATH = File.join(__dir__, "../../config/tax.yml")
@@ -16,85 +18,81 @@ module Tax
     private
 
     def find_gross_income_for_take_home(desired_take_home, province_code)
-      gross_income = desired_take_home.to_f
-      loop do
-        return gross_income if take_home_for(gross_income, province_code) >= desired_take_home
+      lower_bound = desired_take_home
+      upper_bound = desired_take_home * 1.5 # Initial guess
+      tolerance = 0.01
 
-        gross_income += 0.01
+      while (upper_bound - lower_bound) > tolerance
+        mid_income = (lower_bound + upper_bound) / 2.0
+        calculated_take_home = take_home_for(mid_income, province_code)
+
+        if calculated_take_home < desired_take_home
+          lower_bound = mid_income
+        else
+          upper_bound = mid_income
+        end
       end
+
+      upper_bound.round(2) # Ensures the gross income is rounded properly
     end
 
     def take_home_for(gross_income, province_code)
-      fed_tax  = calculate_federal_tax(gross_income)
-      prov_tax = calculate_provincial_tax(gross_income, province_code)
-      gross_income - (fed_tax + prov_tax)
+      total_tax = calculate_federal_tax(gross_income) + calculate_provincial_tax(gross_income, province_code)
+      gross_income - total_tax
     end
 
     def build_tax_details(gross_income, province_code)
-      fed_tax  = calculate_federal_tax(gross_income)
-      prov_tax = calculate_provincial_tax(gross_income, province_code)
-      total_tax = fed_tax + prov_tax
+      federal_tax = calculate_federal_tax(gross_income)
+      provincial_tax = calculate_provincial_tax(gross_income, province_code)
+      total_tax = federal_tax + provincial_tax
 
       {
         gross_income: gross_income.round(2),
-        federal_tax: fed_tax,
-        provincial_tax: prov_tax,
-        total_tax: total_tax,
-        take_home: gross_income - total_tax
+        federal_tax: federal_tax.round(2),
+        provincial_tax: provincial_tax.round(2),
+        total_tax: total_tax.round(2),
+        take_home: (gross_income - total_tax).round(2)
       }
     end
 
     def calculate_federal_tax(gross_income)
       fed_config = @tax_config["federal"]
-      calculate_tax(gross_income,
-                    fed_config["brackets"],
-                    fed_config["rates"],
-                    fed_config["exemption"])
+      calculate_tax(gross_income, fed_config["brackets"], fed_config["rates"], fed_config["exemption"])
     end
 
     def calculate_provincial_tax(gross_income, province_code)
       province_data = province_data_for(province_code)
-      calculate_tax(gross_income,
-                    province_data["brackets"],
-                    province_data["rates"],
-                    province_data["exemption"])
+      calculate_tax(gross_income, province_data["brackets"], province_data["rates"], province_data["exemption"])
+    end
+
+    def calculate_tax(income, brackets, rates, exemption)
+      tax_before_credit = apply_progressive_tax(income, brackets, rates)
+      tax_credit = exemption * rates.first # Apply lowest tax rate to exemption
+      [tax_before_credit - tax_credit, 0].max # Tax cannot be negative
+    end
+
+    def apply_progressive_tax(income, brackets, rates)
+      tax = 0
+      previous_bracket = 0
+
+      brackets.each_with_index do |bracket, index|
+        if income > bracket
+          tax += (bracket - previous_bracket) * rates[index]
+          previous_bracket = bracket
+        else
+          tax += (income - previous_bracket) * rates[index]
+          return tax
+        end
+      end
+
+      # Apply top rate to any income above the last bracket
+      tax += (income - previous_bracket) * rates.last if income > previous_bracket
+      tax
     end
 
     def province_data_for(province_code)
       @tax_config.fetch(province_code) do
         raise ArgumentError, "Invalid province code: #{province_code}"
-      end
-    end
-
-    def calculate_tax(income, brackets, rates, exemption)
-      taxable = taxable_income(income, exemption)
-      compute_tax(taxable, brackets, rates)
-    end
-
-    def taxable_income(income, exemption)
-      [income - exemption, 0].max
-    end
-
-    def compute_tax(taxable, brackets, rates)
-      tax = 0
-      previous_bracket = 0
-
-      (brackets + [Float::INFINITY]).zip(rates).each do |bracket, rate|
-        segment_tax, new_previous = compute_tax_for_segment(taxable, previous_bracket, bracket, rate)
-        tax += segment_tax
-        break if taxable <= bracket
-
-        previous_bracket = new_previous
-      end
-
-      tax
-    end
-
-    def compute_tax_for_segment(taxable, previous_bracket, bracket, rate)
-      if taxable > bracket
-        [(bracket - previous_bracket) * rate, bracket]
-      else
-        [(taxable - previous_bracket) * rate, previous_bracket]
       end
     end
   end
