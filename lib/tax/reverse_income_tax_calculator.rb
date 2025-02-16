@@ -19,24 +19,6 @@ module Tax
 
     private
 
-    # def find_gross_income_for_take_home(desired_take_home, province_code)
-    #   lower_bound = desired_take_home
-    #   upper_bound = desired_take_home * 1.5 # Initial guess
-    #   tolerance = 0.01
-
-    #   while (upper_bound - lower_bound) > tolerance
-    #     mid_income = (lower_bound + upper_bound) / 2.0
-    #     calculated_take_home = take_home_for(mid_income, province_code)
-
-    #     if calculated_take_home < desired_take_home
-    #       lower_bound = mid_income
-    #     else
-    #       upper_bound = mid_income
-    #     end
-    #   end
-
-    #   upper_bound.round(2) # Ensures the gross income is rounded properly
-    # end
     def find_gross_income_for_take_home(desired_take_home, province_code)
       lower_bound = desired_take_home
       upper_bound = desired_take_home * 1.5 # Initial guess
