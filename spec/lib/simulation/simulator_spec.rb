@@ -19,12 +19,12 @@ RSpec.describe Simulation::Simulator do
         expect(row).to match(
           a_hash_including(
             age: 65,
-            rrsp_balance: be_within(1).of(46_662),
+            rrsp_balance: be_within(1).of(46_758),
             tfsa_balance: be_within(1).of(30_310),
             taxable_balance: be_within(1).of(60_600),
             note: "rrsp",
             rate_of_return: 0.01,
-            total_balance: be_within(1).of(137_572.10)
+            total_balance: be_within(1).of(137_668.32)
           )
         )
       end
@@ -34,12 +34,12 @@ RSpec.describe Simulation::Simulator do
         expect(row).to match(
           a_hash_including(
             age: 66,
-            rrsp_balance: be_within(1).of(12_990),
+            rrsp_balance: be_within(1).of(13_184),
             tfsa_balance: be_within(1).of(30_623),
             taxable_balance: be_within(1).of(61_206),
             note: "rrsp",
             rate_of_return: 0.01,
-            total_balance: be_within(1).of(104_819.92)
+            total_balance: be_within(1).of(105_013.33)
           )
         )
       end
@@ -49,12 +49,12 @@ RSpec.describe Simulation::Simulator do
         expect(row).to match(
           a_hash_including(
             age: 67,
-            rrsp_balance: be_within(1).of(13_120),
-            tfsa_balance: be_within(1).of(30_939),
-            taxable_balance: be_within(1).of(31_507),
+            rrsp_balance: be_within(1).of(13_316),
+            tfsa_balance: be_within(1).of(30_940),
+            taxable_balance: be_within(1).of(31_508),
             note: "taxable",
             rate_of_return: 0.01,
-            total_balance: be_within(1).of(75_568.12)
+            total_balance: be_within(1).of(75_763.46)
           )
         )
       end
@@ -64,12 +64,12 @@ RSpec.describe Simulation::Simulator do
         expect(row).to match(
           a_hash_including(
             age: 68,
-            rrsp_balance: be_within(1).of(13_251),
+            rrsp_balance: be_within(1).of(13_449),
             tfsa_balance: be_within(1).of(31_259),
-            taxable_balance: be_within(1).of(1_512),
+            taxable_balance: be_within(1).of(1_513),
             note: "taxable",
             rate_of_return: 0.01,
-            total_balance: be_within(1).of(46_023.80)
+            total_balance: be_within(1).of(46_221.10)
           )
         )
       end
@@ -79,12 +79,12 @@ RSpec.describe Simulation::Simulator do
         expect(row).to match(
           a_hash_including(
             age: 69,
-            rrsp_balance: be_within(1).of(13_384),
-            tfsa_balance: be_within(1).of(1_271),
+            rrsp_balance: be_within(1).of(13_584),
+            tfsa_balance: be_within(1).of(1_272),
             taxable_balance: be_within(1).of(1_528),
             note: "tfsa",
             rate_of_return: 0.01,
-            total_balance: be_within(1).of(16_184.04)
+            total_balance: be_within(1).of(16_383.31)
           )
         )
       end
@@ -96,7 +96,8 @@ RSpec.describe Simulation::Simulator do
 
       it "simulates RRSP drawdown until balance is less than withdrawal amount" do
         final_rrsp_year = results.reverse.find { |r| r[:note] == "rrsp" }
-        expect(final_rrsp_year[:rrsp_balance]).to be < 56_000 # annual_withdrawal_amount_rrsp from fixture
+        rrsp_withdrawal_amount = WithdrawalAmounts.new(app_config).annual_rrsp
+        expect(final_rrsp_year[:rrsp_balance]).to be < rrsp_withdrawal_amount
       end
 
       it "simulates taxable drawdown until balance is below the withdrawal amount" do

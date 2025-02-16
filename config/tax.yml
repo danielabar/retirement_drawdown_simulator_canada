@@ -1,0 +1,68 @@
+# 2025 Tax Rates
+# https://www.canada.ca/en/revenue-agency/services/tax/individuals/frequently-asked-questions-individuals/canadian-income-tax-rates-individuals-current-previous-years.html#toc0
+# https://www.taxtips.ca/nrcredits/tax-credits-2025-base.htm
+# NOTE: The EY Tax Calculator uses very low basic personal credit amounts: https://www.ey.com/content/dam/ey-unified-site/ey-com/en-ca/services/tax/tax-calculators/2025/ey-tax-rates-ontario-2025-01-15-v1.pdf
+federal:
+  brackets: [57375, 114750, 177882, 253414]
+  rates: [0.15, 0.205, 0.26, 0.29, 0.33]
+  exemption: 16129
+
+ONT:
+  brackets: [52886, 105775, 150000, 220000]
+  rates: [0.0505, 0.0915, 0.1116, 0.1216, 0.1316]
+  exemption: 12747
+
+NL:
+  brackets: [44192, 88382, 157792, 220910, 282214, 564429, 1128858]
+  rates: [0.087, 0.145, 0.158, 0.178, 0.198, 0.208, 0.213, 0.218]
+  exemption: 11067
+
+PE:
+  brackets: [33328, 64656, 105000, 140000]
+  rates: [0.095, 0.1347, 0.166, 0.1762, 0.19]
+  exemption: 14250
+
+NS:
+  brackets: [30507, 61015, 95883, 154650]
+  rates: [0.0879, 0.1495, 0.1667, 0.175, 0.21]
+  exemption: 8744
+
+NB:
+  brackets: [51306, 102614, 190060]
+  rates: [0.094, 0.14, 0.16, 0.195]
+  exemption: 13396
+
+MB:
+  brackets: [47564, 101200]
+  rates: [0.108, 0.1275, 0.174]
+  exemption: 15969
+
+SK:
+  brackets: [53463, 152750]
+  rates: [0.105, 0.125, 0.145]
+  exemption: 19491
+
+AB:
+  brackets: [151234, 181481, 241974, 362961]
+  rates: [0.10, 0.12, 0.13, 0.14, 0.15]
+  exemption: 22323
+
+BC:
+  brackets: [49279, 98560, 113158, 137407, 186306, 259829]
+  rates: [0.0506, 0.077, 0.105, 0.1229, 0.147, 0.168, 0.205]
+  exemption: 12932
+
+YT:
+  brackets: [57375, 114750, 177882, 500000]
+  rates: [0.064, 0.09, 0.109, 0.128, 0.15]
+  exemption: 16129
+
+NT:
+  brackets: [51964, 103930, 168967]
+  rates: [0.059, 0.086, 0.122, 0.1405]
+  exemption: 17842
+
+NU:
+  brackets: [54707, 109413, 177881]
+  rates: [0.04, 0.07, 0.09, 0.115]
+  exemption: 19274

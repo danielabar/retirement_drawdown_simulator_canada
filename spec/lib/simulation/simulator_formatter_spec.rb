@@ -10,18 +10,20 @@ RSpec.describe Simulation::SimulatorFormatter do
     <<~OUTPUT
       === First-Year Cash Flow Breakdown ===
       Desired Income Including TFSA Contribution: $30,010.00
-      RRSP Withholding Tax: $10,140.00
-      Expected Tax Refund: $6,427.00
-      RRSP Available After Withholding: $23,660.00
-      Required Cash Buffer for First Year: $6,350.00
+      RRSP Withdrawal Amount (higher due to income tax): $33,704.73
+      RRSP Withholding Tax: $10,111.42
+      Actual Tax Bill: $3,694.72
+      Expected Tax Refund: $6,416.70
+      RRSP Available After Withholding: $23,593.31
+      Required Cash Buffer for First Year: $6,416.69
       #{'-' * 150}
       Age        RRSP                 TFSA                 Taxable              Cash Cushion         Total Balance        Note                        RoR
       #{'-' * 150}
-      65         $46,662.00           $30,310.10           $60,600.00           $0.00                $137,572.10          rrsp                       1.0%
-      66         $12,990.62           $30,623.30           $61,206.00           $0.00                $104,819.92          rrsp                       1.0%
-      67         $13,120.53           $30,939.63           $31,507.96           $0.00                $75,568.12           taxable                    1.0%
-      68         $13,251.73           $31,259.13           $1,512.94            $0.00                $46,023.80           taxable                    1.0%
-      69         $13,384.25           $1,271.72            $1,528.07            $0.00                $16,184.04           tfsa                       1.0%
+      65         $46,758.22           $30,310.10           $60,600.00           $0.00                $137,668.32          rrsp                       1.0%
+      66         $13,184.03           $30,623.30           $61,206.00           $0.00                $105,013.33          rrsp                       1.0%
+      67         $13,315.87           $30,939.63           $31,507.96           $0.00                $75,763.46           taxable                    1.0%
+      68         $13,449.03           $31,259.13           $1,512.94            $0.00                $46,221.10           taxable                    1.0%
+      69         $13,583.52           $1,271.72            $1,528.07            $0.00                $16,383.31           tfsa                       1.0%
       #{'-' * 150}
       Simulation Result: Failure
       Simulation failed. Max age 75 not reached. Final age is 69.

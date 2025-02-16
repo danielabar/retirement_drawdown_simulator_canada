@@ -9,7 +9,8 @@ RSpec.describe WithdrawalAmounts do
 
   describe "#annual_rrsp" do
     it "returns the exact RRSP withdrawal amount from config" do
-      expect(withdrawal_amounts.annual_rrsp).to eq(33_800)
+      # this is the reverse tax calculator amount based on desired_spending, tfsa contribution, and province_code
+      expect(withdrawal_amounts.annual_rrsp).to eq(33_704.73)
     end
   end
 

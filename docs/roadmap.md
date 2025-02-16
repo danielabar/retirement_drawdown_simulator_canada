@@ -2,7 +2,6 @@
 
 ## Enhancements
 
-- Reverse tax calculator - too cumbersome to experiment with different spending/tfsa contribution amounts because need to experiment with external tax calculator each time to find required withdrawal to achieve desired after-tax income.
 - Cash cushion refill if needed when market return is high (would need to track what original balance was or have user specify how many years worth they want to keep in this bucket)
 - Cascading/multi-account withdrawals - a little left in one account but not enough to fund that years spending so have to go to next account
 - Inflation (simple: constant, complicated: varying).

@@ -10,6 +10,7 @@ class WithdrawalAmounts
 
   def initialize(app_config)
     @app_config = app_config
+    @reverse_tax_calculator = Tax::ReverseIncomeTaxCalculator.new
   end
 
   def annual_amount(account)
@@ -20,7 +21,7 @@ class WithdrawalAmounts
   end
 
   def annual_rrsp
-    app_config["annual_withdrawal_amount_rrsp"]
+    reverse_tax_results[:gross_income]
   end
 
   def annual_taxable
@@ -40,4 +41,13 @@ class WithdrawalAmounts
   private
 
   attr_reader :app_config
+
+  # TODO: Makes repeated simulations slow because this gets calculated each time
+  def reverse_tax_results
+    @reverse_tax_results ||= @reverse_tax_calculator.calculate(desired_income, app_config["province_code"])
+  end
+
+  def desired_income
+    app_config["desired_spending"] + app_config["annual_tfsa_contribution"]
+  end
 end

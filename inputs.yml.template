@@ -10,6 +10,10 @@ retirement_age: 60
 # Max age to prevent infinite loops
 max_age: 105
 
+# Province or territory where you reside
+# Valid values are: ONT, NL, PE, NS, NB, MB, SK, AB, BC, YT, NT, NU
+province_code: ONT
+
 # Success factor: defines the multiplier for total_balance needed by max_age for success.
 # Supports fractional, eg: 1.5
 success_factor: 1
@@ -46,12 +50,6 @@ annual_tfsa_contribution: 7000
 #   3. Lumpy (eg: new car, replace roof, replace appliances etc. only happen every few years so divide amount by how many years expense occurs)
 desired_spending: 40000
 
-# Have to withdraw more than desired_spending (and optional tfsa contribution) to account for taxes
-# Add up your desired_spending (and annual_tfsa_contribution if making), then figure out how much you'd actually need
-# to withdraw to be left with desired_spending + annual_tfsa_contribution
-# Use a tax calculator to figure this out: https://www.eytaxcalculators.com/en/2025-personal-tax-calculator.html
-annual_withdrawal_amount_rrsp: 56000
-
 # Starting account balances.
 # Set cash_cushion balance to 0 if you don't want to use it
 accounts:
@@ -69,7 +67,6 @@ accounts:
 # Assumption is you'll be withdrawing at least 15K which lands in 30% withholding tax.
 taxes:
   rrsp_withholding_rate: 0.3
-  actual_tax_bill: 6360
 
 # Investment details
 # Unused - future capital gains tax determination

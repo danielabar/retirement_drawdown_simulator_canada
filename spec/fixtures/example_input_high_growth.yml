@@ -2,9 +2,9 @@ mode: detailed
 
 retirement_age: 60
 max_age: 120
+province_code: ONT
 annual_tfsa_contribution: 7000
 desired_spending: 40000
-annual_withdrawal_amount_rrsp: 56000
 
 annual_growth_rate:
   average: 0.1
@@ -22,8 +22,3 @@ accounts:
 
 taxes:
   rrsp_withholding_rate: 0.3
-  actual_tax_bill: 6360
-
-investment:
-  market_price: 35.12
-  cost_per_share: 29.34

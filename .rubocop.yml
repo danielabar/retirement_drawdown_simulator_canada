@@ -10,6 +10,9 @@ Style/Documentation:
 Style/StringLiterals:
   EnforcedStyle: double_quotes
 
+Metrics/MethodLength:
+  Max: 15
+
 RSpec/ExampleLength:
   Max: 15
 
