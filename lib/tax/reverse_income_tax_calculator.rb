@@ -4,12 +4,9 @@ require "yaml"
 
 module Tax
   class ReverseIncomeTaxCalculator
-    CONFIG_PATH = File.join(__dir__, "../../config/tax.yml")
-
-    # TODO: Consider option to load hash for testing,
-    # otherwise each year as tax rates change, test results will also change.
     def initialize
-      @tax_config = YAML.load_file(CONFIG_PATH)
+      tax_file_path = tax_config_file_path
+      @tax_config = load_tax_config(tax_file_path)
     end
 
     def calculate(desired_take_home, province_code)
@@ -18,6 +15,20 @@ module Tax
     end
 
     private
+
+    def tax_config_file_path
+      if ENV["APP_ENV"] == "test"
+        File.expand_path("../../config/tax_fixed.yml", __dir__)
+      else
+        File.expand_path("../../config/tax.yml", __dir__)
+      end
+    end
+
+    def load_tax_config(path)
+      YAML.load_file(path)
+    rescue StandardError => e
+      raise "Error loading tax configuration from #{path}: #{e.message}"
+    end
 
     def find_gross_income_for_take_home(desired_take_home, province_code)
       lower_bound = desired_take_home
