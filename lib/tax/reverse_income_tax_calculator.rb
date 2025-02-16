@@ -8,16 +8,35 @@ module Tax
 
     # TODO: Consider option to load hash for testing,
     # otherwise each year as tax rates change, test results will also change.
-    def initialize
+    # def initialize(cache: Util::FileCache.new)
+    # def initialize(cache: Util::NullCache.new)
+    def initialize(cache: Util::MemoryCache.instance)
       @tax_config = YAML.load_file(CONFIG_PATH)
+      @cache = cache
     end
 
     def calculate(desired_take_home, province_code)
-      gross_income = find_gross_income_for_take_home(desired_take_home, province_code)
-      build_tax_details(gross_income, province_code)
+      # temp debug
+      # puts "=== CALCULATE: #{desired_take_home} and #{province_code} ==="
+      cache_key = "reverse_tax:#{desired_take_home}:#{province_code}"
+      cached_result = @cache.fetch(cache_key)
+      # temp debug
+      # puts "=== CACHE HIT FOR #{cache_key} ===" if cached_result
+      return cached_result if cached_result
+
+      result = compute_tax_details(desired_take_home, province_code)
+      @cache.store(cache_key, result)
+      # temp debug
+      # puts "=== CACHE MISS FOR #{cache_key} ==="
+      result
     end
 
     private
+
+    def compute_tax_details(desired_take_home, province_code)
+      gross_income = find_gross_income_for_take_home(desired_take_home, province_code)
+      build_tax_details(gross_income, province_code)
+    end
 
     def find_gross_income_for_take_home(desired_take_home, province_code)
       lower_bound = desired_take_home

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "tty-progressbar"
+require "time"
 
 module Run
   class SuccessRateSimulation
@@ -13,12 +14,20 @@ module Run
       success_count = 0
       progress_bar = create_progress_bar
 
+      # Record the start time
+      start_time = Time.now
+
       total_runs.times do
         success_count += simulate_once
         progress_bar.advance
       end
 
+      # Record the end time and calculate elapsed time
+      end_time = Time.now
+      elapsed_time = end_time - start_time
+
       display_success_rate(success_count)
+      display_time_taken(elapsed_time)
     end
 
     private
@@ -44,6 +53,12 @@ module Run
     def display_success_rate(success_count)
       success_rate = (success_count.to_f / total_runs) * 100
       puts "\nSimulation Success Rate: \e[32m#{success_rate.round(2)}%\e[0m ✅"
+    end
+
+    def display_time_taken(elapsed_time)
+      minutes = (elapsed_time / 60).to_i
+      seconds = (elapsed_time % 60).to_i
+      puts "Time taken: \e[34m#{minutes}m #{seconds}s\e[0m"
     end
   end
 end

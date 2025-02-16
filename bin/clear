@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+
+# frozen_string_literal: true
+
+require "fileutils"
+
+CACHE_DIR = File.expand_path("../tmp/cache", __dir__)
+
+if Dir.exist?(CACHE_DIR)
+  FileUtils.rm_f(Dir.glob("#{CACHE_DIR}/*"))
+  puts "Cache cleared: #{CACHE_DIR}"
+else
+  puts "Cache directory does not exist: #{CACHE_DIR}"
+end

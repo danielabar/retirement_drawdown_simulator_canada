@@ -1,3 +1,6 @@
 inputs.yml
 my_inputs.yml
 scratch.md
+
+# Cache
+tmp/cache/*.json
