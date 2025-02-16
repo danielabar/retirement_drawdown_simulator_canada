@@ -31,12 +31,6 @@ NB:
   rates: [0.094, 0.14, 0.16, 0.195]
   exemption: 13396
 
-# TODO
-QC:
-  brackets: []
-  rates: []
-  exemption: 0
-
 MB:
   brackets: [47564, 101200]
   rates: [0.108, 0.1275, 0.174]

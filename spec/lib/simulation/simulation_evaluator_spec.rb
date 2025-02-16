@@ -40,10 +40,12 @@ RSpec.describe Simulation::SimulationEvaluator do
       end
 
       it "fails because total balance is less than the 1x RRSP withdrawal amount" do
+        # when we're in rrsp phase, the success threshold is rrsp withdrawal amount which is
+        # calculated by reverse income tax calculator based on desired_income and province_code
         expect(evaluator.evaluate).to eq(
           success: false,
           explanation: "Simulation failed. Max age reached, but total balance of $15,000.00 " \
-                       "is below success threshold of $30,000.00."
+                       "is below success threshold of $27,438.31."
         )
       end
     end
@@ -155,10 +157,12 @@ RSpec.describe Simulation::SimulationEvaluator do
       end
 
       it "fails because total balance is less than 1.5x withdrawal amount" do
+        # when we're in rrsp phase, the success threshold is rrsp withdrawal amount which is
+        # calculated by reverse income tax calculator based on desired_income and province_code
         expect(evaluator.evaluate).to eq(
           success: false,
           explanation: "Simulation failed. Max age reached, but total balance of $40,000.00 " \
-                       "is below success threshold of $45,000.00."
+                       "is below success threshold of $41,157.46."
         )
       end
     end

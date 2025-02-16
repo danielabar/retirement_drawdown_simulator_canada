@@ -7,9 +7,9 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
     AppConfig.new(
       "retirement_age" => 65,
       "max_age" => 75,
+      "province_code" => "ONT",
       "annual_tfsa_contribution" => 10,
       "desired_spending" => 30_000,
-      "annual_withdrawal_amount_rrsp" => 33_800,
       "annual_growth_rate" => {
         "average" => 0.01,
         "min" => -0.1,
@@ -23,8 +23,7 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
         "cash_cushion" => 30_000
       },
       "taxes" => {
-        "rrsp_withholding_rate" => 0.3,
-        "actual_tax_bill" => 3_713
+        "rrsp_withholding_rate" => 0.3
       }
     )
   end
@@ -88,9 +87,9 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
   describe "#transact" do
     context "when given RRSP account" do
       it "depletes the account by the RRSP withdrawal amount" do
-        # annual_withdrawal_amount_rrsp
+        rrsp_withdrawal_amount = strategy.withdrawal_amounts.annual_rrsp
         expect { strategy.transact(strategy.rrsp_account) }
-          .to change { strategy.rrsp_account.balance }.by(-33_800)
+          .to change { strategy.rrsp_account.balance }.by(-rrsp_withdrawal_amount)
       end
 
       it "makes a TFSA deposit" do

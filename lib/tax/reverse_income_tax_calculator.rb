@@ -6,6 +6,8 @@ module Tax
   class ReverseIncomeTaxCalculator
     CONFIG_PATH = File.join(__dir__, "../../config/tax.yml")
 
+    # TODO: Consider option to load hash for testing,
+    # otherwise each year as tax rates change, test results will also change.
     def initialize
       @tax_config = YAML.load_file(CONFIG_PATH)
     end

@@ -21,9 +21,6 @@ return_sequence_type: geometric_brownian_motion
 # variable + fixed + lumpy (see Libre Retirement Income sheet)
 desired_spending: 40000
 
-# Have to withdraw more than desired_spending to account for taxes
-annual_withdrawal_amount_rrsp: 40000
-
 accounts:
   rrsp: 600000
   taxable: 200000
@@ -31,9 +28,3 @@ accounts:
 
 taxes:
   rrsp_withholding_rate: 0.3
-  actual_tax_bill: 9107
-
-# Unused for now
-investment:
-  market_price: 38.46
-  cost_per_share: 31.26
