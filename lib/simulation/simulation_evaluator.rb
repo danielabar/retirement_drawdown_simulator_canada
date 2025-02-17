@@ -47,6 +47,8 @@ module Simulation
       end
     end
 
+    # TODO: Consider simplifying this to just desired_spending because that
+    # doesn't depend on CPP, which in turn depends on current_age that we don't have here.
     def success_threshold
       case drawdown_phase
       when :rrsp then rrsp_threshold

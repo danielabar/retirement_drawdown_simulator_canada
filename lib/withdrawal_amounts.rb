@@ -8,6 +8,12 @@ class WithdrawalAmounts
     "cash_cushion" => :annual_cash_cushion
   }.freeze
 
+  # TODO: Debating whether current_age needs to be an instance var
+  # or passed around as an argument to various methods.
+  # Problem is current_age is only available in Simulation::Simulator that loops over ages
+  # but WithdrawalAmounts is instantiated from strategy and evaluator that don't have access to current_age.
+  # Consider moving dependency on WithdrawalAmounts to Simulation::Simulator
+  # As for evaluator - maybe it could be simpler in just considering desired_spending without considering cpp?
   def initialize(app_config)
     @app_config = app_config
     @reverse_tax_calculator = Tax::ReverseIncomeTaxCalculator.new
@@ -18,6 +24,65 @@ class WithdrawalAmounts
     raise ArgumentError, "Unknown account type: #{account.name}" unless method_name
 
     send(method_name)
+  end
+
+  # TODO: If cpp is not in effect (not being of age or cpp amount is 0, return: `reverse_tax_results[:gross_income]`
+  # TODO: How to ensure current_age can always be passed in when this is called
+  # TODO: refactor to address complexity (later, after testing)
+  # TODO: taxable, tfsa, and cash_cushion withdrawals also have to be adjusted for CPP
+  def annual_rrsp_wip(current_age)
+    cpp_start_age = app_config.cpp["start_age"]
+    cpp_gross_annual = app_config.cpp["monthly_amount"] * 12
+
+    # TODO: This should be desired_income because it could include optional TFSA contribution
+    # desired_spending = app_config["desired_spending"]
+
+    # If current_age is less than cpp_start_age, CPP is not in effect
+    cpp_annual_income = current_age >= cpp_start_age ? cpp_gross_annual : 0
+
+    # TODO: Can this be memoized to avoid repeated expensive calculation?
+    # Initial guess (without CPP)
+    rrsp_withdrawal = @reverse_tax_calculator.calculate(desired_income, app_config["province_code"])[:gross_income]
+
+    # Upper and lower bounds based on CPP and RRSP withdrawal
+    candidate_rrsp_withdrawal = nil
+    candidate_rrsp_withdrawal_upper = rrsp_withdrawal
+    candidate_rrsp_withdrawal_lower = rrsp_withdrawal - cpp_annual_income
+
+    # Binary search to find the correct RRSP withdrawal
+    tolerance = 1.0 # Allowable margin of error (i.e., desired spending)
+    max_iterations = 100
+    iterations = 0
+
+    loop do
+      # Calculate the midpoint RRSP withdrawal
+      candidate_rrsp_withdrawal = (candidate_rrsp_withdrawal_upper + candidate_rrsp_withdrawal_lower) / 2
+
+      # Total taxable income: CPP (if applicable) + RRSP withdrawal
+      total_taxable_income = cpp_annual_income + candidate_rrsp_withdrawal
+      forward_tax_details = Tax::IncomeTaxCalculator.new.calculate(total_taxable_income, app_config["province_code"])
+
+      # Actual take-home income after tax
+      actual_take_home = forward_tax_details[:take_home]
+
+      # Check if take-home is close enough to desired spending
+      difference = actual_take_home - desired_income
+
+      break if difference.abs <= tolerance || iterations >= max_iterations
+
+      if difference.positive?
+        # Take-home is too high, adjust upper bound
+        candidate_rrsp_withdrawal_upper = candidate_rrsp_withdrawal
+      else
+        # Take-home is too low, adjust lower bound
+        candidate_rrsp_withdrawal_lower = candidate_rrsp_withdrawal
+      end
+
+      iterations += 1
+    end
+
+    # Return the final RRSP withdrawal after the loop
+    candidate_rrsp_withdrawal
   end
 
   def annual_rrsp
@@ -49,5 +114,23 @@ class WithdrawalAmounts
 
   def desired_income
     app_config["desired_spending"] + app_config["annual_tfsa_contribution"]
+  end
+
+  # TODO: This is only for adjusting taxable, tfsa, and cash_cushion withdrawals (not RRSP withdrawals which are a different beast)
+  # but this is not quite right because cpp_annual_income is a gross amount and is taxable.
+  # If we assume that all other withdrawals end up not taxable (assume capital gains would be low enough for now),
+  # then we need to simply apply the forward tax calculator to cpp_annual_income to arrive at the net amount.
+  # Reduce required spending by CPP income if CPP is active
+  def adjusted_spending
+    app_config["desired_spending"] - cpp_annual_income
+  end
+
+  # TODO: this is actually gross, need to work in forward tax calculator to return net amount.
+  # Note that applying forward tax calc to just the CPP amount would only be correct if that's the only source of income.
+  # TODO: This is only going to work once we can guarantee to have a current_age
+  def cpp_annual_income(current_age)
+    return 0 if current_age < app_config["cpp"]["start_age"]
+
+    app_config["cpp"]["monthly_amount"] * 12
   end
 end

@@ -2,8 +2,9 @@
 
 ## Enhancements
 
+- WIP: Start CPP at age 60, 65, or 70: https://research-tools.pwlcapital.com/research/cpp (complexity: amount shown on My Service Canada assumes you keep working until age 65, if retiring early, actual amount will be less, the PWL research tool attempts to account for that by having you enter all your earnings over the past years)
+- Maybe output should also show how much was withdrawn?
 - Output initial account balances and total balance
-- Start CPP at age 60, 65, or 70: https://research-tools.pwlcapital.com/research/cpp (complexity: amount shown on My Service Canada assumes you keep working until age 65, if retiring early, actual amount will be less, the PWL research tool attempts to account for that by having you enter all your earnings over the past years)
 - Cash cushion refill if needed when market return is high (would need to track what original balance was or have user specify how many years worth they want to keep in this bucket)
 - Cascading/multi-account withdrawals - a little left in one account but not enough to fund that years spending so have to go to next account
 - Inflation (simple: constant, complicated: varying).
@@ -25,6 +26,7 @@
 ## Refactor
 
 - Make it easier to run with any input yml
+  - Related to above: consider organizing all inputs in a gitignored `inputs` folder rather than at project root where its getting messy
 - WIP rewrite tests loading AppConfig with hash rather than yaml - easier to maintain tests when don't have to have separate fixture file to understand input numbers
 - right-align numbers in output table (maybe this will be handled by tty-table feature)
 - test coverage
