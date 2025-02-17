@@ -6,24 +6,30 @@ module Run
   class SuccessRateSimulation
     def initialize(app_config)
       @app_config = app_config
-      @total_runs = app_config["total_runs"] || 5000
+      @total_runs = app_config["total_runs"] || 1_000
+      @withdrawal_rate = nil
     end
 
     def run
       success_count = 0
       progress_bar = create_progress_bar
 
-      total_runs.times do
-        success_count += simulate_once
+      total_runs.times do |_i|
+        success, withdrawal_rate = simulate_once
+
+        # Store withdrawal_rate from the first run
+        @withdrawal_rate ||= withdrawal_rate
+
+        success_count += success
         progress_bar.advance
       end
 
-      display_success_rate(success_count)
+      display_results(success_count)
     end
 
     private
 
-    attr_reader :app_config, :total_runs
+    attr_reader :app_config, :total_runs, :withdrawal_rate
 
     def create_progress_bar
       TTY::ProgressBar.new("Simulating... [:bar] :percent",
@@ -38,12 +44,15 @@ module Run
     def simulate_once
       simulation_results = Simulation::Simulator.new(app_config).run
       evaluator_results = Simulation::SimulationEvaluator.new(simulation_results, app_config).evaluate
-      evaluator_results[:success] ? 1 : 0
+
+      [evaluator_results[:success] ? 1 : 0, evaluator_results[:withdrawal_rate]]
     end
 
-    def display_success_rate(success_count)
+    def display_results(success_count)
       success_rate = (success_count.to_f / total_runs) * 100
-      puts "\nSimulation Success Rate: \e[32m#{success_rate.round(2)}%\e[0m ✅"
+
+      puts "\nWithdrawal Rate: #{NumericFormatter.format_percentage(withdrawal_rate)}"
+      puts "Simulation Success Rate: \e[32m#{success_rate.round(2)}%\e[0m ✅"
     end
   end
 end

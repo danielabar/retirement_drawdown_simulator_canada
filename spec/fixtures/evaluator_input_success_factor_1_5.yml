@@ -3,3 +3,8 @@ max_age: 95
 province_code: ONT
 desired_spending: 20_000
 annual_tfsa_contribution: 5_000
+
+accounts:
+  rrsp: 600000
+  taxable: 200000
+  tfsa: 200000

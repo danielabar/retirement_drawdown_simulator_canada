@@ -27,6 +27,7 @@ RSpec.describe Simulation::SimulatorFormatter do
       #{'-' * 150}
       Simulation Result: Failure
       Simulation failed. Max age 75 not reached. Final age is 69.
+      Withdrawal Rate: 17.65%
     OUTPUT
   end
 

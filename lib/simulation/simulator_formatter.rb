@@ -74,6 +74,7 @@ module Simulation
       puts "-" * 150
       puts "Simulation Result: #{@evaluator_results[:success] ? 'Success' : 'Failure'}"
       puts @evaluator_results[:explanation]
+      puts "Withdrawal Rate: #{NumericFormatter.format_percentage(@evaluator_results[:withdrawal_rate])}"
     end
   end
 end

@@ -11,15 +11,19 @@ module Simulation
     end
 
     def evaluate
-      last_result = @simulation_results.last
-      return failure_due_to_max_age(last_result[:age]) if last_result[:age] < @max_age
+      withdrawal_rate = WithdrawalRateCalculator.new(app_config).calculate
+      last_result = simulation_results.last
 
-      success_or_failure_based_on_balance(last_result)
+      if last_result[:age] < max_age
+        return failure_due_to_max_age(last_result[:age]).merge(withdrawal_rate: withdrawal_rate)
+      end
+
+      success_or_failure_based_on_balance(last_result).merge(withdrawal_rate: withdrawal_rate)
     end
 
     private
 
-    attr_reader :withdrawal_amounts
+    attr_reader :app_config, :withdrawal_amounts, :max_age, :simulation_results
 
     def success_or_failure_based_on_balance(last_result)
       if last_result[:total_balance] >= success_threshold
