@@ -23,6 +23,7 @@
 
 ## Refactor
 
+- Make it easier to run with any input yml
 - WIP rewrite tests loading AppConfig with hash rather than yaml - easier to maintain tests when don't have to have separate fixture file to understand input numbers
 - right-align numbers in output table (maybe this will be handled by tty-table feature)
 - test coverage
