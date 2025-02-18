@@ -83,10 +83,6 @@ class WithdrawalAmounts
     app_config.cpp["monthly_amount"].positive? && current_age >= app_config.cpp["start_age"]
   end
 
-  def annual_rrsp_original
-    reverse_tax_results[:gross_income]
-  end
-
   # TODO: At some point will have to deal with capital gains tax
   # but for now, assume whatever amount of ETFs selling for income from taxable account
   # isn't high enough to trigger any additional taxes.
