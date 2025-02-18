@@ -22,17 +22,11 @@ class WithdrawalAmounts
     send(method_name)
   end
 
-  # TODO: refactor to address complexity (later, after testing)
+  # TODO: refactor to address complexity
   def annual_rrsp
     return reverse_tax_results[:gross_income] unless cpp_used?
 
     return @annual_rrsp_memo if defined?(@annual_rrsp_memo)
-
-    # TODO: Use cpp_annual_gross_income method
-    # TODO: Use cpp_annual_net_income method
-    cpp_start_age = app_config.cpp["start_age"]
-    cpp_gross_annual = app_config.cpp["monthly_amount"] * 12
-    cpp_annual_income = current_age >= cpp_start_age ? cpp_gross_annual : 0
 
     # Initial guess (without CPP)
     rrsp_withdrawal = reverse_tax_results[:gross_income]
@@ -40,10 +34,10 @@ class WithdrawalAmounts
     # Upper and lower bounds based on CPP and RRSP withdrawal
     candidate_rrsp_withdrawal = nil
     candidate_rrsp_withdrawal_upper = rrsp_withdrawal
-    candidate_rrsp_withdrawal_lower = rrsp_withdrawal - cpp_annual_income
+    candidate_rrsp_withdrawal_lower = rrsp_withdrawal - cpp_annual_gross_income
 
     # Binary search to find the correct RRSP withdrawal
-    tolerance = 1.0 # Allowable margin of error (i.e., desired spending)
+    tolerance = 1.0 # Allowable margin of error
     max_iterations = 100
     iterations = 0
 
@@ -51,8 +45,8 @@ class WithdrawalAmounts
       # Calculate the midpoint RRSP withdrawal
       candidate_rrsp_withdrawal = (candidate_rrsp_withdrawal_upper.to_f + candidate_rrsp_withdrawal_lower.to_f) / 2
 
-      # Total taxable income: CPP (if applicable) + RRSP withdrawal
-      total_taxable_income = cpp_annual_income + candidate_rrsp_withdrawal
+      # Total taxable income: CPP gross + RRSP withdrawal
+      total_taxable_income = cpp_annual_gross_income + candidate_rrsp_withdrawal
       forward_tax_details = Tax::IncomeTaxCalculator.new.calculate(total_taxable_income, app_config["province_code"])
 
       # Actual take-home income after tax
