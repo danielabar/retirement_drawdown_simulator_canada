@@ -15,7 +15,7 @@
 - Transaction costs (RRSP withdrawal fee, TFSA withdrawal fee, ETF selling commission)
 - During RRSP drawdown phase, taxable account is growing, and distributions are taxable (T3 issued)
 - What if you reach age 71 and there's still funds in RRSP -> forced to RRIF and minimum withdrawals
-- instead of space separated console "table" output, consider gem, should make it easier to add columns? https://github.com/piotrmurach/tty-table
+- instead of space separated console "table" output, consider gem, should make it easier to add columns and right-align numbers https://github.com/piotrmurach/tty-table
 - visual/chart https://github.com/red-data-tools/unicode_plot.rb and https://red-data-tools.github.io/unicode_plot.rb/0.0.5/ of returns, and total_balance over time
 - support choice of multiple drawdown strategies
 - validation on loading AppConfig, consider bringing in ActiveModel for this, and easier to access attributes via `.` rather than `[...]`.
@@ -25,14 +25,10 @@
 
 ## Refactor
 
-- Make it easier to run with any input yml
-  - Related to above: consider organizing all inputs in a gitignored `inputs` folder rather than at project root where its getting messy
 - WIP rewrite tests loading AppConfig with hash rather than yaml - easier to maintain tests when don't have to have separate fixture file to understand input numbers
-- right-align numbers in output table (maybe this will be handled by tty-table feature)
-- test coverage
+- Some duplication of code between reverse and forward tax calculators - modify reverse to use the forward when it needs to check a value
 - CI
 - `simulation_formatter` could be better named `simulation_printer` (worry about this later if adding more printer options like console, pdf, html, etc)
-- should AppConfig load/reference instance of all other classes needed, to simplify and not need loading code, such as accounts elsewhere?
 
 ## Analysis
 

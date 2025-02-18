@@ -2,11 +2,9 @@
 
 module Tax
   class IncomeTaxCalculator
-    # TODO: Use same technique as reverse tax calculator to load a fixed file for testing
-    CONFIG_PATH = File.join(__dir__, "../../config/tax.yml")
-
     def initialize
-      @tax_config = YAML.load_file(CONFIG_PATH)
+      tax_file_path = tax_config_file_path
+      @tax_config = load_tax_config(tax_file_path)
     end
 
     def calculate(gross_income, province_code)
@@ -23,6 +21,20 @@ module Tax
     end
 
     private
+
+    def tax_config_file_path
+      if ENV["APP_ENV"] == "test"
+        File.expand_path("../../config/tax_fixed.yml", __dir__)
+      else
+        File.expand_path("../../config/tax.yml", __dir__)
+      end
+    end
+
+    def load_tax_config(path)
+      YAML.load_file(path)
+    rescue StandardError => e
+      raise "Error loading tax configuration from #{path}: #{e.message}"
+    end
 
     def calculate_federal_tax(gross_income)
       federal_brackets = @tax_config["federal"]["brackets"]
