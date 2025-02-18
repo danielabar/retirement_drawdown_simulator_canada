@@ -87,23 +87,27 @@ class WithdrawalAmounts
     reverse_tax_results[:gross_income]
   end
 
+  # TODO: At some point will have to deal with capital gains tax
+  # but for now, assume whatever amount of ETFs selling for income from taxable account
+  # isn't high enough to trigger any additional taxes.
   def annual_taxable
-    app_config["desired_spending"] + app_config["annual_tfsa_contribution"]
+    interim_amt = app_config["desired_spending"] + app_config["annual_tfsa_contribution"]
+    cpp_used? ? interim_amt - cpp_annual_net_income : interim_amt
   end
 
   def annual_tfsa
-    app_config["desired_spending"]
+    cpp_used? ? app_config["desired_spending"] - cpp_annual_net_income : app_config["desired_spending"]
   end
 
   # If we're withdrawing from the cash cushion, it's because of a severe market downturn,
   # so we won't be making the optional TFSA contributions during this time.
   def annual_cash_cushion
-    app_config["desired_spending"]
+    cpp_used? ? app_config["desired_spending"] - cpp_annual_net_income : app_config["desired_spending"]
   end
 
   private
 
-  attr_reader :app_config, :current_age
+  attr_reader :app_config
 
   def reverse_tax_results
     @reverse_tax_results ||= @reverse_tax_calculator.calculate(desired_income, app_config["province_code"])
@@ -113,21 +117,11 @@ class WithdrawalAmounts
     app_config["desired_spending"] + app_config["annual_tfsa_contribution"]
   end
 
-  # TODO: This is only for adjusting taxable, tfsa, and cash_cushion withdrawals (not RRSP withdrawals which are a different beast)
-  # but this is not quite right because cpp_annual_income is a gross amount and is taxable.
-  # If we assume that all other withdrawals end up not taxable (assume capital gains would be low enough for now),
-  # then we need to simply apply the forward tax calculator to cpp_annual_income to arrive at the net amount.
-  # Reduce required spending by CPP income if CPP is active
-  def adjusted_spending
-    app_config["desired_spending"] - cpp_annual_income
+  def cpp_annual_net_income
+    Tax::IncomeTaxCalculator.new.calculate(cpp_annual_gross_income, app_config["province_code"])[:take_home]
   end
 
-  # TODO: this is actually gross, need to work in forward tax calculator to return net amount.
-  # Note that applying forward tax calc to just the CPP amount would only be correct if that's the only source of income.
-  # TODO: This is only going to work once we can guarantee to have a current_age
-  def cpp_annual_income
-    return 0 if current_age < app_config["cpp"]["start_age"]
-
-    app_config["cpp"]["monthly_amount"] * 12
+  def cpp_annual_gross_income
+    app_config.cpp["monthly_amount"] * 12
   end
 end

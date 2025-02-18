@@ -139,6 +139,12 @@ accounts:
   tfsa: 120000
   cash_cushion: 40000
 
+# Enter the age at which you plan to start CPP and the monthly amount you're entitled to.
+# To run the simulation without CPP, set the monthly_amount to 0.
+cpp:
+  start_age: 65
+  monthly_amount: 1000
+
 # Taxes
 # Withholding tax may be greater than your actual tax bill, you'll get a refund when you file your taxes.
 # In the first year of retirement, you'll have to have some extra cash available to "float" the difference.

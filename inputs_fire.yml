@@ -5,13 +5,14 @@
 retirement_age: 45
 max_age: 95
 province_code: ONT
-annual_tfsa_contribution: 3000
+annual_tfsa_contribution: 0
 
 # Growth rate average, min, and max to generate variability
 annual_growth_rate:
   average: 0.05
   min: -0.3
   max: 0.3
+  savings: 0.005
   downturn_threshold: -0.2
 
 # Success factor: defines the multiplier for total_balance needed for success
@@ -27,7 +28,11 @@ accounts:
   rrsp: 600000
   taxable: 200000
   tfsa: 200000
-  cash_cushion: 80000
+  cash_cushion: 40000
+
+cpp:
+  start_age: 65
+  monthly_amount: 0
 
 taxes:
   rrsp_withholding_rate: 0.3
