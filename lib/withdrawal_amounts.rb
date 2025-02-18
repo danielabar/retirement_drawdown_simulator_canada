@@ -29,10 +29,10 @@ class WithdrawalAmounts
 
     return @annual_rrsp_memo if defined?(@annual_rrsp_memo)
 
+    # TODO: Use cpp_annual_gross_income method
+    # TODO: Use cpp_annual_net_income method
     cpp_start_age = app_config.cpp["start_age"]
     cpp_gross_annual = app_config.cpp["monthly_amount"] * 12
-
-    # If current_age is less than cpp_start_age, CPP is not in effect
     cpp_annual_income = current_age >= cpp_start_age ? cpp_gross_annual : 0
 
     # Initial guess (without CPP)

@@ -57,4 +57,10 @@ RSpec.describe WithdrawalAmounts do
       expect(withdrawal_amounts.annual_tfsa).to eq(30_000)
     end
   end
+
+  describe "annual_cash_cushion" do
+    it "returns the exact desired spending amount" do
+      expect(withdrawal_amounts.annual_cash_cushion).to eq(30_000)
+    end
+  end
 end
