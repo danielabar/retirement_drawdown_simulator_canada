@@ -8,12 +8,8 @@ class WithdrawalAmounts
     "cash_cushion" => :annual_cash_cushion
   }.freeze
 
-  # TODO: Debating whether current_age needs to be an instance var
-  # or passed around as an argument to various methods.
-  # Problem is current_age is only available in Simulation::Simulator that loops over ages
-  # but WithdrawalAmounts is instantiated from strategy and evaluator that don't have access to current_age.
-  # Consider moving dependency on WithdrawalAmounts to Simulation::Simulator
-  # As for evaluator - maybe it could be simpler in just considering desired_spending without considering cpp?
+  attr_accessor :current_age
+
   def initialize(app_config)
     @app_config = app_config
     @reverse_tax_calculator = Tax::ReverseIncomeTaxCalculator.new
@@ -27,10 +23,9 @@ class WithdrawalAmounts
   end
 
   # TODO: If cpp is not in effect (not being of age or cpp amount is 0, return: `reverse_tax_results[:gross_income]`
-  # TODO: How to ensure current_age can always be passed in when this is called
   # TODO: refactor to address complexity (later, after testing)
   # TODO: taxable, tfsa, and cash_cushion withdrawals also have to be adjusted for CPP
-  def annual_rrsp_wip(current_age)
+  def annual_rrsp
     cpp_start_age = app_config.cpp["start_age"]
     cpp_gross_annual = app_config.cpp["monthly_amount"] * 12
 
@@ -40,9 +35,8 @@ class WithdrawalAmounts
     # If current_age is less than cpp_start_age, CPP is not in effect
     cpp_annual_income = current_age >= cpp_start_age ? cpp_gross_annual : 0
 
-    # TODO: Can this be memoized to avoid repeated expensive calculation?
     # Initial guess (without CPP)
-    rrsp_withdrawal = @reverse_tax_calculator.calculate(desired_income, app_config["province_code"])[:gross_income]
+    rrsp_withdrawal = reverse_tax_results[:gross_income]
 
     # Upper and lower bounds based on CPP and RRSP withdrawal
     candidate_rrsp_withdrawal = nil
@@ -85,7 +79,7 @@ class WithdrawalAmounts
     candidate_rrsp_withdrawal
   end
 
-  def annual_rrsp
+  def annual_rrsp_original
     reverse_tax_results[:gross_income]
   end
 
@@ -105,9 +99,8 @@ class WithdrawalAmounts
 
   private
 
-  attr_reader :app_config
+  attr_reader :app_config, :current_age
 
-  # TODO: Makes repeated simulations slow because this gets calculated each time
   def reverse_tax_results
     @reverse_tax_results ||= @reverse_tax_calculator.calculate(desired_income, app_config["province_code"])
   end
@@ -128,7 +121,7 @@ class WithdrawalAmounts
   # TODO: this is actually gross, need to work in forward tax calculator to return net amount.
   # Note that applying forward tax calc to just the CPP amount would only be correct if that's the only source of income.
   # TODO: This is only going to work once we can guarantee to have a current_age
-  def cpp_annual_income(current_age)
+  def cpp_annual_income
     return 0 if current_age < app_config["cpp"]["start_age"]
 
     app_config["cpp"]["monthly_amount"] * 12

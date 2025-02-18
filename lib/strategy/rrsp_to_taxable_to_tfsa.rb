@@ -2,12 +2,18 @@
 
 module Strategy
   class RrspToTaxableToTfsa
-    attr_reader :app_config, :withdrawal_amounts, :rrsp_account, :taxable_account, :tfsa_account, :cash_cushion
+    attr_reader :app_config, :current_age, :withdrawal_amounts, :rrsp_account, :taxable_account, :tfsa_account,
+                :cash_cushion
 
     def initialize(app_config)
       @app_config = app_config
       @withdrawal_amounts = WithdrawalAmounts.new(app_config)
       load_accounts
+    end
+
+    def current_age=(age)
+      @current_age = age
+      @withdrawal_amounts.current_age = age
     end
 
     def select_account(market_return)
@@ -32,6 +38,10 @@ module Strategy
 
     def total_balance
       rrsp_account.balance + taxable_account.balance + tfsa_account.balance + cash_cushion.balance
+    end
+
+    def cpp_used?
+      app_config.cpp["monthly_amount"].positive? && current_age >= app_config.cpp["start_age"]
     end
 
     private
