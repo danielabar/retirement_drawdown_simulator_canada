@@ -41,7 +41,7 @@ module Strategy
     end
 
     def cpp_used?
-      app_config.cpp["monthly_amount"].positive? && current_age >= app_config.cpp["start_age"]
+      withdrawal_amounts.cpp_used?
     end
 
     private

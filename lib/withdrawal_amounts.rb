@@ -22,10 +22,11 @@ class WithdrawalAmounts
     send(method_name)
   end
 
-  # TODO: If cpp is not in effect (not being of age or cpp amount is 0, return: `reverse_tax_results[:gross_income]`
   # TODO: refactor to address complexity (later, after testing)
   # TODO: taxable, tfsa, and cash_cushion withdrawals also have to be adjusted for CPP
   def annual_rrsp
+    return reverse_tax_results[:gross_income] unless cpp_used?
+
     cpp_start_age = app_config.cpp["start_age"]
     cpp_gross_annual = app_config.cpp["monthly_amount"] * 12
 
@@ -77,6 +78,10 @@ class WithdrawalAmounts
 
     # Return the final RRSP withdrawal after the loop
     candidate_rrsp_withdrawal
+  end
+
+  def cpp_used?
+    app_config.cpp["monthly_amount"].positive? && current_age >= app_config.cpp["start_age"]
   end
 
   def annual_rrsp_original
