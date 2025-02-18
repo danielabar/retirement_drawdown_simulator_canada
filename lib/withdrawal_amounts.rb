@@ -27,11 +27,10 @@ class WithdrawalAmounts
   def annual_rrsp
     return reverse_tax_results[:gross_income] unless cpp_used?
 
+    return @annual_rrsp_memo if defined?(@annual_rrsp_memo)
+
     cpp_start_age = app_config.cpp["start_age"]
     cpp_gross_annual = app_config.cpp["monthly_amount"] * 12
-
-    # TODO: This should be desired_income because it could include optional TFSA contribution
-    # desired_spending = app_config["desired_spending"]
 
     # If current_age is less than cpp_start_age, CPP is not in effect
     cpp_annual_income = current_age >= cpp_start_age ? cpp_gross_annual : 0
@@ -76,8 +75,8 @@ class WithdrawalAmounts
       iterations += 1
     end
 
-    # Return the final RRSP withdrawal after the loop
-    candidate_rrsp_withdrawal
+    # Memoize and return the final RRSP withdrawal after the loop
+    @annual_rrsp_memo = candidate_rrsp_withdrawal
   end
 
   def cpp_used?

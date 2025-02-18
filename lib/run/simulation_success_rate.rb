@@ -6,7 +6,7 @@ module Run
   class SuccessRateSimulation
     def initialize(app_config)
       @app_config = app_config
-      @total_runs = app_config["total_runs"] || 1_000
+      @total_runs = app_config["total_runs"] || 500
       @withdrawal_rate = nil
     end
 
