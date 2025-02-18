@@ -35,32 +35,101 @@ RSpec.describe WithdrawalAmounts do
     )
   end
 
-  before do
-    withdrawal_amounts.current_age = 65
-  end
+  context "when user is not taking CPP" do
+    before { withdrawal_amounts.current_age = 65 }
 
-  describe "#annual_rrsp" do
-    it "returns the exact RRSP withdrawal amount from config" do
-      expect(withdrawal_amounts.annual_rrsp).to eq(33_704.73)
+    describe "#annual_rrsp" do
+      it "returns the RRSP withdrawal amount needed to meet spending needs accounting for income taxes" do
+        expect(withdrawal_amounts.annual_rrsp).to eq(33_704.73)
+      end
+    end
+
+    describe "#annual_taxable" do
+      it "returns desired spending plus TFSA contribution" do
+        expect(withdrawal_amounts.annual_taxable).to eq(30_010)
+      end
+    end
+
+    describe "#annual_tfsa" do
+      it "returns the desired spending amount" do
+        expect(withdrawal_amounts.annual_tfsa).to eq(30_000)
+      end
+    end
+
+    describe "#annual_cash_cushion" do
+      it "returns the desired spending amount" do
+        expect(withdrawal_amounts.annual_cash_cushion).to eq(30_000)
+      end
     end
   end
 
-  describe "#annual_taxable" do
-    it "returns desired spending plus TFSA contribution" do
-      expected_value = 30_000 + 10
-      expect(withdrawal_amounts.annual_taxable).to eq(expected_value)
+  context "when user is taking CPP and is at or over the CPP start age" do
+    before do
+      app_config.cpp["monthly_amount"] = 1_000
+      withdrawal_amounts.current_age = 65
+    end
+
+    describe "#annual_rrsp" do
+      it "adjusts RRSP withdrawals to account for CPP and income taxes" do
+        # i.e. 21_705.46 + 12_000 (cpp) = 33_705.46
+        # and running that gross number through the income tax calculator
+        # results in a take home of just over 30_000 which is what we want
+        expect(withdrawal_amounts.annual_rrsp).to be_within(0.01).of(21_705.46)
+      end
+    end
+
+    describe "#annual_taxable" do
+      # In this case, cpp gross income of 1_000 * 12 = 12_000,
+      # which is well within the basic personal credit so this
+      # amount is not subject to income tax. Therefore we can
+      # subtract that from our usual withdrawals.
+
+      it "reduces taxable withdrawals by net CPP income" do
+        expect(withdrawal_amounts.annual_taxable).to eq(18_010)
+      end
+    end
+
+    describe "#annual_tfsa" do
+      it "reduces TFSA withdrawals by net CPP income" do
+        expect(withdrawal_amounts.annual_tfsa).to eq(18_000)
+      end
+    end
+
+    describe "#annual_cash_cushion" do
+      it "reduces cash cushion withdrawals by net CPP income" do
+        expect(withdrawal_amounts.annual_cash_cushion).to eq(18_000)
+      end
     end
   end
 
-  describe "#annual_tfsa" do
-    it "returns the exact desired spending amount" do
-      expect(withdrawal_amounts.annual_tfsa).to eq(30_000)
+  context "when user is taking CPP but is under the CPP start age" do
+    before do
+      app_config.cpp["monthly_amount"] = 1_000
+      withdrawal_amounts.current_age = 64
     end
-  end
 
-  describe "annual_cash_cushion" do
-    it "returns the exact desired spending amount" do
-      expect(withdrawal_amounts.annual_cash_cushion).to eq(30_000)
+    describe "#annual_rrsp" do
+      it "returns the RRSP withdrawal amount needed to meet spending needs accounting for income taxes" do
+        expect(withdrawal_amounts.annual_rrsp).to eq(33_704.73)
+      end
+    end
+
+    describe "#annual_taxable" do
+      it "returns desired spending plus TFSA contribution" do
+        expect(withdrawal_amounts.annual_taxable).to eq(30_010)
+      end
+    end
+
+    describe "#annual_tfsa" do
+      it "returns the desired spending amount" do
+        expect(withdrawal_amounts.annual_tfsa).to eq(30_000)
+      end
+    end
+
+    describe "#annual_cash_cushion" do
+      it "returns the desired spending amount" do
+        expect(withdrawal_amounts.annual_cash_cushion).to eq(30_000)
+      end
     end
   end
 end

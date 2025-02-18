@@ -2,13 +2,15 @@
 
 require "simplecov"
 SimpleCov.start do
-  add_filter "/spec/"
+  add_filter "/spec/"    # Exclude spec files
+  add_filter "lib/run"   # Exclude everything in lib/run
 end
 
 require "rspec"
 require_relative "../config/environment"
 
 # Set the environment variable for tests
+# This makes the tax calculators use a fixed tax config for consistent results
 ENV["APP_ENV"] = "test"
 
 # See https://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration

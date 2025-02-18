@@ -2,6 +2,7 @@
 
 module Tax
   class IncomeTaxCalculator
+    # TODO: Use same technique as reverse tax calculator to load a fixed file for testing
     CONFIG_PATH = File.join(__dir__, "../../config/tax.yml")
 
     def initialize

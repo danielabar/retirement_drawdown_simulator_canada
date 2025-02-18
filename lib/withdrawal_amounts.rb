@@ -50,7 +50,7 @@ class WithdrawalAmounts
 
     loop do
       # Calculate the midpoint RRSP withdrawal
-      candidate_rrsp_withdrawal = (candidate_rrsp_withdrawal_upper + candidate_rrsp_withdrawal_lower) / 2
+      candidate_rrsp_withdrawal = (candidate_rrsp_withdrawal_upper.to_f + candidate_rrsp_withdrawal_lower.to_f) / 2
 
       # Total taxable income: CPP (if applicable) + RRSP withdrawal
       total_taxable_income = cpp_annual_income + candidate_rrsp_withdrawal
