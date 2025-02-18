@@ -23,7 +23,6 @@ class WithdrawalAmounts
   end
 
   # TODO: refactor to address complexity (later, after testing)
-  # TODO: taxable, tfsa, and cash_cushion withdrawals also have to be adjusted for CPP
   def annual_rrsp
     return reverse_tax_results[:gross_income] unless cpp_used?
 
