@@ -74,7 +74,10 @@ module Simulation
 
     def print_simulation_evaluation
       puts "-" * 160
-      puts "Simulation Result: #{@evaluator_results[:success] ? 'Success' : 'Failure'}"
+      success = @evaluator_results[:success]
+      emoji = success ? "✅" : "❌"
+      result_text = success ? "Success" : "Failure"
+      puts "Simulation Result: #{emoji} #{result_text}"
       puts @evaluator_results[:explanation]
       puts "Withdrawal Rate: #{NumericFormatter.format_percentage(@evaluator_results[:withdrawal_rate])}"
     end

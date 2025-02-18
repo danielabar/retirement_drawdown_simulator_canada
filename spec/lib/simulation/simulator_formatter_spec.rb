@@ -52,7 +52,7 @@ RSpec.describe Simulation::SimulatorFormatter do
       68         $13,449.03           $31,259.13           $1,512.94            $0.00                No         $46,221.10           taxable                    1.0%
       69         $13,583.52           $1,271.72            $1,528.07            $0.00                No         $16,383.31           tfsa                       1.0%
       #{'-' * 160}
-      Simulation Result: Failure
+      Simulation Result: ❌ Failure
       Simulation failed. Max age 75 not reached. Final age is 69.
       Withdrawal Rate: 17.65%
     OUTPUT
