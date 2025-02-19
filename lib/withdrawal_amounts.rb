@@ -73,12 +73,10 @@ class WithdrawalAmounts
   def binary_search_rrsp_withdrawal(upper_bound, lower_bound)
     iterations = 0
     candidate_rrsp_withdrawal = nil
-    candidate_rrsp_withdrawal_upper = upper_bound
-    candidate_rrsp_withdrawal_lower = lower_bound
 
     loop do
       # Calculate the midpoint RRSP withdrawal
-      candidate_rrsp_withdrawal = (candidate_rrsp_withdrawal_upper.to_f + candidate_rrsp_withdrawal_lower.to_f) / 2
+      candidate_rrsp_withdrawal = (upper_bound.to_f + lower_bound.to_f) / 2
 
       # Check if take-home is close enough to desired spending
       difference = actual_take_home(candidate_rrsp_withdrawal) - desired_income
@@ -87,10 +85,10 @@ class WithdrawalAmounts
 
       if difference.positive?
         # Take-home is too high, adjust upper bound
-        candidate_rrsp_withdrawal_upper = candidate_rrsp_withdrawal
+        upper_bound = candidate_rrsp_withdrawal
       else
         # Take-home is too low, adjust lower bound
-        candidate_rrsp_withdrawal_lower = candidate_rrsp_withdrawal
+        lower_bound = candidate_rrsp_withdrawal
       end
 
       iterations += 1
