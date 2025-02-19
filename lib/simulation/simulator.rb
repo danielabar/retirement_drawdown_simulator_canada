@@ -13,7 +13,7 @@ module Simulation
 
     def run
       (retirement_age..max_age).each do |age|
-        strategy.current_age = age
+        populate_current_age(age)
         market_return = return_sequence.get_return_for_age(age)
         account = strategy.select_account(market_return)
         break if account.nil?
@@ -28,6 +28,10 @@ module Simulation
     private
 
     attr_reader :app_config, :strategy, :retirement_age, :max_age, :return_sequence, :results
+
+    def populate_current_age(age)
+      strategy.current_age = age
+    end
 
     def record_yearly_status(age, account, market_return, strategy)
       results << {
