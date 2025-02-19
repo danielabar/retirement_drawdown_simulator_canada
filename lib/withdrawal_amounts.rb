@@ -112,7 +112,7 @@ class WithdrawalAmounts
   end
 
   def cpp_annual_net_income
-    Tax::IncomeTaxCalculator.new.calculate(cpp_annual_gross_income, app_config["province_code"])[:take_home]
+    @tax_calculator.calculate(cpp_annual_gross_income, app_config["province_code"])[:take_home]
   end
 
   def cpp_annual_gross_income
