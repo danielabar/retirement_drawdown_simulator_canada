@@ -8,6 +8,8 @@ class WithdrawalAmounts
     "cash_cushion" => :annual_cash_cushion
   }.freeze
 
+  MAX_ITERATIONS_FOR_RRSP_WITH_CPP_DETERMINATION = 100
+
   attr_accessor :current_age
 
   def initialize(app_config)
@@ -69,7 +71,6 @@ class WithdrawalAmounts
 
   def binary_search_rrsp_withdrawal(upper_bound, lower_bound)
     tolerance = 1.0
-    max_iterations = 100
     iterations = 0
     candidate_rrsp_withdrawal = nil
     candidate_rrsp_withdrawal_upper = upper_bound
@@ -82,7 +83,7 @@ class WithdrawalAmounts
       # Check if take-home is close enough to desired spending
       difference = actual_take_home(candidate_rrsp_withdrawal) - desired_income
 
-      break if difference.abs <= tolerance || iterations >= max_iterations
+      break if difference.abs <= tolerance || iterations >= MAX_ITERATIONS_FOR_RRSP_WITH_CPP_DETERMINATION
 
       if difference.positive?
         # Take-home is too high, adjust upper bound
