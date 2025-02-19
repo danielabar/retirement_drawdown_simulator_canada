@@ -3,8 +3,35 @@
 require_relative "../../spec_helper"
 
 RSpec.describe Simulation::SimulatorFormatter do
-  let(:base_fixture_path) { File.expand_path("../../fixtures", __dir__) }
-  let(:app_config) { AppConfig.new(File.join(base_fixture_path, "example_input_minimal.yml")) }
+  let(:app_config) do
+    AppConfig.new(
+      "retirement_age" => 65,
+      "max_age" => 75,
+      "province_code" => "ONT",
+      "annual_tfsa_contribution" => 10,
+      "desired_spending" => 30_000,
+      "annual_growth_rate" => {
+        "average" => 0.01,
+        "min" => -0.1,
+        "max" => 0.1,
+        "downturn_threshold" => -0.1
+      },
+      "return_sequence_type" => "constant",
+      "accounts" => {
+        "rrsp" => 80_000,
+        "taxable" => 60_000,
+        "tfsa" => 30_000,
+        "cash_cushion" => 0
+      },
+      "cpp" => {
+        "start_age" => 65,
+        "monthly_amount" => 0
+      },
+      "taxes" => {
+        "rrsp_withholding_rate" => 0.3
+      }
+    )
+  end
 
   let(:expected_output) do
     <<~OUTPUT
@@ -16,16 +43,16 @@ RSpec.describe Simulation::SimulatorFormatter do
       Expected Tax Refund: $6,416.70
       RRSP Available After Withholding: $23,593.31
       Required Cash Buffer for First Year: $6,416.69
-      #{'-' * 150}
-      Age        RRSP                 TFSA                 Taxable              Cash Cushion         Total Balance        Note                        RoR
-      #{'-' * 150}
-      65         $46,758.22           $30,310.10           $60,600.00           $0.00                $137,668.32          rrsp                       1.0%
-      66         $13,184.03           $30,623.30           $61,206.00           $0.00                $105,013.33          rrsp                       1.0%
-      67         $13,315.87           $30,939.63           $31,507.96           $0.00                $75,763.46           taxable                    1.0%
-      68         $13,449.03           $31,259.13           $1,512.94            $0.00                $46,221.10           taxable                    1.0%
-      69         $13,583.52           $1,271.72            $1,528.07            $0.00                $16,383.31           tfsa                       1.0%
-      #{'-' * 150}
-      Simulation Result: Failure
+      #{'-' * 160}
+      Age        RRSP                 TFSA                 Taxable              Cash Cushion         CPP Used   Total Balance        Note                        RoR
+      #{'-' * 160}
+      65         $46,758.22           $30,310.10           $60,600.00           $0.00                No         $137,668.32          rrsp                       1.0%
+      66         $13,184.03           $30,623.30           $61,206.00           $0.00                No         $105,013.33          rrsp                       1.0%
+      67         $13,315.87           $30,939.63           $31,507.96           $0.00                No         $75,763.46           taxable                    1.0%
+      68         $13,449.03           $31,259.13           $1,512.94            $0.00                No         $46,221.10           taxable                    1.0%
+      69         $13,583.52           $1,271.72            $1,528.07            $0.00                No         $16,383.31           tfsa                       1.0%
+      #{'-' * 160}
+      Simulation Result: ❌ Failure
       Simulation failed. Max age 75 not reached. Final age is 69.
       Withdrawal Rate: 17.65%
     OUTPUT
@@ -35,8 +62,7 @@ RSpec.describe Simulation::SimulatorFormatter do
     simulation_results = Simulation::Simulator.new(app_config).run
     evaluator_results = Simulation::SimulationEvaluator.new(simulation_results, app_config).evaluate
     first_year_cash_flow_results = FirstYearCashFlow.new(app_config).calculate
-    simulator_formatter = described_class.new(simulation_results, first_year_cash_flow_results,
-                                              evaluator_results)
+    simulator_formatter = described_class.new(simulation_results, first_year_cash_flow_results, evaluator_results)
 
     expect { simulator_formatter.print_all }.to output(expected_output).to_stdout
   end

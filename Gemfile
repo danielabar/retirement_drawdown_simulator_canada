@@ -11,4 +11,5 @@ gem "rspec"
 gem "rspec-core"
 gem "rubocop", require: false
 gem "rubocop-rspec"
+gem "simplecov", require: false
 gem "tty-progressbar"

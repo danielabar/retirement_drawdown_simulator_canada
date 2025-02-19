@@ -24,11 +24,19 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
       },
       "taxes" => {
         "rrsp_withholding_rate" => 0.3
+      },
+      "cpp" => {
+        "start_age" => 65,
+        "monthly_amount" => 0
       }
     )
   end
 
   let(:strategy) { described_class.new(app_config) }
+
+  before do
+    strategy.current_age = 65
+  end
 
   describe "#select_account" do
     context "when market return is below downturn threshold and cash cushion has enough funds" do

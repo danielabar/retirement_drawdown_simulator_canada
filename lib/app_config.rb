@@ -17,6 +17,10 @@ class AppConfig
     data["accounts"]
   end
 
+  def cpp
+    data["cpp"]
+  end
+
   def taxes
     data["taxes"]
   end

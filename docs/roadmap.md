@@ -2,35 +2,51 @@
 
 ## Enhancements
 
-- Output initial account balances and total balance
-- Start CPP at age 60, 65, or 70: https://research-tools.pwlcapital.com/research/cpp (complexity: amount shown on My Service Canada assumes you keep working until age 65, if retiring early, actual amount will be less, the PWL research tool attempts to account for that by having you enter all your earnings over the past years)
-- Cash cushion refill if needed when market return is high (would need to track what original balance was or have user specify how many years worth they want to keep in this bucket)
+- When evaluating results, also capture what the final total balance was, and for success rate run, show average (or middle?) total balance
+  - i.e. we're defining success by ending up with at least 1x (success_factor) desired spending, but maybe certain strategies result on average in MUCH MORE than this and we should show it somehow
 - Cascading/multi-account withdrawals - a little left in one account but not enough to fund that years spending so have to go to next account
 - Inflation (simple: constant, complicated: varying).
-- Tiered withholding tax: RRSP withdrawals could be less than 15K, in which case withholding tax is less: https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/rrsps-related-plans/making-withdrawals/tax-rates-on-withdrawals.html
-- capital gains is really hard to project, for now assuming at 50% inclusion rate and re-investing dividends which constantly nudges up average cost, that half the gains will come out to < 15K, which is approx basic personal credit - i.e. no tax bill if this is your only source of income. But it could be higher.
 - OAS (make the value an input config as it could change)
 - Assuming all accounts invested in the same thing, therefore growing at the same rate
 - Transaction costs (RRSP withdrawal fee, TFSA withdrawal fee, ETF selling commission)
-- During RRSP drawdown phase, taxable account is growing, and distributions are taxable (T3 issued)
 - What if you reach age 71 and there's still funds in RRSP -> forced to RRIF and minimum withdrawals
-- instead of space separated console "table" output, consider gem, should make it easier to add columns? https://github.com/piotrmurach/tty-table
-- visual/chart https://github.com/red-data-tools/unicode_plot.rb and https://red-data-tools.github.io/unicode_plot.rb/0.0.5/ of returns, and total_balance over time
-- support choice of multiple drawdown strategies
-- validation on loading AppConfig, consider bringing in ActiveModel for this, and easier to access attributes via `.` rather than `[...]`.
-- make it easier to specify alternate input files
-- support choice of output types, currently its only ConsolePrinter
+- support choice of multiple drawdown strategies (eg: TFSA first, taxable first)
+- Cash cushion refill if needed when market return is high (would need to track what original balance was or have user specify how many years worth they want to keep in this bucket).
+
+### Sequence of Returns
+
+- Is [Geometric Brownian Motion](https://www.columbia.edu/~ks20/FE-Notes/4700-07-Notes-GBM.pdf) a reasonable way to simulate stock market returns? (i.e. goes up on average but with volatility and a number of "shocks" over time)
+- If yes, is `ReturnSequences::GeometricBrownianMotionSequence` the correct implementation?
+- If no, is there an alternative model/technique?
+
+### Output
+
+- Instead of space separated console output, consider gem, should make it easier to add columns and right-align numbers https://github.com/piotrmurach/tty-table
+- Output initial account balances and total balance
+- Add column for how much was withdrawn
+- Support multiple output/printer formats like console, csv, pdf, html, xlsx
+- Visual/chart https://github.com/red-data-tools/unicode_plot.rb and https://red-data-tools.github.io/unicode_plot.rb/0.0.5/ of returns, and total_balance over time
+
+### Ergonomics
+
+- Validation on loading AppConfig, consider bringing in ActiveModel for this, and easier to access attributes via `.` rather than `[...]`.
+- Make it easier to specify alternate input files
+- Bundle as homebrew for easier installation on a Mac
+- Bundle as whatever the Windows equivalent of homebrew is for easier installation on Windows
 - Replay a particular sequence with alternate inputs
+
+### Tax Complications
+
+- Tiered withholding tax: RRSP withdrawals could be less than 15K, in which case withholding tax is less: https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/rrsps-related-plans/making-withdrawals/tax-rates-on-withdrawals.html
+- Capital gains is really hard to project, for now assuming at 50% inclusion rate and re-investing dividends which constantly nudges up average cost, that half the gains will come out to < 15K, which is approx basic personal credit - i.e. no tax bill if this is your only source of income. But it could be higher.
+- During RRSP drawdown phase, taxable account is growing, and distributions are taxable (T3 issued)
+- When using a cash cushion, the interest rate (small as it is) will trigger some interest which counts as taxable income
 
 ## Refactor
 
-- Make it easier to run with any input yml
 - WIP rewrite tests loading AppConfig with hash rather than yaml - easier to maintain tests when don't have to have separate fixture file to understand input numbers
-- right-align numbers in output table (maybe this will be handled by tty-table feature)
-- test coverage
+- Some duplication of code between reverse and forward tax calculators - modify reverse to use the forward when it needs to check a value
 - CI
-- `simulation_formatter` could be better named `simulation_printer` (worry about this later if adding more printer options like console, pdf, html, etc)
-- should AppConfig load/reference instance of all other classes needed, to simplify and not need loading code, such as accounts elsewhere?
 
 ## Analysis
 
@@ -39,6 +55,8 @@ Document insights discovered from using this tool to analyze scenarios such as:
 - How does classic FIRE fare (40K desired spending, save 25x === 1M)
   - 30 year retirement
   - 40 - 50 year retirement (success rate seems to drop significantly when going over 30 years!)
-- Does draining down RRSP faster by also contributing to TFSA during this time help or hinder success rate
+- Does draining down RRSP faster by also contributing to TFSA during this time help or hinder success rate?
 - How does use of cash cushion compare to having it invested in taxable account (no difference!)
-- Given `geometric_brownian_motion` returns generator, what is the actual safe withdrawal rate (depends on how many years)
+- How does starting CPP at age 60 vs 65 vs 70 impact success rate?
+  - Initial analysis shows the only way to get a success rate at or over 95% for a long retirement is to count on CPP
+- What is the actual safe withdrawal rate (seems to be a function of how many years spending in retirement)

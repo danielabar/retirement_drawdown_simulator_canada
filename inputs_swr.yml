@@ -2,7 +2,7 @@
 # 1M portfolio, 40K/year, retire early based on 4% rule.
 # Success rate is only ~55%, NOT the 95% that's often reported in personal finance articles,
 # Even with cash cushion to use during market downturns.
-retirement_age: 45
+retirement_age: 50
 max_age: 95
 province_code: ONT
 annual_tfsa_contribution: 0
@@ -12,7 +12,6 @@ annual_growth_rate:
   average: 0.05
   min: -0.3
   max: 0.3
-  savings: 0.005
   downturn_threshold: -0.2
 
 # Success factor: defines the multiplier for total_balance needed for success
@@ -23,16 +22,18 @@ return_sequence_type: geometric_brownian_motion
 
 # variable + fixed + lumpy (see Libre Retirement Income sheet)
 desired_spending: 40000
+# testing with higher tax bracket
+# desired_spending: 80000
 
 accounts:
-  rrsp: 600000
-  taxable: 200000
-  tfsa: 200000
-  cash_cushion: 40000
+  rrsp: 600_000
+  taxable: 200_000
+  tfsa: 200_000
+  cash_cushion: 0
 
 cpp:
   start_age: 65
-  monthly_amount: 0
+  monthly_amount: 1000
 
 taxes:
   rrsp_withholding_rate: 0.3

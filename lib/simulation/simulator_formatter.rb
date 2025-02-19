@@ -22,12 +22,12 @@ module Simulation
       @first_year_cash_flow_results.each do |label, value|
         puts "#{label}: #{NumericFormatter.format_currency(value)}"
       end
-      puts "-" * 150
+      puts "-" * 160
     end
 
     def print_header
       puts formatted_header
-      puts "-" * 150
+      puts "-" * 160
     end
 
     def formatted_header
@@ -37,6 +37,7 @@ module Simulation
         tfsa: "TFSA",
         taxable: "Taxable",
         cash_cushion: "Cash Cushion",
+        cpp: "CPP Used",
         total_balance: "Total Balance",
         note: "Note",
         rate_of_return: "RoR"
@@ -56,6 +57,7 @@ module Simulation
         tfsa: NumericFormatter.format_currency(record[:tfsa_balance]),
         taxable: NumericFormatter.format_currency(record[:taxable_balance]),
         cash_cushion: NumericFormatter.format_currency(record[:cash_cushion_balance]),
+        cpp: record[:cpp] ? "Yes" : "No",
         total_balance: NumericFormatter.format_currency(record[:total_balance]),
         note: record[:note],
         rate_of_return: NumericFormatter.format_percentage(record[:rate_of_return])
@@ -65,14 +67,17 @@ module Simulation
     def format_header_string(values)
       format(
         "%<age>-10s %<rrsp>-20s %<tfsa>-20s %<taxable>-20s %<cash_cushion>-20s " \
-        "%<total_balance>-20s %<note>-20s %<rate_of_return>10s",
+        "%<cpp>-10s %<total_balance>-20s %<note>-20s %<rate_of_return>10s",
         values
       )
     end
 
     def print_simulation_evaluation
-      puts "-" * 150
-      puts "Simulation Result: #{@evaluator_results[:success] ? 'Success' : 'Failure'}"
+      puts "-" * 160
+      success = @evaluator_results[:success]
+      emoji = success ? "✅" : "❌"
+      result_text = success ? "Success" : "Failure"
+      puts "Simulation Result: #{emoji} #{result_text}"
       puts @evaluator_results[:explanation]
       puts "Withdrawal Rate: #{NumericFormatter.format_percentage(@evaluator_results[:withdrawal_rate])}"
     end

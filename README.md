@@ -6,6 +6,7 @@ This is a simple retirement drawdown calculator for Canadians. It models the fol
 2. Withdraw from Taxable account next (enough for spending + optional TFSA contribution).
 3. Withdraw from TFSA last.
 4. Optionally if you specify a cash cushion (i.e. amount of savings you have in an easily accessible liquid account like a high interest savings account), then the simulation will drawdown from the cash cushion rather than investment accounts during periods of market downturns.
+5. Optionally you can specify at what age you plan to take CPP and your monthly entitlement amount. In this case the simulator will reduce your withdrawals accordingly, including factoring in that both RRSP withdrawals and CPP count as taxable income.
 
 > [!IMPORTANT]
 > RRSP withdrawals are treated as income and subject to federal and provincial income tax. This project does a reverse tax calculation, to determine what amount you actually need to withdraw from RRSP to achieve desired spending (and optional TFSA contribution) amount. This is often overlooked in FIRE/retirement calculators.
@@ -18,11 +19,9 @@ You can also run the same scenario over and over with different options for rand
 
 ## Why I Built This
 
-When I started looking for a basic tool to simulate a retirement drawdown in Canada, I couldn’t find anything — just advice to hire a financial planner. While professional guidance is valuable, a simple, transparent tool should exist for those who want to see how long their savings might last under a simple strategy. But something that considered initial withdrawals from an RRSP have to be higher than desired spending to account for taxes. Because RRSP withdrawals count as income and are subject to federal and provincial income tax.
+When I started looking for a basic tool to simulate a retirement drawdown in Canada, I couldn’t find anything — just advice to hire a financial planner. While professional guidance is valuable, a relatively simple, transparent tool should exist for those who want to see how long their savings might last under a given withdrawal strategy.
 
-Specifically, this tool could be useful for someone who has three accounts from which they wish to drawdown in retirement: an RRSP, taxable account, and TFSA. It assumes the same investments are held in all of them so the same rate of return can be applied.
-
-There are many assumptions and some things such as RRIF withdrawals, capital gains, and CPP are not handled, although planned. See the [roadmap](docs/roadmap.md) for more details.
+Specifically, this tool could be useful for someone who has three accounts from which they wish to drawdown in retirement: an RRSP, taxable account, and TFSA. There are many assumptions and some things such as RRIF withdrawals and capital gains are not handled, although planned. See the [roadmap](docs/roadmap.md) for more details.
 
 ### Disclaimer ⚠️
 
@@ -87,13 +86,20 @@ Your financial inputs are stored in `inputs.yml`. Below is an example:
 mode: detailed
 
 # For success_rate mode
-total_runs: 5000
+total_runs: 500
 
 # Age at which you plan to start retirement
 retirement_age: 60
 
-# Max age to prevent infinite loops
+# Maximum age to run the simulation until.
+# This prevents infinite loops if investment growth outpaces withdrawals.
+# Choose a reasonable upper bound based on longevity estimates,
+# but note that this is just for the simulation and not a personal prediction.
 max_age: 105
+
+# Province or territory where you reside
+# Valid values are: ONT, NL, PE, NS, NB, MB, SK, AB, BC, YT, NT, NU
+province_code: ONT
 
 # Success factor: defines the multiplier for total_balance needed by max_age for success.
 # Supports fractional, eg: 1.5
@@ -118,7 +124,7 @@ annual_growth_rate:
 # but are unrealistic as the market doesn't actually do this.
 return_sequence_type: geometric_brownian_motion
 
-# Assume we'll continue to make TFSA contributions during RRSP and Taxable drawdown phases
+# Optionally continue to make TFSA contributions during RRSP and Taxable drawdown phases
 # If you don't want to make any TFSA contributions during drawdown, set this to 0.
 annual_tfsa_contribution: 7000
 
@@ -132,17 +138,30 @@ annual_tfsa_contribution: 7000
 desired_spending: 40000
 
 # Starting account balances.
-# Set cash_cushion balance to 0 if you don't want to use it
+# The cash_cushion will be used in case of market downturns (value you set earlier in downturn_threshold).
+# Set cash_cushion balance to 0 if you don't want to use it or don't have a cash cushion.
 accounts:
   rrsp: 600000
   taxable: 400000
   tfsa: 120000
   cash_cushion: 40000
 
+# Enter the age at which you plan to start CPP and the monthly amount you're entitled to.
+# You can find this value by logging in to your My Service Canada account.
+# The values shown in My Service Canada assume you continue to work at your current income
+# up until the age you start taking CPP. If you're planning on retiring earlier than this,
+# then your actual CPP numbers will be lower due to those additional years of no contributions.
+# In this case, use https://research-tools.pwlcapital.com/research/cpp to estimate what you may actually get.
+# To run the simulation without CPP, set the monthly_amount to 0.
+cpp:
+  start_age: 65
+  monthly_amount: 0
+
 # Taxes
 # Withholding tax may be greater than your actual tax bill, you'll get a refund when you file your taxes.
 # In the first year of retirement, you'll have to have some extra cash available to "float" the difference.
 # In subsequent years, the previous year's tax refund will be used to fund part of next years spending.
+# Tax calculator: https://www.eytaxcalculators.com/en/2025-personal-tax-calculator.html
 # RRSP Withholding tax: https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/rrsps-related-plans/making-withdrawals/tax-rates-on-withdrawals.html
 # Assumption is you'll be withdrawing at least 15K which lands in 30% withholding tax.
 taxes:
@@ -211,7 +230,7 @@ Age        RRSP                 TFSA                 Taxable              Total 
 104        $265.63              $1,969,735.28        $1,315,122.96        $3,285,123.86        taxable                   0.01%
 105        $225.06              $1,674,849.39        $1,074,455.94        $2,749,530.39        taxable                 -15.27%
 ----------------------------------------------------------------------------------------------------------------------------------
-Simulation Result: Success
+Simulation Result: ✅ Success
 Simulation successful with total balance of $2,749,530.39.
 ```
 
@@ -253,11 +272,13 @@ Age        RRSP                 TFSA                 Taxable              Total 
 82         $2,839.04            $76,949.38           $6,756.88            $86,545.30           tfsa                     40.88%
 83         $2,764.35            $35,977.30           $6,579.12            $45,320.77           tfsa                     -2.63%
 ----------------------------------------------------------------------------------------------------------------------------------
-Simulation Result: Failure
+Simulation Result: ❌ Failure
 Simulation failed. Max age 105 not reached. Final age is 83.
 ```
 
-You can use the `success_rate` mode (either specify it in `inputs.yml` or override it at the command line as shown below) to run the simulation 5000 times (or however many times you specify in `total_runs`). In this case, it calculates the percentage of successful scenarios:
+### Determining Your Success Rate
+
+You can use the `success_rate` mode (either specify it in `inputs.yml` or override it at the command line as shown below) to run the simulation many times over. In this case, it calculates the percentage of successful scenarios:
 
 ```
 ruby main.rb success_rate
@@ -265,7 +286,7 @@ ruby main.rb success_rate
 Running main.rb in success_rate mode...
 Simulating... [████████████████████████████████████████] 100%
 
-Simulation Success Rate: 69.26% ✅
+Simulation Success Rate: 69.26%
 ```
 
 Success is defined as making it to `max_age` with at least `success_factor` * annual withdrawals in that phase, money left.

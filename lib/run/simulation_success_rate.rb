@@ -6,7 +6,7 @@ module Run
   class SuccessRateSimulation
     def initialize(app_config)
       @app_config = app_config
-      @total_runs = app_config["total_runs"] || 1_000
+      @total_runs = app_config["total_runs"] || 500
       @withdrawal_rate = nil
     end
 
@@ -52,7 +52,7 @@ module Run
       success_rate = (success_count.to_f / total_runs) * 100
 
       puts "\nWithdrawal Rate: #{NumericFormatter.format_percentage(withdrawal_rate)}"
-      puts "Simulation Success Rate: \e[32m#{success_rate.round(2)}%\e[0m ✅"
+      puts "Simulation Success Rate: \e[32m#{success_rate.round(2)}%\e[0m"
     end
   end
 end

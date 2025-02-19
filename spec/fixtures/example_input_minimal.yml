@@ -18,5 +18,9 @@ accounts:
   tfsa: 30000
   cash_cushion: 0
 
+cpp:
+  start_age: 65
+  monthly_amount: 0
+
 taxes:
   rrsp_withholding_rate: 0.3

@@ -2,7 +2,8 @@
 
 module Strategy
   class RrspToTaxableToTfsa
-    attr_reader :app_config, :withdrawal_amounts, :rrsp_account, :taxable_account, :tfsa_account, :cash_cushion
+    attr_reader :app_config, :current_age, :withdrawal_amounts, :rrsp_account, :taxable_account, :tfsa_account,
+                :cash_cushion
 
     def initialize(app_config)
       @app_config = app_config
@@ -10,6 +11,12 @@ module Strategy
       load_accounts
     end
 
+    def current_age=(age)
+      @current_age = age
+      @withdrawal_amounts.current_age = age
+    end
+
+    # FIXME: https://github.com/danielabar/retirement_drawdown_simulator_canada/issues/20
     def select_account(market_return)
       select_cash_cushion(market_return) || select_investment_account
     end
@@ -32,6 +39,10 @@ module Strategy
 
     def total_balance
       rrsp_account.balance + taxable_account.balance + tfsa_account.balance + cash_cushion.balance
+    end
+
+    def cpp_used?
+      withdrawal_amounts.cpp_used?
     end
 
     private
