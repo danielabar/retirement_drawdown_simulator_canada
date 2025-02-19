@@ -2,8 +2,9 @@
 
 ## Enhancements
 
-- WIP: Start CPP at age 60, 65, or 70: https://research-tools.pwlcapital.com/research/cpp (complexity: amount shown on My Service Canada assumes you keep working until age 65, if retiring early, actual amount will be less, the PWL research tool attempts to account for that by having you enter all your earnings over the past years)
-- Maybe output should also show how much was withdrawn?
+- Maybe output should also have a column for how much was withdrawn
+- When evaluating results, also capture what the final total balance was, and for success rate run, show average (or middle?) total balance
+  - i.e. we're defining success by ending up with at least 1x (success_factor) desired spending, but maybe certain strategies result on average in MUCH MORE than this and we should show it somehow
 - Output initial account balances and total balance
 - Cash cushion refill if needed when market return is high (would need to track what original balance was or have user specify how many years worth they want to keep in this bucket)
 - Cascading/multi-account withdrawals - a little left in one account but not enough to fund that years spending so have to go to next account
@@ -17,7 +18,7 @@
 - What if you reach age 71 and there's still funds in RRSP -> forced to RRIF and minimum withdrawals
 - instead of space separated console "table" output, consider gem, should make it easier to add columns and right-align numbers https://github.com/piotrmurach/tty-table
 - visual/chart https://github.com/red-data-tools/unicode_plot.rb and https://red-data-tools.github.io/unicode_plot.rb/0.0.5/ of returns, and total_balance over time
-- support choice of multiple drawdown strategies
+- support choice of multiple drawdown strategies (eg: TFSA first, taxable first)
 - validation on loading AppConfig, consider bringing in ActiveModel for this, and easier to access attributes via `.` rather than `[...]`.
 - make it easier to specify alternate input files
 - support choice of output types, currently its only ConsolePrinter
@@ -40,4 +41,5 @@ Document insights discovered from using this tool to analyze scenarios such as:
 - Does draining down RRSP faster by also contributing to TFSA during this time help or hinder success rate?
 - How does use of cash cushion compare to having it invested in taxable account (no difference!)
 - Given `geometric_brownian_motion` returns generator, what is the actual safe withdrawal rate (seems to be a function of how many years spending in retirement)
+  - Initial analysis shows the only way to get a success rate at or over 95% for a long retirement is to count on CPP
 - How does starting CPP at age 60 vs 65 vs 70 impact success rate?
