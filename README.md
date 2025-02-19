@@ -6,6 +6,7 @@ This is a simple retirement drawdown calculator for Canadians. It models the fol
 2. Withdraw from Taxable account next (enough for spending + optional TFSA contribution).
 3. Withdraw from TFSA last.
 4. Optionally if you specify a cash cushion (i.e. amount of savings you have in an easily accessible liquid account like a high interest savings account), then the simulation will drawdown from the cash cushion rather than investment accounts during periods of market downturns.
+5. Optionally you can specify at what age you plan to take CPP and your monthly entitlement amount. In this case the simulator will reduce your withdrawals accordingly, including factoring in that both RRSP withdrawals and CPP count as taxable income.
 
 > [!IMPORTANT]
 > RRSP withdrawals are treated as income and subject to federal and provincial income tax. This project does a reverse tax calculation, to determine what amount you actually need to withdraw from RRSP to achieve desired spending (and optional TFSA contribution) amount. This is often overlooked in FIRE/retirement calculators.
@@ -18,11 +19,9 @@ You can also run the same scenario over and over with different options for rand
 
 ## Why I Built This
 
-When I started looking for a basic tool to simulate a retirement drawdown in Canada, I couldn’t find anything — just advice to hire a financial planner. While professional guidance is valuable, a simple, transparent tool should exist for those who want to see how long their savings might last under a simple strategy. But something that considered initial withdrawals from an RRSP have to be higher than desired spending to account for taxes. Because RRSP withdrawals count as income and are subject to federal and provincial income tax.
+When I started looking for a basic tool to simulate a retirement drawdown in Canada, I couldn’t find anything — just advice to hire a financial planner. While professional guidance is valuable, a relatively simple, transparent tool should exist for those who want to see how long their savings might last under a given withdrawal strategy.
 
-Specifically, this tool could be useful for someone who has three accounts from which they wish to drawdown in retirement: an RRSP, taxable account, and TFSA. It assumes the same investments are held in all of them so the same rate of return can be applied.
-
-There are many assumptions and some things such as RRIF withdrawals, capital gains, and CPP are not handled, although planned. See the [roadmap](docs/roadmap.md) for more details.
+Specifically, this tool could be useful for someone who has three accounts from which they wish to drawdown in retirement: an RRSP, taxable account, and TFSA. There are many assumptions and some things such as RRIF withdrawals and capital gains are not handled, although planned. See the [roadmap](docs/roadmap.md) for more details.
 
 ### Disclaimer ⚠️
 

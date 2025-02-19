@@ -13,6 +13,12 @@
 - support choice of multiple drawdown strategies (eg: TFSA first, taxable first)
 - Cash cushion refill if needed when market return is high (would need to track what original balance was or have user specify how many years worth they want to keep in this bucket).
 
+### Sequence of Returns
+
+- Is [Geometric Brownian Motion](https://www.columbia.edu/~ks20/FE-Notes/4700-07-Notes-GBM.pdf) a reasonable way to simulate stock market returns? (i.e. goes up on average but with volatility and a number of "shocks" over time)
+- If yes, is `ReturnSequences::GeometricBrownianMotionSequence` the correct implementation?
+- If no, is there an alternative model/technique?
+
 ### Output
 
 - Instead of space separated console output, consider gem, should make it easier to add columns and right-align numbers https://github.com/piotrmurach/tty-table
@@ -25,6 +31,8 @@
 
 - Validation on loading AppConfig, consider bringing in ActiveModel for this, and easier to access attributes via `.` rather than `[...]`.
 - Make it easier to specify alternate input files
+- Bundle as homebrew for easier installation on a Mac
+- Bundle as whatever the Windows equivalent of homebrew is for easier installation on Windows
 - Replay a particular sequence with alternate inputs
 
 ### Tax Complications
@@ -49,6 +57,6 @@ Document insights discovered from using this tool to analyze scenarios such as:
   - 40 - 50 year retirement (success rate seems to drop significantly when going over 30 years!)
 - Does draining down RRSP faster by also contributing to TFSA during this time help or hinder success rate?
 - How does use of cash cushion compare to having it invested in taxable account (no difference!)
-- Given `geometric_brownian_motion` returns generator, what is the actual safe withdrawal rate (seems to be a function of how many years spending in retirement)
-  - Initial analysis shows the only way to get a success rate at or over 95% for a long retirement is to count on CPP
 - How does starting CPP at age 60 vs 65 vs 70 impact success rate?
+  - Initial analysis shows the only way to get a success rate at or over 95% for a long retirement is to count on CPP
+- What is the actual safe withdrawal rate (seems to be a function of how many years spending in retirement)
