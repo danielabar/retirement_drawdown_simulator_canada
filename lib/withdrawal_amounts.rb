@@ -13,6 +13,7 @@ class WithdrawalAmounts
   def initialize(app_config)
     @app_config = app_config
     @reverse_tax_calculator = Tax::ReverseIncomeTaxCalculator.new
+    @tax_calculator = Tax::IncomeTaxCalculator.new
   end
 
   def annual_amount(account)
@@ -22,54 +23,22 @@ class WithdrawalAmounts
     send(method_name)
   end
 
-  # TODO: refactor to address complexity
   def annual_rrsp
     return reverse_tax_results[:gross_income] unless cpp_used?
 
     return @annual_rrsp_memo if defined?(@annual_rrsp_memo)
 
-    # Initial guess (without CPP)
-    rrsp_withdrawal = reverse_tax_results[:gross_income]
-
     # Upper and lower bounds based on CPP and RRSP withdrawal
-    candidate_rrsp_withdrawal = nil
-    candidate_rrsp_withdrawal_upper = rrsp_withdrawal
-    candidate_rrsp_withdrawal_lower = rrsp_withdrawal - cpp_annual_gross_income
+    # The upper bound is as if we didn't have CPP at all
+    # The lower bound is as if we could subtract off the full gross CPP
+    # but we can't actually do this since both rrsp withdrawal and CPP are taxable
+    # so the real number lies somewhere in between these two.
+    candidate_rrsp_withdrawal_upper = reverse_tax_results[:gross_income]
+    candidate_rrsp_withdrawal_lower = reverse_tax_results[:gross_income] - cpp_annual_gross_income
 
-    # Binary search to find the correct RRSP withdrawal
-    tolerance = 1.0 # Allowable margin of error
-    max_iterations = 100
-    iterations = 0
-
-    loop do
-      # Calculate the midpoint RRSP withdrawal
-      candidate_rrsp_withdrawal = (candidate_rrsp_withdrawal_upper.to_f + candidate_rrsp_withdrawal_lower.to_f) / 2
-
-      # Total taxable income: CPP gross + RRSP withdrawal
-      total_taxable_income = cpp_annual_gross_income + candidate_rrsp_withdrawal
-      forward_tax_details = Tax::IncomeTaxCalculator.new.calculate(total_taxable_income, app_config["province_code"])
-
-      # Actual take-home income after tax
-      actual_take_home = forward_tax_details[:take_home]
-
-      # Check if take-home is close enough to desired spending
-      difference = actual_take_home - desired_income
-
-      break if difference.abs <= tolerance || iterations >= max_iterations
-
-      if difference.positive?
-        # Take-home is too high, adjust upper bound
-        candidate_rrsp_withdrawal_upper = candidate_rrsp_withdrawal
-      else
-        # Take-home is too low, adjust lower bound
-        candidate_rrsp_withdrawal_lower = candidate_rrsp_withdrawal
-      end
-
-      iterations += 1
-    end
-
-    # Memoize and return the final RRSP withdrawal after the loop
-    @annual_rrsp_memo = candidate_rrsp_withdrawal
+    # Memoize and return the final RRSP withdrawal
+    @annual_rrsp_memo = binary_search_rrsp_withdrawal(candidate_rrsp_withdrawal_upper,
+                                                      candidate_rrsp_withdrawal_lower)
   end
 
   def cpp_used?
@@ -97,6 +66,43 @@ class WithdrawalAmounts
   private
 
   attr_reader :app_config
+
+  def binary_search_rrsp_withdrawal(upper_bound, lower_bound)
+    tolerance = 1.0
+    max_iterations = 100
+    iterations = 0
+    candidate_rrsp_withdrawal = nil
+    candidate_rrsp_withdrawal_upper = upper_bound
+    candidate_rrsp_withdrawal_lower = lower_bound
+
+    loop do
+      # Calculate the midpoint RRSP withdrawal
+      candidate_rrsp_withdrawal = (candidate_rrsp_withdrawal_upper.to_f + candidate_rrsp_withdrawal_lower.to_f) / 2
+
+      # Check if take-home is close enough to desired spending
+      difference = actual_take_home(candidate_rrsp_withdrawal) - desired_income
+
+      break if difference.abs <= tolerance || iterations >= max_iterations
+
+      if difference.positive?
+        # Take-home is too high, adjust upper bound
+        candidate_rrsp_withdrawal_upper = candidate_rrsp_withdrawal
+      else
+        # Take-home is too low, adjust lower bound
+        candidate_rrsp_withdrawal_lower = candidate_rrsp_withdrawal
+      end
+
+      iterations += 1
+    end
+
+    candidate_rrsp_withdrawal
+  end
+
+  def actual_take_home(candidate_rrsp_withdrawal)
+    total_taxable_income = cpp_annual_gross_income + candidate_rrsp_withdrawal
+    forward_tax_details = @tax_calculator.calculate(total_taxable_income, app_config["province_code"])
+    forward_tax_details[:take_home]
+  end
 
   def reverse_tax_results
     @reverse_tax_results ||= @reverse_tax_calculator.calculate(desired_income, app_config["province_code"])
