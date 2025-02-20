@@ -86,7 +86,6 @@ module Simulation
     end
 
     def print_return_sequence_chart
-      # puts "\n=== Sequence of Returns ==="
       ConsolePlotter.plot(@sequence_of_returns)
     end
   end
