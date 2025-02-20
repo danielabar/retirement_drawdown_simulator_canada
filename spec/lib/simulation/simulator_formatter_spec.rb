@@ -65,9 +65,6 @@ RSpec.describe Simulation::SimulatorFormatter do
     simulator_formatter = described_class.new(simulation_output, first_year_cash_flow_results, evaluator_results,
                                               visual: false)
 
-    # temp debug
-    simulator_formatter.print_all
-
     expect { simulator_formatter.print_all }.to output(expected_output).to_stdout
   end
 end

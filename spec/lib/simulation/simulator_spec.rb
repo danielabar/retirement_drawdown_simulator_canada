@@ -36,14 +36,14 @@ RSpec.describe Simulation::Simulator do
           }
         )
       end
-      let!(:results) { described_class.new(app_config).run }
+      let!(:yearly_results) { described_class.new(app_config).run[:yearly_results] }
 
       it "simulation runs up to age 69" do
-        expect(results.last[:age]).to eq(69)
+        expect(yearly_results.last[:age]).to eq(69)
       end
 
       it "verifies withdrawals for age 65" do
-        row = results.find { |r| r[:age] == 65 }
+        row = yearly_results.find { |r| r[:age] == 65 }
         expect(row).to match(
           a_hash_including(
             age: 65,
@@ -58,7 +58,7 @@ RSpec.describe Simulation::Simulator do
       end
 
       it "verifies the expected values for age 66" do
-        row = results.find { |r| r[:age] == 66 }
+        row = yearly_results.find { |r| r[:age] == 66 }
         expect(row).to match(
           a_hash_including(
             age: 66,
@@ -73,7 +73,7 @@ RSpec.describe Simulation::Simulator do
       end
 
       it "verifies the expected values for age 67" do
-        row = results.find { |r| r[:age] == 67 }
+        row = yearly_results.find { |r| r[:age] == 67 }
         expect(row).to match(
           a_hash_including(
             age: 67,
@@ -88,7 +88,7 @@ RSpec.describe Simulation::Simulator do
       end
 
       it "verifies the expected values for age 68" do
-        row = results.find { |r| r[:age] == 68 }
+        row = yearly_results.find { |r| r[:age] == 68 }
         expect(row).to match(
           a_hash_including(
             age: 68,
@@ -103,7 +103,7 @@ RSpec.describe Simulation::Simulator do
       end
 
       it "verifies the expected values for age 69" do
-        row = results.find { |r| r[:age] == 69 }
+        row = yearly_results.find { |r| r[:age] == 69 }
         expect(row).to match(
           a_hash_including(
             age: 69,
@@ -150,25 +150,25 @@ RSpec.describe Simulation::Simulator do
         )
       end
 
-      let!(:results) { described_class.new(app_config).run }
+      let!(:yearly_results) { described_class.new(app_config).run[:yearly_results] }
 
       it "simulates RRSP drawdown until balance is less than withdrawal amount" do
-        final_rrsp_year = results.reverse.find { |r| r[:note] == "rrsp" }
+        final_rrsp_year = yearly_results.reverse.find { |r| r[:note] == "rrsp" }
         expect(final_rrsp_year[:rrsp_balance]).to be < app_config["desired_spending"]
       end
 
       it "simulates taxable drawdown until balance is below the withdrawal amount" do
-        final_taxable_year = results.reverse.find { |r| r[:note] == "taxable" }
+        final_taxable_year = yearly_results.reverse.find { |r| r[:note] == "taxable" }
         expect(final_taxable_year[:taxable_balance]).to be < 47_000
       end
 
       it "simulates TFSA drawdown until balance is depleted" do
-        final_year = results.last
+        final_year = yearly_results.last
         expect(final_year[:tfsa_balance]).to be < 40_000
       end
 
       it "supports desired income withdrawals up to age 105" do
-        expect(results.last[:age]).to eq 105
+        expect(yearly_results.last[:age]).to eq 105
       end
     end
 
@@ -204,10 +204,10 @@ RSpec.describe Simulation::Simulator do
         )
       end
 
-      let!(:results) { described_class.new(app_config).run }
+      let!(:yearly_results) { described_class.new(app_config).run[:yearly_results] }
 
       it "supports desired income withdrawals to max age" do
-        expect(results.last[:age]).to eq 120 # max age from fixture
+        expect(yearly_results.last[:age]).to eq 120 # max age from fixture
       end
     end
   end
