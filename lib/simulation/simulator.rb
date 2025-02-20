@@ -48,8 +48,6 @@ module Simulation
       }
     end
 
-    # TODO: 22 update simulator tests to expect hash of results and sequence
-    # TODO: 22 update simulator formatter to expect this hash now
     def build_results
       { yearly_results: results, sequence_of_returns: return_sequence.get_return_for_age }
     end
