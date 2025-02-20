@@ -7,8 +7,15 @@ module ReturnSequences
   # and a volatility term (`sigma`), with random shocks (`z`) introduced at each age.
   # The resulting sequence is returned as a hash with age as the key and return as the value.
   class GeometricBrownianMotionSequence < ReturnSequences::BaseSequence
-    def get_return_for_age(age)
+    # TODO: 22 - test for getting specific age vs getting all
+    # just verify that value is between min and max
+    # TODO: 22 - this logic is actually the same for all of them
+    # should it be in the base class? And then subclasses are only
+    # required to implement generate_returns which could be protected instead of private
+    def get_return_for_age(age = nil)
       @returns ||= generate_returns
+      return @returns.sort.to_a if age.nil?
+
       @returns[age] || @avg
     end
 

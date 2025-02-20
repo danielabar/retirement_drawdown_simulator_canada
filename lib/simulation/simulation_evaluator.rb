@@ -2,15 +2,15 @@
 
 module Simulation
   class SimulationEvaluator
-    def initialize(simulation_results, app_config)
-      @simulation_results = simulation_results
+    def initialize(simulation_yearly_results, app_config)
+      @simulation_yearly_results = simulation_yearly_results
       @app_config = app_config
       @max_age = app_config["max_age"]
     end
 
     def evaluate
       withdrawal_rate = WithdrawalRateCalculator.new(app_config).calculate
-      last_result = simulation_results.last
+      last_result = simulation_yearly_results.last
 
       if last_result[:age] < max_age
         return failure_due_to_max_age(last_result[:age]).merge(withdrawal_rate: withdrawal_rate)
@@ -21,7 +21,7 @@ module Simulation
 
     private
 
-    attr_reader :app_config, :max_age, :simulation_results
+    attr_reader :app_config, :max_age, :simulation_yearly_results
 
     def success_threshold
       app_config["success_factor"] * app_config["desired_spending"]

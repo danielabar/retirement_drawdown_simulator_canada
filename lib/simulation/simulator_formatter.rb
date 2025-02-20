@@ -2,8 +2,9 @@
 
 module Simulation
   class SimulatorFormatter
-    def initialize(simulation_results, first_year_cash_flow_results, evaluator_results)
-      @results = simulation_results
+    def initialize(simulation_output, first_year_cash_flow_results, evaluator_results)
+      @yearly_results = simulation_output[:yearly_results]
+      @sequence_of_returns = simulation_output[:sequence_of_returns]
       @first_year_cash_flow_results = first_year_cash_flow_results
       @evaluator_results = evaluator_results
     end
@@ -13,6 +14,7 @@ module Simulation
       print_header
       print_yearly_results
       print_simulation_evaluation
+      print_return_sequence_chart
     end
 
     private
@@ -45,7 +47,7 @@ module Simulation
     end
 
     def print_yearly_results
-      @results.each do |record|
+      @yearly_results.each do |record|
         puts formatted_yearly_result(record)
       end
     end
@@ -80,6 +82,11 @@ module Simulation
       puts "Simulation Result: #{emoji} #{result_text}"
       puts @evaluator_results[:explanation]
       puts "Withdrawal Rate: #{NumericFormatter.format_percentage(@evaluator_results[:withdrawal_rate])}"
+    end
+
+    def print_return_sequence_chart
+      puts "\n=== Sequence of Returns ==="
+      ConsolePlotter.plot(@sequence_of_returns)
     end
   end
 end

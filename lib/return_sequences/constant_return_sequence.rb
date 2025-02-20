@@ -2,8 +2,10 @@
 
 module ReturnSequences
   class ConstantReturnSequence < ReturnSequences::BaseSequence
-    def get_return_for_age(age)
+    def get_return_for_age(age = nil)
       @returns ||= generate_returns
+      return @returns.sort.to_a if age.nil?
+
       @returns[age] || @avg
     end
 

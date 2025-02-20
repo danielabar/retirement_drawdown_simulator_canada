@@ -10,7 +10,7 @@ module ReturnSequences
       @max = max
     end
 
-    def get_return_for_age(age)
+    def get_return_for_age(age = nil)
       raise NotImplementedError, "Subclasses must implement this method"
     end
   end

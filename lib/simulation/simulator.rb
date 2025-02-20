@@ -22,7 +22,8 @@ module Simulation
         strategy.apply_growth(market_return)
         record_yearly_status(age, account, market_return, strategy)
       end
-      results
+
+      build_results
     end
 
     private
@@ -45,6 +46,12 @@ module Simulation
         rate_of_return: market_return,
         total_balance: strategy.total_balance
       }
+    end
+
+    # TODO: 22 update simulator tests to expect hash of results and sequence
+    # TODO: 22 update simulator formatter to expect this hash now
+    def build_results
+      { yearly_results: results, sequence_of_returns: return_sequence.get_return_for_age }
     end
   end
 end

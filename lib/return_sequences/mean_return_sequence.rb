@@ -4,8 +4,10 @@ module ReturnSequences
   class MeanReturnSequence < ReturnSequences::BaseSequence
     MAX_LOOP_ATTEMPTS = 1000
 
-    def get_return_for_age(age)
+    def get_return_for_age(age = nil)
       @returns ||= generate_returns
+      return @returns.sort.to_a if age.nil?
+
       @returns[age] || @avg
     end
 
