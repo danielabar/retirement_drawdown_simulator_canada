@@ -58,11 +58,15 @@ RSpec.describe Simulation::SimulatorFormatter do
     OUTPUT
   end
 
-  fit "prints exactly the expected output" do
+  it "prints exactly the expected output" do
     simulation_output = Simulation::Simulator.new(app_config).run
     evaluator_results = Simulation::SimulationEvaluator.new(simulation_output[:yearly_results], app_config).evaluate
     first_year_cash_flow_results = FirstYearCashFlow.new(app_config).calculate
-    simulator_formatter = described_class.new(simulation_output, first_year_cash_flow_results, evaluator_results)
+    simulator_formatter = described_class.new(simulation_output, first_year_cash_flow_results, evaluator_results,
+                                              visual: false)
+
+    # temp debug
+    simulator_formatter.print_all
 
     expect { simulator_formatter.print_all }.to output(expected_output).to_stdout
   end

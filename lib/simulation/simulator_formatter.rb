@@ -2,11 +2,12 @@
 
 module Simulation
   class SimulatorFormatter
-    def initialize(simulation_output, first_year_cash_flow_results, evaluator_results)
+    def initialize(simulation_output, first_year_cash_flow_results, evaluator_results, visual: true)
       @yearly_results = simulation_output[:yearly_results]
       @sequence_of_returns = simulation_output[:sequence_of_returns]
       @first_year_cash_flow_results = first_year_cash_flow_results
       @evaluator_results = evaluator_results
+      @visual = visual
     end
 
     def print_all
@@ -14,7 +15,7 @@ module Simulation
       print_header
       print_yearly_results
       print_simulation_evaluation
-      print_return_sequence_chart
+      print_return_sequence_chart if @visual
     end
 
     private

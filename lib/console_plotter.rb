@@ -4,7 +4,8 @@
 class ConsolePlotter
   def self.plot(sequence_of_returns)
     ages, returns = sequence_of_returns.transpose
-    plot = UnicodePlot.lineplot(ages, returns, name: "Return Sequence", width: 60, height: 10)
+    # color is a symbol from UnicodePlot::StyledPrinter::COLOR_ENCODE
+    plot = UnicodePlot.lineplot(ages, returns, name: "Return Sequence", width: 60, height: 10, color: :magenta)
     plot.render
   end
 end
