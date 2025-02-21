@@ -2,7 +2,7 @@
 
 require_relative "../../spec_helper"
 
-RSpec.describe Simulation::SimulatorFormatter do
+RSpec.describe Output::ConsolePrinter do
   let(:app_config) do
     AppConfig.new(
       "retirement_age" => 65,

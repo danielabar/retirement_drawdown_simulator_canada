@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-module Simulation
-  class SimulatorFormatter
+module Output
+  class ConsolePrinter
     def initialize(simulation_output, first_year_cash_flow_results, evaluator_results, visual: true)
       @yearly_results = simulation_output[:yearly_results]
       @sequence_of_returns = simulation_output[:sequence_of_returns]
