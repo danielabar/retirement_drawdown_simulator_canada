@@ -2,21 +2,21 @@
 # 1M portfolio, 40K/year, retire early based on 4% rule.
 # Success rate is only ~55%, NOT the 95% that's often reported in personal finance articles,
 # Even with cash cushion to use during market downturns.
-retirement_age: 45
+retirement_age: 35
 max_age: 95
 province_code: ONT
 annual_tfsa_contribution: 0
 
 # Growth rate average, min, and max to generate variability
 annual_growth_rate:
-  average: 0.05
+  average: 0.045
   min: -0.3
   max: 0.3
   savings: 0.005
   downturn_threshold: -0.2
 
 # Success factor: defines the multiplier for total_balance needed for success
-success_factor: 1
+success_factor: 0.5
 
 # Choose the return sequence generator: mean, geometric_brownian_motion, constant
 return_sequence_type: geometric_brownian_motion
