@@ -1,6 +1,6 @@
 # Experimenting with the "canonical" FIRE scenario.
 # 1M portfolio, 40K/year, retire early based on 4% rule.
-# Success rate is only ~55%, NOT the 95% that's often reported in personal finance articles,
+# Success rate is only ~40% if starting at age 35, NOT the 95% that's often reported in personal finance articles,
 # Even with cash cushion to use during market downturns.
 retirement_age: 35
 max_age: 95
