@@ -1,11 +1,16 @@
-# Experimenting with the "canonical" FIRE scenario.
+# Experimenting with the typical FIRE scenario:
 # 1M portfolio, 40K/year, retire early based on 4% rule.
-# Success rate is only ~40% if starting at age 35, NOT the 95% that's often reported in personal finance articles,
-# Even with cash cushion to use during market downturns.
+# Success rate is only ~40% if starting at age 35 (no CPP),
+# Not the 95% that's often reported in FIRE blogs.
+# Even with a 1-year cash cushion to use during a market downturn.
+# With CPP delayed to 70, success rate goes up to ~50%, still not great.
 retirement_age: 35
 max_age: 95
 province_code: ONT
 annual_tfsa_contribution: 0
+
+# For success_rate mode
+total_runs: 1000
 
 # Growth rate average, min, and max to generate variability
 annual_growth_rate:
@@ -30,9 +35,16 @@ accounts:
   tfsa: 200000
   cash_cushion: 40000
 
+# Based on a 35 year old born in 1990, started working in 2008
+# up until 2025 and earning max pensionable earnings.
+# https://research-tools.pwlcapital.com/research/cpp
 cpp:
-  start_age: 65
-  monthly_amount: 0
+  # start_age: 60
+  # monthly_amount: 606
+  # start_age: 65
+  # monthly_amount: 875
+  start_age: 70
+  monthly_amount: 1274
 
 taxes:
   rrsp_withholding_rate: 0.3
