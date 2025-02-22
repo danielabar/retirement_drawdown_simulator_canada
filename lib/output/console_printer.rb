@@ -15,7 +15,7 @@ module Output
       print_header
       print_yearly_results
       print_simulation_evaluation
-      print_return_sequence_chart if @visual
+      print_charts if @visual
     end
 
     private
@@ -85,8 +85,19 @@ module Output
       puts "Withdrawal Rate: #{NumericFormatter.format_percentage(@evaluator_results[:withdrawal_rate])}"
     end
 
+    def print_charts
+      print_return_sequence_chart
+      print_total_balance_chart
+    end
+
     def print_return_sequence_chart
       ConsolePlotter.plot(@sequence_of_returns)
+    end
+
+    def print_total_balance_chart
+      ages = @yearly_results.map { |r| r[:age] }
+      total_balances = @yearly_results.map { |r| r[:total_balance] }
+      ConsolePlotter.plot_total_balance(ages, total_balances)
     end
   end
 end

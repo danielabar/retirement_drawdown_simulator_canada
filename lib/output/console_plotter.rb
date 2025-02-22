@@ -19,5 +19,20 @@ module Output
 
       plot.render
     end
+
+    def self.plot_total_balance(ages, total_balances)
+      plot = UnicodePlot.lineplot(
+        ages,
+        total_balances,
+        name: "Total Balance Over Time",
+        width: 60,
+        height: 10,
+        color: :cyan,
+        labels: true,
+        xlabel: "Age",
+        ylabel: "Total Balance"
+      )
+      plot.render
+    end
   end
 end
