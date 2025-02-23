@@ -11,7 +11,16 @@ module ReturnSequences
     end
 
     def get_return_for_age(age = nil)
-      raise NotImplementedError, "Subclasses must implement this method"
+      @returns ||= generate_returns
+      return @returns.sort.to_a if age.nil?
+
+      @returns[age] || @avg
+    end
+
+    protected
+
+    def generate_returns
+      raise NotImplementedError, "Subclasses must implement `generate_returns` method"
     end
   end
 end

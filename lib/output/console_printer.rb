@@ -91,6 +91,7 @@ module Output
       print_total_balance_chart
     end
 
+    # TODO: 22 - Use yearly results because those have the captured rate of return.
     def print_return_sequence_chart
       ConsolePlotter.plot(@sequence_of_returns)
     end
