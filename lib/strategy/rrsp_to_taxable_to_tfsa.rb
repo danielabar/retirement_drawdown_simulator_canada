@@ -17,18 +17,27 @@ module Strategy
     end
 
     # FIXME: https://github.com/danielabar/retirement_drawdown_simulator_canada/issues/20
-    def select_account(market_return)
-      select_cash_cushion(market_return) || select_investment_account
+    def select_accounts(market_return)
+      if withdraw_from_cash_cushion?(market_return)
+        [{ account: cash_cushion, amount: withdrawal_amounts.annual_cash_cushion }]
+      else
+        select_investment_accounts
+      end
     end
 
-    def transact(current_account)
-      current_account.withdraw(withdrawal_amounts.annual_amount(current_account))
+    # TODO: 27 - rubocop complexity
+    def transact(accounts)
+      return if accounts.nil? || accounts.empty?
 
-      # Ensure we do not contribute to TFSA if withdrawing from TFSA or cash cushion
-      return unless !%w[tfsa
-                        cash_cushion].include?(current_account.name) && app_config["annual_tfsa_contribution"].positive?
+      accounts.each do |entry|
+        entry[:account].withdraw(entry[:amount])
+      end
 
-      tfsa_account.deposit(app_config["annual_tfsa_contribution"])
+      # Ensure TFSA contributions only happen if we withdrew from RRSP/Taxable
+      if accounts.none? { |entry| %w[tfsa cash_cushion].include?(entry[:account].name) } &&
+         app_config["annual_tfsa_contribution"].positive?
+        tfsa_account.deposit(app_config["annual_tfsa_contribution"])
+      end
     end
 
     def apply_growth(market_return)
@@ -62,12 +71,44 @@ module Strategy
       Account.new("cash_cushion", app_config.accounts["cash_cushion"], app_config.annual_growth_rate["savings"])
     end
 
+    # TODO: 27 - may no longer be used
     def select_cash_cushion(market_return)
       cash_cushion if withdraw_from_cash_cushion?(market_return)
     end
 
-    def select_investment_account
-      [rrsp_account, taxable_account, tfsa_account].find { |account| sufficient_balance?(account) }
+    # TODO: 27 - better word than `withdraw` in comments as we're not transacting at this time
+    # TODO: 27 - rubocop complexity
+    def select_investment_accounts
+      selected_accounts = []
+
+      # Step 1: Determine initial withdrawal need
+      remaining_needed = if rrsp_account.balance.positive?
+                           withdrawal_amounts.annual_rrsp
+                         else
+                           withdrawal_amounts.annual_taxable
+                         end
+
+      # Step 2: Withdraw from RRSP (taxed as income)
+      if rrsp_account.balance.positive?
+        rrsp_withdrawal = [rrsp_account.balance, withdrawal_amounts.annual_rrsp].min
+        selected_accounts << { account: rrsp_account, amount: rrsp_withdrawal }
+        remaining_needed -= rrsp_withdrawal
+      end
+
+      # Step 3: Withdraw from Taxable Account (no extra tax burden)
+      if remaining_needed.positive? && taxable_account.balance.positive?
+        taxable_withdrawal = [taxable_account.balance, remaining_needed].min
+        selected_accounts << { account: taxable_account, amount: taxable_withdrawal }
+        remaining_needed -= taxable_withdrawal # No tax adjustment needed
+      end
+
+      # Step 4: Withdraw from TFSA (tax-free)
+      if remaining_needed.positive? && tfsa_account.balance.positive?
+        tfsa_withdrawal = [tfsa_account.balance, remaining_needed].min
+        selected_accounts << { account: tfsa_account, amount: tfsa_withdrawal }
+      end
+
+      selected_accounts
     end
 
     def withdraw_from_cash_cushion?(market_return)
@@ -75,6 +116,9 @@ module Strategy
         cash_cushion.balance >= withdrawal_amounts.annual_cash_cushion
     end
 
+    # TODO: 27 - may no longer be used and can be removed
+    # We can't simply compare to `desired_spending` because withdrawals from
+    # RRSP count as income and are taxed, thus requiring a larger withdrawal.
     def sufficient_balance?(account)
       balance_needed = withdrawal_amounts.public_send("annual_#{account.name}")
       account.balance >= balance_needed
