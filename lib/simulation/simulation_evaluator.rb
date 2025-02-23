@@ -11,12 +11,15 @@ module Simulation
     def evaluate
       withdrawal_rate = WithdrawalRateCalculator.new(app_config).calculate
       last_result = simulation_yearly_results.last
+      avg_return = average_rate_of_return
 
       if last_result[:age] < max_age
-        return failure_due_to_max_age(last_result[:age]).merge(withdrawal_rate: withdrawal_rate)
+        return failure_due_to_max_age(last_result[:age])
+               .merge(withdrawal_rate: withdrawal_rate, average_rate_of_return: avg_return)
       end
 
-      success_or_failure_based_on_balance(last_result).merge(withdrawal_rate: withdrawal_rate)
+      success_or_failure_based_on_balance(last_result)
+        .merge(withdrawal_rate: withdrawal_rate, average_rate_of_return: avg_return)
     end
 
     private
@@ -47,6 +50,12 @@ module Simulation
           "#{NumericFormatter.format_currency(total_balance)} is below success " \
           "threshold of #{NumericFormatter.format_currency(threshold)}."
       end
+    end
+
+    def average_rate_of_return
+      return "N/A" if simulation_yearly_results.empty?
+
+      simulation_yearly_results.sum { |r| r[:rate_of_return] } / simulation_yearly_results.size
     end
   end
 end

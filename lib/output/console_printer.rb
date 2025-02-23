@@ -83,6 +83,7 @@ module Output
       puts "Simulation Result: #{emoji} #{result_text}"
       puts @evaluator_results[:explanation]
       puts "Withdrawal Rate: #{NumericFormatter.format_percentage(@evaluator_results[:withdrawal_rate])}"
+      puts "Average Rate of Return: #{NumericFormatter.format_percentage(@evaluator_results[:average_rate_of_return])}"
     end
 
     def print_charts

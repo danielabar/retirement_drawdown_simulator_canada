@@ -55,6 +55,7 @@ RSpec.describe Output::ConsolePrinter do
       Simulation Result: ❌ Failure
       Simulation failed. Max age 75 not reached. Final age is 69.
       Withdrawal Rate: 17.65%
+      Average Rate of Return: 1.0%
     OUTPUT
   end
 
