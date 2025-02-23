@@ -22,6 +22,7 @@
 ### Output
 
 - Instead of space separated console output, consider gem, should make it easier to add columns and right-align numbers https://github.com/piotrmurach/tty-table
+- Round all balance numbers to the nearest dollar (including cents is noisy and unneeded accuracy)
 - Output initial account balances and total balance
 - Add column for how much was withdrawn
 - Support multiple output/printer formats like console, csv, pdf, html, xlsx

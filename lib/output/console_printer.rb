@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
-module Simulation
-  class SimulatorFormatter
-    def initialize(simulation_results, first_year_cash_flow_results, evaluator_results)
-      @results = simulation_results
+module Output
+  class ConsolePrinter
+    def initialize(simulation_output, first_year_cash_flow_results, evaluator_results, visual: true)
+      @yearly_results = simulation_output[:yearly_results]
       @first_year_cash_flow_results = first_year_cash_flow_results
       @evaluator_results = evaluator_results
+      @visual = visual
     end
 
     def print_all
@@ -13,6 +14,7 @@ module Simulation
       print_header
       print_yearly_results
       print_simulation_evaluation
+      print_charts if @visual
     end
 
     private
@@ -45,7 +47,7 @@ module Simulation
     end
 
     def print_yearly_results
-      @results.each do |record|
+      @yearly_results.each do |record|
         puts formatted_yearly_result(record)
       end
     end
@@ -80,6 +82,24 @@ module Simulation
       puts "Simulation Result: #{emoji} #{result_text}"
       puts @evaluator_results[:explanation]
       puts "Withdrawal Rate: #{NumericFormatter.format_percentage(@evaluator_results[:withdrawal_rate])}"
+      puts "Average Rate of Return: #{NumericFormatter.format_percentage(@evaluator_results[:average_rate_of_return])}"
+    end
+
+    def print_charts
+      print_return_sequence_chart
+      print_total_balance_chart
+    end
+
+    def print_return_sequence_chart
+      ages = @yearly_results.map { |r| r[:age] }
+      rate_of_returns = @yearly_results.map { |r| r[:rate_of_return] }
+      ConsolePlotter.plot_return_sequence(ages, rate_of_returns)
+    end
+
+    def print_total_balance_chart
+      ages = @yearly_results.map { |r| r[:age] }
+      total_balances = @yearly_results.map { |r| r[:total_balance] }
+      ConsolePlotter.plot_total_balance(ages, total_balances)
     end
   end
 end

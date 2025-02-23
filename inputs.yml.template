@@ -2,16 +2,16 @@
 mode: detailed
 
 # For success_rate mode
-total_runs: 500
+total_runs: 1000
 
 # Age at which you plan to start retirement
-retirement_age: 60
+retirement_age: 65
 
 # Maximum age to run the simulation until.
 # This prevents infinite loops if investment growth outpaces withdrawals.
 # Choose a reasonable upper bound based on longevity estimates,
 # but note that this is just for the simulation and not a personal prediction.
-max_age: 105
+max_age: 95
 
 # Province or territory where you reside
 # Valid values are: ONT, NL, PE, NS, NB, MB, SK, AB, BC, YT, NT, NU
@@ -42,7 +42,7 @@ return_sequence_type: geometric_brownian_motion
 
 # Optionally continue to make TFSA contributions during RRSP and Taxable drawdown phases
 # If you don't want to make any TFSA contributions during drawdown, set this to 0.
-annual_tfsa_contribution: 7000
+annual_tfsa_contribution: 0
 
 # After tax amount you need per year in retirement (NOT including TFSA contribution, this is your spending number).
 # To get an accurate number here, you should track your spending for at least a year
@@ -58,15 +58,16 @@ desired_spending: 40000
 # Set cash_cushion balance to 0 if you don't want to use it or don't have a cash cushion.
 accounts:
   rrsp: 600000
-  taxable: 400000
-  tfsa: 120000
+  taxable: 200000
+  tfsa: 200000
   cash_cushion: 40000
 
 # Enter the age at which you plan to start CPP and the monthly amount you're entitled to.
 # You can find this value by logging in to your My Service Canada account.
 # The values shown in My Service Canada assume you continue to work at your current income
-# up until the age you start taking CPP. If you're planning on retiring earlier than this,
-# then your actual CPP numbers will be lower due to those additional years of no contributions.
+# up until the age you start taking CPP.
+# If you're planning on retiring earlier than this, then your actual CPP numbers will be
+# lower due to those additional years of no contributions.
 # In this case, use https://research-tools.pwlcapital.com/research/cpp to estimate what you may actually get.
 # To run the simulation without CPP, set the monthly_amount to 0.
 cpp:
@@ -77,14 +78,7 @@ cpp:
 # Withholding tax may be greater than your actual tax bill, you'll get a refund when you file your taxes.
 # In the first year of retirement, you'll have to have some extra cash available to "float" the difference.
 # In subsequent years, the previous year's tax refund will be used to fund part of next years spending.
-# Tax calculator: https://www.eytaxcalculators.com/en/2025-personal-tax-calculator.html
 # RRSP Withholding tax: https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/rrsps-related-plans/making-withdrawals/tax-rates-on-withdrawals.html
 # Assumption is you'll be withdrawing at least 15K which lands in 30% withholding tax.
 taxes:
   rrsp_withholding_rate: 0.3
-
-# Investment details
-# Unused - future capital gains tax determination
-investment:
-  market_price: 35.12
-  cost_per_share: 29.34

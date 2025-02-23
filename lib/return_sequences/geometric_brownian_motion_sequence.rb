@@ -6,13 +6,10 @@ module ReturnSequences
   # Returns are calculated based on a drift term (`@avg`),
   # and a volatility term (`sigma`), with random shocks (`z`) introduced at each age.
   # The resulting sequence is returned as a hash with age as the key and return as the value.
+  # https://www.columbia.edu/~ks20/FE-Notes/4700-07-Notes-GBM.pdf
+  # https://medium.com/@polanitzer/estimating-the-parameters-for-a-geometric-brownian-motion-stochastic-process-using-two-different-6c7cbdf20c8f
   class GeometricBrownianMotionSequence < ReturnSequences::BaseSequence
-    def get_return_for_age(age)
-      @returns ||= generate_returns
-      @returns[age] || @avg
-    end
-
-    private
+    protected
 
     def generate_returns
       sequence = {}
@@ -27,6 +24,8 @@ module ReturnSequences
 
       sequence
     end
+
+    private
 
     def compute_sigma
       deviation = [@max - @avg, @avg - @min].max

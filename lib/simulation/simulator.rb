@@ -22,7 +22,8 @@ module Simulation
         strategy.apply_growth(market_return)
         record_yearly_status(age, account, market_return, strategy)
       end
-      results
+
+      build_results
     end
 
     private
@@ -45,6 +46,10 @@ module Simulation
         rate_of_return: market_return,
         total_balance: strategy.total_balance
       }
+    end
+
+    def build_results
+      { yearly_results: results }
     end
   end
 end

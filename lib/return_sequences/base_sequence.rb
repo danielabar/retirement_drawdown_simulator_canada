@@ -10,8 +10,17 @@ module ReturnSequences
       @max = max
     end
 
-    def get_return_for_age(age)
-      raise NotImplementedError, "Subclasses must implement this method"
+    def get_return_for_age(age = nil)
+      @returns ||= generate_returns
+      return @returns.sort.to_a if age.nil?
+
+      @returns[age] || @avg
+    end
+
+    protected
+
+    def generate_returns
+      raise NotImplementedError, "Subclasses must implement `generate_returns` method"
     end
   end
 end

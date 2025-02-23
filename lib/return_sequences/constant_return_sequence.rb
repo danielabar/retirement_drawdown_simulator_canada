@@ -2,16 +2,13 @@
 
 module ReturnSequences
   class ConstantReturnSequence < ReturnSequences::BaseSequence
-    def get_return_for_age(age)
-      @returns ||= generate_returns
-      @returns[age] || @avg
-    end
-
-    private
+    protected
 
     def generate_returns
       constant_returns
     end
+
+    private
 
     def constant_returns
       (@start_age..@max_age).to_h { |age| [age, @avg] }

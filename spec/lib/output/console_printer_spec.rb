@@ -2,7 +2,7 @@
 
 require_relative "../../spec_helper"
 
-RSpec.describe Simulation::SimulatorFormatter do
+RSpec.describe Output::ConsolePrinter do
   let(:app_config) do
     AppConfig.new(
       "retirement_age" => 65,
@@ -33,6 +33,10 @@ RSpec.describe Simulation::SimulatorFormatter do
     )
   end
 
+  let(:expected_ages) { [65, 66, 67, 68, 69] }
+  let(:expected_rate_of_returns) { [0.01, 0.01, 0.01, 0.01, 0.01] }
+  let(:expected_total_balances) { [137_668.32, 105_013.33, 75_763.46, 46_221.10, 16_383.31] }
+
   let(:expected_output) do
     <<~OUTPUT
       === First-Year Cash Flow Breakdown ===
@@ -55,15 +59,37 @@ RSpec.describe Simulation::SimulatorFormatter do
       Simulation Result: ❌ Failure
       Simulation failed. Max age 75 not reached. Final age is 69.
       Withdrawal Rate: 17.65%
+      Average Rate of Return: 1.0%
     OUTPUT
   end
 
-  it "prints exactly the expected output" do
-    simulation_results = Simulation::Simulator.new(app_config).run
-    evaluator_results = Simulation::SimulationEvaluator.new(simulation_results, app_config).evaluate
+  it "prints exactly the expected output without charts" do
+    simulation_output = Simulation::Simulator.new(app_config).run
+    evaluator_results = Simulation::SimulationEvaluator.new(simulation_output[:yearly_results], app_config).evaluate
     first_year_cash_flow_results = FirstYearCashFlow.new(app_config).calculate
-    simulator_formatter = described_class.new(simulation_results, first_year_cash_flow_results, evaluator_results)
+    simulator_formatter = described_class.new(simulation_output, first_year_cash_flow_results, evaluator_results,
+                                              visual: false)
 
     expect { simulator_formatter.print_all }.to output(expected_output).to_stdout
+  end
+
+  it "prints charts" do
+    simulation_output = Simulation::Simulator.new(app_config).run
+    evaluator_results = Simulation::SimulationEvaluator.new(simulation_output[:yearly_results], app_config).evaluate
+    first_year_cash_flow_results = FirstYearCashFlow.new(app_config).calculate
+    simulator_formatter = described_class.new(simulation_output, first_year_cash_flow_results, evaluator_results)
+
+    allow(Output::ConsolePlotter).to receive(:plot_return_sequence)
+    allow(Output::ConsolePlotter).to receive(:plot_total_balance)
+
+    expect { simulator_formatter.print_all }.to output.to_stdout
+
+    expect(Output::ConsolePlotter).to have_received(:plot_return_sequence).with(expected_ages, expected_rate_of_returns)
+    expect(Output::ConsolePlotter).to have_received(:plot_total_balance) do |ages, balances|
+      expect(ages).to eq(expected_ages)
+      expected_total_balances.each_with_index do |expected_balance, index|
+        expect(balances[index]).to be_within(0.01).of(expected_balance)
+      end
+    end
   end
 end
