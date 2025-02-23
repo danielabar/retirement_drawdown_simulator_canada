@@ -49,7 +49,7 @@ module Simulation
     end
 
     def build_results
-      { yearly_results: results, sequence_of_returns: return_sequence.get_return_for_age }
+      { yearly_results: results }
     end
   end
 end

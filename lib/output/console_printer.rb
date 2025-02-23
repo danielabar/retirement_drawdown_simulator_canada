@@ -4,7 +4,6 @@ module Output
   class ConsolePrinter
     def initialize(simulation_output, first_year_cash_flow_results, evaluator_results, visual: true)
       @yearly_results = simulation_output[:yearly_results]
-      @sequence_of_returns = simulation_output[:sequence_of_returns]
       @first_year_cash_flow_results = first_year_cash_flow_results
       @evaluator_results = evaluator_results
       @visual = visual
@@ -91,9 +90,10 @@ module Output
       print_total_balance_chart
     end
 
-    # TODO: 22 - Use yearly results because those have the captured rate of return.
     def print_return_sequence_chart
-      ConsolePlotter.plot(@sequence_of_returns)
+      ages = @yearly_results.map { |r| r[:age] }
+      rate_of_returns = @yearly_results.map { |r| r[:rate_of_return] }
+      ConsolePlotter.plot_return_sequence(ages, rate_of_returns)
     end
 
     def print_total_balance_chart

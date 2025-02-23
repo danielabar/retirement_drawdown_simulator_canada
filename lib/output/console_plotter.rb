@@ -1,13 +1,12 @@
 # frozen_string_literal: true
 
 module Output
+  # color is a symbol from UnicodePlot::StyledPrinter::COLOR_ENCODE
   class ConsolePlotter
-    def self.plot(sequence_of_returns)
-      ages, returns = sequence_of_returns.transpose
-      # color is a symbol from UnicodePlot::StyledPrinter::COLOR_ENCODE
+    def self.plot_return_sequence(ages, rate_of_return)
       plot = UnicodePlot.lineplot(
         ages,
-        returns,
+        rate_of_return,
         name: "Return Sequence",
         width: 60,
         height: 10,

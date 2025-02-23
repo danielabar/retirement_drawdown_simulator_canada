@@ -39,7 +39,6 @@ RSpec.describe Simulation::Simulator do
 
       let!(:simulation_output) { described_class.new(app_config).run }
       let!(:yearly_results) { simulation_output[:yearly_results] }
-      let!(:sequence_of_returns) { simulation_output[:sequence_of_returns] }
 
       it "simulation runs up to age 69" do
         expect(yearly_results.last[:age]).to eq(69)
@@ -118,24 +117,6 @@ RSpec.describe Simulation::Simulator do
             total_balance: be_within(1).of(16_383.31)
           )
         )
-      end
-
-      it "returns a sequence of constant returns as an array of arrays for each age" do
-        expected_returns = [
-          [65, 0.01],
-          [66, 0.01],
-          [67, 0.01],
-          [68, 0.01],
-          [69, 0.01],
-          [70, 0.01],
-          [71, 0.01],
-          [72, 0.01],
-          [73, 0.01],
-          [74, 0.01],
-          [75, 0.01]
-        ]
-
-        expect(sequence_of_returns).to eq(expected_returns)
       end
     end
 
