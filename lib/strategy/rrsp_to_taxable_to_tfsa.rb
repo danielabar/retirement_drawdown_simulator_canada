@@ -16,6 +16,7 @@ module Strategy
       @withdrawal_amounts.current_age = age
     end
 
+    # TODO: 27 - tests WIP
     # FIXME: https://github.com/danielabar/retirement_drawdown_simulator_canada/issues/20
     def select_accounts(market_return)
       if withdraw_from_cash_cushion?(market_return)
@@ -25,6 +26,7 @@ module Strategy
       end
     end
 
+    # TODO: 27 - tests
     # TODO: 27 - rubocop complexity
     def transact(accounts)
       return if accounts.nil? || accounts.empty?
@@ -76,7 +78,6 @@ module Strategy
       cash_cushion if withdraw_from_cash_cushion?(market_return)
     end
 
-    # TODO: 27 - better word than `withdraw` in comments as we're not transacting at this time
     # TODO: 27 - rubocop complexity
     def select_investment_accounts
       selected_accounts = []
@@ -88,26 +89,33 @@ module Strategy
                            withdrawal_amounts.annual_taxable
                          end
 
-      # Step 2: Withdraw from RRSP (taxed as income)
+      # Step 2: Select RRSP account
       if rrsp_account.balance.positive?
         rrsp_withdrawal = [rrsp_account.balance, withdrawal_amounts.annual_rrsp].min
         selected_accounts << { account: rrsp_account, amount: rrsp_withdrawal }
         remaining_needed -= rrsp_withdrawal
       end
 
-      # Step 3: Withdraw from Taxable Account (no extra tax burden)
+      # Step 3: Additionally select Taxable account
       if remaining_needed.positive? && taxable_account.balance.positive?
         taxable_withdrawal = [taxable_account.balance, remaining_needed].min
         selected_accounts << { account: taxable_account, amount: taxable_withdrawal }
         remaining_needed -= taxable_withdrawal # No tax adjustment needed
       end
 
-      # Step 4: Withdraw from TFSA (tax-free)
-      if remaining_needed.positive? && tfsa_account.balance.positive?
+      # Step 4: Additionally select TFSA account
+      # If we get here, we should not be including tfsa_contribution in the withdrawal amount
+      # that may have been there from original `remaining_needed` but that only makes sense when
+      # withdrawing from rrsp or taxable account.
+      if (remaining_needed - app_config["annual_tfsa_contribution"]).positive? && tfsa_account.balance.positive?
+        remaining_needed -= app_config["annual_tfsa_contribution"]
         tfsa_withdrawal = [tfsa_account.balance, remaining_needed].min
         selected_accounts << { account: tfsa_account, amount: tfsa_withdrawal }
       end
 
+      # TODO: 27 - what happens if remaining_needed is still positive?
+      # This means we've run out of money, maybe check if cash_cushion still has enough?
+      # And if that's a no, then consider returning an empty array because it's game over :(
       selected_accounts
     end
 
