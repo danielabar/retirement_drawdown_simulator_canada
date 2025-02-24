@@ -78,6 +78,9 @@ module Strategy
       cash_cushion if withdraw_from_cash_cushion?(market_return)
     end
 
+    # TODO: 27 - method naming needs more thought:
+    # This isn't so much about selecting accounts, rather its constructing
+    # a series of transactions that we can then pass to the `transact` method
     # TODO: 27 - rubocop complexity
     def select_investment_accounts
       selected_accounts = []
@@ -111,11 +114,12 @@ module Strategy
         remaining_needed -= app_config["annual_tfsa_contribution"]
         tfsa_withdrawal = [tfsa_account.balance, remaining_needed].min
         selected_accounts << { account: tfsa_account, amount: tfsa_withdrawal }
+        remaining_needed -= tfsa_withdrawal
       end
 
-      # TODO: 27 - what happens if remaining_needed is still positive?
-      # This means we've run out of money, maybe check if cash_cushion still has enough?
-      # And if that's a no, then consider returning an empty array because it's game over :(
+      # If we still need more money and there's no way to cover it, return an empty array
+      return [] if remaining_needed.positive?
+
       selected_accounts
     end
 

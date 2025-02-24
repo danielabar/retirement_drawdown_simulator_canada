@@ -117,6 +117,49 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
                                 amount: 20_000
                               ))
       end
+      # it "selects rrsp, taxable, and tfsa accounts if together they have enough funds" do
+      # end
+    end
+
+    context "when RRSP, taxable, and TFSA have enough all together" do
+      before do
+        strategy.rrsp_account.withdraw(70_000) # 10K left in RRSP
+        strategy.taxable_account.withdraw(50_000) # 10K left in taxable
+        strategy.tfsa_account.withdraw(15_000) # 15K left in tfsa
+      end
+
+      it "selects rrsp, taxable, and tfsa accounts if together they have enough funds" do
+        # The heuristic is that when starting with rrsp, trying to withdraw the gross amount
+        # which is reverse tax calculation of desired_spending.
+        # For our test value of 30_000 desired spending, the gross withdrawal amount is 33_704.73
+        # But when it gets to TFSA account, it also subtracts off the optional tfsa_contribution
+        # since we won't be making that if withdrawing from the tfsa.
+        expect(strategy.select_accounts(0.05))
+          .to contain_exactly(a_hash_including(
+                                account: strategy.rrsp_account,
+                                amount: 10_000
+                              ),
+                              a_hash_including(
+                                account: strategy.taxable_account,
+                                amount: 10_000
+                              ),
+                              a_hash_including(
+                                account: strategy.tfsa_account,
+                                amount: a_value_within(0.01).of(13_694.73)
+                              ))
+      end
+    end
+
+    context "when there is some but not enough fund across all investment accounts" do
+      before do
+        strategy.rrsp_account.withdraw(70_000) # 10K left in RRSP
+        strategy.taxable_account.withdraw(50_000) # 10K left in taxable
+        strategy.tfsa_account.withdraw(20_000) # 10K left in tfsa
+      end
+
+      it "returns an empty array" do
+        expect(strategy.select_accounts(0.05)).to eq([])
+      end
     end
 
     context "when all accounts are depleted" do
