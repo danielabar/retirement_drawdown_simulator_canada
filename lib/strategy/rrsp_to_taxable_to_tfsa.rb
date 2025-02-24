@@ -16,6 +16,9 @@ module Strategy
       @withdrawal_amounts.current_age = age
     end
 
+    # TODO: 27 - method naming needs more thought:
+    # This isn't so much about selecting accounts, rather its constructing
+    # a series of transactions that we can then pass to the `transact` method
     # FIXME: https://github.com/danielabar/retirement_drawdown_simulator_canada/issues/20
     def select_accounts(market_return)
       if withdraw_from_cash_cushion?(market_return)
@@ -27,6 +30,7 @@ module Strategy
 
     # TODO: 27 - tests
     # TODO: 27 - rubocop complexity
+    # TODO: 27 - arg should be named `transactions` rather than `accounts`
     def transact(accounts)
       return if accounts.nil? || accounts.empty?
 

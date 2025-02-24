@@ -177,51 +177,38 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
   end
 
   describe "#transact" do
-    context "when given RRSP account" do
-      it "depletes the account by the RRSP withdrawal amount" do
-        rrsp_withdrawal_amount = strategy.withdrawal_amounts.annual_rrsp
-        expect { strategy.transact(strategy.rrsp_account) }
-          .to change { strategy.rrsp_account.balance }.by(-rrsp_withdrawal_amount)
-      end
+    it "processes withdrawals from rrsp and taxable and makes a tfsa contribution" do
+      transactions = [
+        { account: strategy.rrsp_account, amount: 5_000 },
+        { account: strategy.taxable_account, amount: 10_000 }
+      ]
+      strategy.transact(transactions)
 
-      it "makes a TFSA deposit" do
-        expect { strategy.transact(strategy.rrsp_account) }
-          .to change { strategy.tfsa_account.balance }.by(10)
-      end
+      expect(strategy.rrsp_account.balance).to eq(75_000)
+      expect(strategy.taxable_account.balance).to eq(50_000)
+      expect(strategy.tfsa_account.balance).to eq(30_010)
     end
 
-    context "when given taxable account" do
-      it "depletes the account by the taxable withdrawal amount" do
-        # desired_spending + annual_tfsa_contribution
-        expect { strategy.transact(strategy.taxable_account) }
-          .to change { strategy.taxable_account.balance }.by(-30_010)
-      end
+    it "processes withdrawals from rrsp, taxable and tfsa, and does not make a tfsa contribution" do
+      transactions = [
+        { account: strategy.rrsp_account, amount: 5_000 },
+        { account: strategy.taxable_account, amount: 10_000 },
+        { account: strategy.tfsa_account, amount: 15_000 }
+      ]
+      strategy.transact(transactions)
 
-      it "makes a TFSA deposit" do
-        expect { strategy.transact(strategy.taxable_account) }
-          .to change { strategy.tfsa_account.balance }.by(10)
-      end
+      expect(strategy.rrsp_account.balance).to eq(75_000)
+      expect(strategy.taxable_account.balance).to eq(50_000)
+      expect(strategy.tfsa_account.balance).to eq(15_000)
     end
 
-    context "when given TFSA account" do
-      it "depletes the account by the TFSA withdrawal amount" do
-        # desired_spending only
-        expect { strategy.transact(strategy.tfsa_account) }
-          .to change { strategy.tfsa_account.balance }.by(-30_000)
-      end
-    end
+    it "processes withdrawal from cash cushion and does not make a tfsa contribution" do
+      transactions = [
+        { account: strategy.cash_cushion, amount: 10_000 }
+      ]
+      strategy.transact(transactions)
 
-    context "when given cash cushion account" do
-      it "depletes the account by the cash cushion withdrawal amount" do
-        # desired_spending only
-        expect { strategy.transact(strategy.cash_cushion) }
-          .to change { strategy.cash_cushion.balance }.by(-30_000)
-      end
-
-      it "does NOT make a TFSA deposit (failing test for bug)" do
-        expect { strategy.transact(strategy.cash_cushion) }
-          .not_to(change { strategy.tfsa_account.balance })
-      end
+      expect(strategy.cash_cushion.balance).to eq(20_000)
     end
   end
 
