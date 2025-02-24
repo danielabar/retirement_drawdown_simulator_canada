@@ -16,7 +16,6 @@ module Strategy
       @withdrawal_amounts.current_age = age
     end
 
-    # TODO: 27 - tests WIP
     # FIXME: https://github.com/danielabar/retirement_drawdown_simulator_canada/issues/20
     def select_accounts(market_return)
       if withdraw_from_cash_cushion?(market_return)
