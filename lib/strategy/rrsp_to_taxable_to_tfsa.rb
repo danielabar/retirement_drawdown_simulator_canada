@@ -8,6 +8,7 @@ module Strategy
     def initialize(app_config)
       @app_config = app_config
       @withdrawal_amounts = WithdrawalAmounts.new(app_config)
+      @tax_calculator = Tax::IncomeTaxCalculator.new
       load_accounts
     end
 
@@ -81,10 +82,16 @@ module Strategy
       cash_cushion if withdraw_from_cash_cushion?(market_return)
     end
 
+    # TODO: 27 - needs more thought on this scenario:
+    # Not enough in RRSP for desired (which is gross),
+    # so drain whatever is left in RRSP, calculate after-tax amt left,
+    # then withdraw from next account based on desired spending minus after-tax
+    # since we're assuming capital gains isn't enough to trigger tax and of course
+    # TFSA withdrawals are tax free.
     # TODO: 27 - method naming needs more thought:
     # This isn't so much about selecting accounts, rather its constructing
     # a series of transactions that we can then pass to the `transact` method
-    # TODO: 27 - rubocop complexity
+    # TODO: 27 - rubocop complexity - maybe some intermediate calculations belong in WithdrawalAmounts
     def select_investment_accounts
       selected_accounts = []
 
@@ -99,7 +106,10 @@ module Strategy
       if rrsp_account.balance.positive?
         rrsp_withdrawal = [rrsp_account.balance, withdrawal_amounts.annual_rrsp].min
         selected_accounts << { account: rrsp_account, amount: rrsp_withdrawal }
-        remaining_needed -= rrsp_withdrawal
+        # Can't do a simple decrement on remaining_needed here because RRSP withdrawals are taxed as income,
+        # and the other accounts that will be used to make up the difference are not taxed as income.
+        after_tax_rrsp_amt = @tax_calculator.calculate(rrsp_withdrawal, app_config["province_code"])[:take_home]
+        remaining_needed = withdrawal_amounts.annual_taxable - after_tax_rrsp_amt
       end
 
       # Step 3: Additionally select Taxable account
@@ -121,6 +131,7 @@ module Strategy
       end
 
       # If we still need more money and there's no way to cover it, return an empty array
+      # TODO: Future bugfix - should consider cash cushion as a last resort
       return [] if remaining_needed.positive?
 
       selected_accounts

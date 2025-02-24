@@ -60,7 +60,7 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
       end
     end
 
-    context "when RRSP is insufficient but taxable has enough balance" do
+    context "when RRSP has nothing but taxable has enough balance" do
       before { strategy.rrsp_account.withdraw(80_000) } # Empty RRSP
 
       it "selects the taxable account with desired spending amount plus tfsa contribution" do
@@ -68,7 +68,7 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
       end
     end
 
-    context "when RRSP and taxable are insufficient, but TFSA has enough balance" do
+    context "when RRSP and taxable have nothing, but TFSA has enough balance" do
       before do
         strategy.rrsp_account.withdraw(80_000) # Empty RRSP
         strategy.taxable_account.withdraw(60_000) # Empty taxable
@@ -81,19 +81,25 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
 
     context "when RRSP has some funds but not enough for full gross withdrawal" do
       before do
-        # there's still 10_000 left but that's not enough for full withdrawal of 33_704.73
-        strategy.rrsp_account.withdraw(70_000)
+        # there's still 20_000 left - not enough for full withdrawal of 33_704.73
+        # but it is enough to trigger income tax which complicates remaining needed funds
+        strategy.rrsp_account.withdraw(60_000)
       end
 
+      # 20_000 gross from RRSP in Ontario results in take_home of 19053.0735 (based on config/tax_fixed.yml)
+      # The amount otherwise that we would want from taxable is defined in withdrawal amounts `annual_taxable`:
+      # desired_spending + annual_tfsa_contribution = 30_000 + 10 = 30_010` (in absence of CPP)
+      # So we subtract off our take_home from RRSP from this amount to get the actual amount needed from taxable:
+      # 30_010 - 19053.0735 = 10_956.9265
       it "selects the RRSP account with a partial amount and the taxable account with the remainder" do
         expect(strategy.select_accounts(0.05))
           .to contain_exactly(a_hash_including(
                                 account: strategy.rrsp_account,
-                                amount: 10_000
+                                amount: 20_000
                               ),
                               a_hash_including(
                                 account: strategy.taxable_account,
-                                amount: a_value_within(0.01).of(23_704.73)
+                                amount: a_value_within(0.01).of(10_956.92)
                               ))
       end
     end
@@ -117,8 +123,6 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
                                 amount: 20_000
                               ))
       end
-      # it "selects rrsp, taxable, and tfsa accounts if together they have enough funds" do
-      # end
     end
 
     context "when RRSP, taxable, and TFSA have enough all together" do
@@ -129,11 +133,11 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
       end
 
       it "selects rrsp, taxable, and tfsa accounts if together they have enough funds" do
-        # The heuristic is that when starting with rrsp, trying to withdraw the gross amount
-        # which is reverse tax calculation of desired_spending.
-        # For our test value of 30_000 desired spending, the gross withdrawal amount is 33_704.73
-        # But when it gets to TFSA account, it also subtracts off the optional tfsa_contribution
-        # since we won't be making that if withdrawing from the tfsa.
+        # In this case, the RRSP withdrawal isn't enough to trigger income tax (based on `config/tax_fixed.yml`)
+        # So when calculating remaining amounts for the other accounts, it's based on after-tax amounts because
+        # those accounts don't count as income the way an RRSP does.
+        # Also since we're withdrawing from TFSA, will not be making the optional TFSA contribution.
+        # So we're withdrawing exactly desired spending in this case of 30_000.
         expect(strategy.select_accounts(0.05))
           .to contain_exactly(a_hash_including(
                                 account: strategy.rrsp_account,
@@ -145,14 +149,14 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
                               ),
                               a_hash_including(
                                 account: strategy.tfsa_account,
-                                amount: a_value_within(0.01).of(13_694.73)
+                                amount: a_value_within(0.01).of(10_000)
                               ))
       end
     end
 
     context "when there is some but not enough fund across all investment accounts" do
       before do
-        strategy.rrsp_account.withdraw(70_000) # 10K left in RRSP
+        strategy.rrsp_account.withdraw(75_000) # 5K left in RRSP
         strategy.taxable_account.withdraw(50_000) # 10K left in taxable
         strategy.tfsa_account.withdraw(20_000) # 10K left in tfsa
       end

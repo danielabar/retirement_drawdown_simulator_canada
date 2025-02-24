@@ -35,7 +35,7 @@ RSpec.describe Output::ConsolePrinter do
 
   let(:expected_ages) { [65, 66, 67, 68, 69] }
   let(:expected_rate_of_returns) { [0.01, 0.01, 0.01, 0.01, 0.01] }
-  let(:expected_total_balances) { [137_668.32, 105_013.33, 75_763.46, 46_221.10, 16_383.31] }
+  let(:expected_total_balances) { [137_668.32, 105_013.33, 75_741.17, 46_198.58, 16_360.57] }
 
   let(:expected_output) do
     <<~OUTPUT
@@ -52,9 +52,9 @@ RSpec.describe Output::ConsolePrinter do
       #{'-' * 160}
       65         $46,758.22           $30,310.10           $60,600.00           $0.00                No         $137,668.32          rrsp                       1.0%
       66         $13,184.03           $30,623.30           $61,206.00           $0.00                No         $105,013.33          rrsp                       1.0%
-      67         $13,315.87           $30,939.63           $31,507.96           $0.00                No         $75,763.46           taxable                    1.0%
-      68         $13,449.03           $31,259.13           $1,512.94            $0.00                No         $46,221.10           taxable                    1.0%
-      69         $13,583.52           $1,271.72            $1,528.07            $0.00                No         $16,383.31           tfsa                       1.0%
+      67         $0.00                $30,939.63           $44,801.54           $0.00                No         $75,741.17           rrsp, taxable              1.0%
+      68         $0.00                $31,259.13           $14,939.45           $0.00                No         $46,198.58           taxable                    1.0%
+      69         $0.00                $16,360.57           $0.00                $0.00                No         $16,360.57           taxable, tfsa              1.0%
       #{'-' * 160}
       Simulation Result: ❌ Failure
       Simulation failed. Max age 75 not reached. Final age is 69.
