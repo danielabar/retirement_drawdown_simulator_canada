@@ -82,18 +82,14 @@ module Strategy
       cash_cushion if withdraw_from_cash_cushion?(market_return)
     end
 
-    # TODO: 27 - needs more thought on this scenario:
-    # Not enough in RRSP for desired (which is gross),
-    # so drain whatever is left in RRSP, calculate after-tax amt left,
-    # then withdraw from next account based on desired spending minus after-tax
-    # since we're assuming capital gains isn't enough to trigger tax and of course
-    # TFSA withdrawals are tax free.
     # TODO: 27 - method naming needs more thought:
     # This isn't so much about selecting accounts, rather its constructing
     # a series of transactions that we can then pass to the `transact` method
     # TODO: 27 - rubocop complexity - maybe some intermediate calculations belong in WithdrawalAmounts
     def select_investment_accounts
       selected_accounts = []
+
+      puts "=== SELECTING INVESTMENT ACCOUNTS FOR AGE #{current_age} ==="
 
       # Step 1: Determine initial withdrawal need
       remaining_needed = if rrsp_account.balance.positive?
@@ -109,7 +105,12 @@ module Strategy
         # Can't do a simple decrement on remaining_needed here because RRSP withdrawals are taxed as income,
         # and the other accounts that will be used to make up the difference are not taxed as income.
         after_tax_rrsp_amt = @tax_calculator.calculate(rrsp_withdrawal, app_config["province_code"])[:take_home]
+
+        # Don't attempt to cascade to other accounts if RRSP withdrawal is all that's needed
+        return selected_accounts if rrsp_withdrawal == withdrawal_amounts.annual_rrsp
+
         remaining_needed = withdrawal_amounts.annual_taxable - after_tax_rrsp_amt
+        puts "=== RRSP WASN'T ENOUGH: REMAINING NEEDED IS #{remaining_needed} ==="
       end
 
       # Step 3: Additionally select Taxable account
@@ -117,8 +118,20 @@ module Strategy
         taxable_withdrawal = [taxable_account.balance, remaining_needed].min
         selected_accounts << { account: taxable_account, amount: taxable_withdrawal }
         remaining_needed -= taxable_withdrawal # No tax adjustment needed
+        puts "=== TAXABLE WASN'T ENOUGH: REMAINING NEEDED IS #{remaining_needed} ===" if remaining_needed.positive?
       end
 
+      # BUG: === REMAINING NEEDED: 6881.994835216643 ===
+      # If remaining needed is less than optional TFSA contribution, then this code doesn't run
+      # but it leaves us with a positive remaining needed and thinks its a failure
+      # when really, if we have to dip into TFSA, we're just going to skip on optional TFSA contribution in any case
+      # We could just return the list of transactions so far but this means we withdrew too much from taxable account
+      # Need to kind of "back up" and update withdrawal amount from taxable
+      # But when transact runs, it it doesn't see a TFSA account in list of transactions, it's going to go ahead and make TFSA contribution
+      # which it should not do in this case
+      # Or should we give up on the idea of making optional TFSA contributions entirely, more complexity than it's worth?
+      # Missing a test for this case!
+      #
       # Step 4: Additionally select TFSA account
       # If we get here, we should not be including tfsa_contribution in the withdrawal amount
       # that may have been there from original `remaining_needed` but that only makes sense when
@@ -128,10 +141,13 @@ module Strategy
         tfsa_withdrawal = [tfsa_account.balance, remaining_needed].min
         selected_accounts << { account: tfsa_account, amount: tfsa_withdrawal }
         remaining_needed -= tfsa_withdrawal
+        puts "=== TFSA WASN'T ENOUGH: REMAINING NEEDED IS #{remaining_needed} ===" if remaining_needed.positive?
       end
 
       # If we still need more money and there's no way to cover it, return an empty array
       # TODO: Future bugfix - should consider cash cushion as a last resort
+      puts "=== REMAINING NEEDED: #{remaining_needed} ==="
+      puts " "
       return [] if remaining_needed.positive?
 
       selected_accounts
