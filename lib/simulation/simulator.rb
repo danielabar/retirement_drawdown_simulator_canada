@@ -18,6 +18,8 @@ module Simulation
         # TODO: 27 naming confusion - its not exactly accounts, its an array of hashes
         # where each hash is a "transaction" of account and withdrawal amount
         accounts = strategy.select_accounts(market_return)
+        # temp debug
+        # print_transactions(age, accounts) # Add this line
         break if accounts.empty?
 
         strategy.transact(accounts)
@@ -31,6 +33,15 @@ module Simulation
     private
 
     attr_reader :app_config, :strategy, :retirement_age, :max_age, :return_sequence, :results
+
+    # temp debug
+    def print_transactions(age, accounts)
+      puts "Age: #{age}"
+      accounts.each do |transaction|
+        puts "  #{transaction[:account].name}: #{NumericFormatter.format_currency(transaction[:amount])}"
+      end
+      puts "-" * 30
+    end
 
     def populate_current_age(age)
       strategy.current_age = age

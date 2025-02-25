@@ -39,7 +39,7 @@ module Strategy
         entry[:account].withdraw(entry[:amount])
       end
 
-      # Ensure TFSA contributions only happen if we withdrew from RRSP/Taxable
+      # Ensure TFSA deposits only happen if we withdrew from RRSP/Taxable
       if accounts.none? { |entry| %w[tfsa cash_cushion].include?(entry[:account].name) } &&
          app_config["annual_tfsa_contribution"].positive?
         tfsa_account.deposit(app_config["annual_tfsa_contribution"])
@@ -88,59 +88,79 @@ module Strategy
     # TODO: 27 - rubocop complexity - maybe some intermediate calculations belong in WithdrawalAmounts
     def select_investment_accounts
       selected_accounts = []
+      remaining_needed = 0
 
-      # Step 1: Determine initial withdrawal need
-      remaining_needed = if rrsp_account.balance.positive?
-                           withdrawal_amounts.annual_rrsp
-                         else
-                           withdrawal_amounts.annual_taxable
-                         end
-
-      # Step 2: Select RRSP account
-      if rrsp_account.balance.positive?
-        rrsp_withdrawal = [rrsp_account.balance, withdrawal_amounts.annual_rrsp].min
+      # Simplest case: RRSP has enough for everything, we're done
+      rrsp_withdrawal = withdrawal_amounts.annual_rrsp
+      if rrsp_account.balance >= rrsp_withdrawal
         selected_accounts << { account: rrsp_account, amount: rrsp_withdrawal }
-        # Can't do a simple decrement on remaining_needed here because RRSP withdrawals are taxed as income,
-        # and the other accounts that will be used to make up the difference are not taxed as income.
-        after_tax_rrsp_amt = @tax_calculator.calculate(rrsp_withdrawal, app_config["province_code"])[:take_home]
-
-        # Don't attempt to cascade to other accounts if RRSP withdrawal is all that's needed
-        return selected_accounts if rrsp_withdrawal == withdrawal_amounts.annual_rrsp
-
-        remaining_needed = withdrawal_amounts.annual_taxable - after_tax_rrsp_amt
+        # puts "=== RRSP HAS ENOUGH FOR EVERYTHING ==="
+        return selected_accounts
       end
 
-      # Step 3: Additionally select Taxable account
+      # Otherwise drain what's left (if there's more than zero) and calculate how much more is needed after-tax
+      if rrsp_account.balance.positive? && rrsp_account.balance < rrsp_withdrawal
+        selected_accounts << { account: rrsp_account, amount: rrsp_account.balance }
+        after_tax_rrsp_amt = @tax_calculator.calculate(rrsp_account.balance, app_config["province_code"])[:take_home]
+        remaining_needed = withdrawal_amounts.annual_taxable - after_tax_rrsp_amt
+        # puts "=== WITHDRAWING PARTIAL FROM RRSP: #{NumericFormatter.format_currency(rrsp_account.balance)}, REMAINING NEEDED: #{NumericFormatter.format_currency(remaining_needed)} ==="
+      end
+
+      # If there's nothing left in RRSP, then we need to lean on the next account for the whole thing
+      remaining_needed = withdrawal_amounts.annual_taxable if rrsp_account.balance.zero?
+
+      # If taxable account has remaining_needed, add it to selected_accounts and we're done
+      if taxable_account.balance.positive? && taxable_account.balance >= remaining_needed
+        selected_accounts << { account: taxable_account, amount: remaining_needed }
+        # puts "=== WITHDRAWING FROM TAXABLE: #{NumericFormatter.format_currency(remaining_needed)} ==="
+        return selected_accounts
+      end
+
+      # TODO: 27 - If annual_tfsa_contribution was 0, then effectively above calculations were without TFSA contribution
+      # and no need to recalculate, just try to dip into TFSA and see if that works. Although it does no harm to recalculate.
+      # If we get here, it means rrsp and/or taxable accounts don't have enough and we need to dip into TFSA.
+      # In this case, we will not be making a TFSA contribution, therefore, we need to back up and recalculate
+      # all amounts excluding the optional TFSA contribution.
+      # puts "=== RECALCULATING AMOUNTS WITHOUT TFSA CONTRIBUTION ==="
+      account_transactions_excluding_tfsa_contribution
+    end
+
+    def account_transactions_excluding_tfsa_contribution
+      selected_accounts = []
+      remaining_needed = 0
+
+      rrsp_withdrawal = withdrawal_amounts.annual_rrsp(exclude_tfsa_contribution: true)
+
+      # Simplest case: RRSP has enough for everything, we're done
+      if rrsp_account.balance >= rrsp_withdrawal
+        selected_accounts << { account: rrsp_account, amount: rrsp_withdrawal }
+        return selected_accounts
+      end
+
+      # Otherwise drain what's left (if there's more than zero) and calculate how much more is needed
+      if rrsp_account.balance.positive? && rrsp_account.balance < rrsp_withdrawal.annual_rrsp
+        selected_accounts << { account: rrsp_account, amount: rrsp_account.balance }
+        after_tax_rrsp_amt = @tax_calculator.calculate(rrsp_account.balance, app_config["province_code"])[:take_home]
+        remaining_needed = withdrawal_amounts.annual_taxable(exclude_tfsa_contribution: true) - after_tax_rrsp_amt
+      end
+
+      # If there's nothing left in RRSP, then we need to lean on the next account for the whole thing
+      remaining_needed = withdrawal_amounts.annual_taxable if rrsp_account.balance.zero?
+
+      # Try to use taxable account
       if remaining_needed.positive? && taxable_account.balance.positive?
         taxable_withdrawal = [taxable_account.balance, remaining_needed].min
         selected_accounts << { account: taxable_account, amount: taxable_withdrawal }
-        remaining_needed -= taxable_withdrawal # No tax adjustment needed
+        remaining_needed -= taxable_withdrawal
       end
 
-      # BUG: === REMAINING NEEDED: 6881.994835216643 ===
-      # If remaining needed is less than optional TFSA contribution, then this code doesn't run
-      # but it leaves us with a positive remaining needed and thinks its a failure
-      # when really, if we have to dip into TFSA, we're just going to skip on optional TFSA contribution in any case
-      # We could just return the list of transactions so far but this means we withdrew too much from taxable account
-      # Need to kind of "back up" and update withdrawal amount from taxable
-      # But when transact runs, it it doesn't see a TFSA account in list of transactions, it's going to go ahead and make TFSA contribution
-      # which it should not do in this case
-      # Or should we give up on the idea of making optional TFSA contributions entirely, more complexity than it's worth?
-      # Missing a test for this case!
-      #
-      # Step 4: Additionally select TFSA account
-      # If we get here, we should not be including tfsa_contribution in the withdrawal amount
-      # that may have been there from original `remaining_needed` but that only makes sense when
-      # withdrawing from rrsp or taxable account.
-      if (remaining_needed - app_config["annual_tfsa_contribution"]).positive? && tfsa_account.balance.positive?
-        remaining_needed -= app_config["annual_tfsa_contribution"]
+      # Try to use tfsa account
+      if remaining_needed.positive? && tfsa_account.balance.positive?
         tfsa_withdrawal = [tfsa_account.balance, remaining_needed].min
         selected_accounts << { account: tfsa_account, amount: tfsa_withdrawal }
         remaining_needed -= tfsa_withdrawal
       end
 
-      # If we still need more money and there's no way to cover it, return an empty array
-      # TODO: Future bugfix - should consider cash cushion as a last resort
       return [] if remaining_needed.positive?
 
       selected_accounts
