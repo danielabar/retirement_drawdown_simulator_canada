@@ -19,6 +19,7 @@ class WithdrawalAmounts
     @tax_calculator = Tax::IncomeTaxCalculator.new
   end
 
+  # TODO: 27 - no longer used?
   def annual_amount(account)
     method_name = ACCOUNT_WITHDRAWAL_METHODS[account.name]
     raise ArgumentError, "Unknown account type: #{account.name}" unless method_name
@@ -26,8 +27,8 @@ class WithdrawalAmounts
     send(method_name)
   end
 
-  def annual_rrsp
-    return reverse_tax_results[:gross_income] unless cpp_used?
+  def annual_rrsp(exclude_tfsa_contribution: false)
+    return reverse_tax_results(exclude_tfsa_contribution: exclude_tfsa_contribution)[:gross_income] unless cpp_used?
 
     return @annual_rrsp_memo if defined?(@annual_rrsp_memo)
 
@@ -51,10 +52,19 @@ class WithdrawalAmounts
   # TODO: At some point will have to deal with capital gains tax
   # but for now, assume whatever amount of ETFs selling for income from taxable account
   # isn't high enough to trigger any additional taxes.
-  def annual_taxable
-    interim_amt = app_config["desired_spending"] + app_config["annual_tfsa_contribution"]
+  def annual_taxable(exclude_tfsa_contribution: false)
+    interim_amt = if exclude_tfsa_contribution
+                    app_config["desired_spending"]
+                  else
+                    app_config["desired_spending"] + app_config["annual_tfsa_contribution"]
+                  end
     cpp_used? ? interim_amt - cpp_annual_net_income : interim_amt
   end
+
+  # def annual_taxable_excluding_tfsa_contribution
+  #   interim_amt = app_config["desired_spending"]
+  #   cpp_used? ? interim_amt - cpp_annual_net_income : interim_amt
+  # end
 
   def annual_tfsa
     cpp_used? ? app_config["desired_spending"] - cpp_annual_net_income : app_config["desired_spending"]
@@ -103,12 +113,17 @@ class WithdrawalAmounts
     forward_tax_details[:take_home]
   end
 
-  def reverse_tax_results
-    @reverse_tax_results ||= @reverse_tax_calculator.calculate(desired_income, app_config["province_code"])
+  def reverse_tax_results(exclude_tfsa_contribution: false)
+    income = exclude_tfsa_contribution ? desired_income_excluding_tfsa_contribution : desired_income
+    @reverse_tax_results ||= @reverse_tax_calculator.calculate(income, app_config["province_code"])
   end
 
   def desired_income
     app_config["desired_spending"] + app_config["annual_tfsa_contribution"]
+  end
+
+  def desired_income_excluding_tfsa_contribution
+    app_config["desired_spending"]
   end
 
   def cpp_annual_net_income

@@ -89,8 +89,6 @@ module Strategy
     def select_investment_accounts
       selected_accounts = []
 
-      puts "=== SELECTING INVESTMENT ACCOUNTS FOR AGE #{current_age} ==="
-
       # Step 1: Determine initial withdrawal need
       remaining_needed = if rrsp_account.balance.positive?
                            withdrawal_amounts.annual_rrsp
@@ -110,7 +108,6 @@ module Strategy
         return selected_accounts if rrsp_withdrawal == withdrawal_amounts.annual_rrsp
 
         remaining_needed = withdrawal_amounts.annual_taxable - after_tax_rrsp_amt
-        puts "=== RRSP WASN'T ENOUGH: REMAINING NEEDED IS #{remaining_needed} ==="
       end
 
       # Step 3: Additionally select Taxable account
@@ -118,7 +115,6 @@ module Strategy
         taxable_withdrawal = [taxable_account.balance, remaining_needed].min
         selected_accounts << { account: taxable_account, amount: taxable_withdrawal }
         remaining_needed -= taxable_withdrawal # No tax adjustment needed
-        puts "=== TAXABLE WASN'T ENOUGH: REMAINING NEEDED IS #{remaining_needed} ===" if remaining_needed.positive?
       end
 
       # BUG: === REMAINING NEEDED: 6881.994835216643 ===
@@ -141,13 +137,10 @@ module Strategy
         tfsa_withdrawal = [tfsa_account.balance, remaining_needed].min
         selected_accounts << { account: tfsa_account, amount: tfsa_withdrawal }
         remaining_needed -= tfsa_withdrawal
-        puts "=== TFSA WASN'T ENOUGH: REMAINING NEEDED IS #{remaining_needed} ===" if remaining_needed.positive?
       end
 
       # If we still need more money and there's no way to cover it, return an empty array
       # TODO: Future bugfix - should consider cash cushion as a last resort
-      puts "=== REMAINING NEEDED: #{remaining_needed} ==="
-      puts " "
       return [] if remaining_needed.positive?
 
       selected_accounts
