@@ -77,11 +77,6 @@ module Strategy
       Account.new("cash_cushion", app_config.accounts["cash_cushion"], app_config.annual_growth_rate["savings"])
     end
 
-    # TODO: 27 - may no longer be used
-    def select_cash_cushion(market_return)
-      cash_cushion if withdraw_from_cash_cushion?(market_return)
-    end
-
     # TODO: 27 - method naming needs more thought:
     # This isn't so much about selecting accounts, rather its constructing
     # a series of transactions that we can then pass to the `transact` method
