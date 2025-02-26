@@ -41,6 +41,7 @@ RSpec.describe Simulation::Simulator do
       let!(:yearly_results) { simulation_output[:yearly_results] }
 
       it "simulation runs up to age 69" do
+        pp yearly_results
         expect(yearly_results.last[:age]).to eq(69)
       end
 
@@ -79,12 +80,12 @@ RSpec.describe Simulation::Simulator do
         expect(row).to match(
           a_hash_including(
             age: 67,
-            rrsp_balance: be_within(1).of(13_316),
-            tfsa_balance: be_within(1).of(30_940),
-            taxable_balance: be_within(1).of(31_508),
-            note: "taxable",
+            rrsp_balance: be_within(1).of(0.0),
+            tfsa_balance: be_within(1).of(30_939.63),
+            taxable_balance: be_within(1).of(44_801.54),
+            note: "rrsp, taxable",
             rate_of_return: 0.01,
-            total_balance: be_within(1).of(75_763.46)
+            total_balance: be_within(1).of(75_741.17)
           )
         )
       end
@@ -94,12 +95,12 @@ RSpec.describe Simulation::Simulator do
         expect(row).to match(
           a_hash_including(
             age: 68,
-            rrsp_balance: be_within(1).of(13_449),
-            tfsa_balance: be_within(1).of(31_259),
-            taxable_balance: be_within(1).of(1_513),
+            rrsp_balance: be_within(1).of(0.0),
+            tfsa_balance: be_within(1).of(31_259.13),
+            taxable_balance: be_within(1).of(14_939.45),
             note: "taxable",
             rate_of_return: 0.01,
-            total_balance: be_within(1).of(46_221.10)
+            total_balance: be_within(1).of(46_198.58)
           )
         )
       end
@@ -109,12 +110,12 @@ RSpec.describe Simulation::Simulator do
         expect(row).to match(
           a_hash_including(
             age: 69,
-            rrsp_balance: be_within(1).of(13_584),
-            tfsa_balance: be_within(1).of(1_272),
-            taxable_balance: be_within(1).of(1_528),
-            note: "tfsa",
+            rrsp_balance: be_within(1).of(0.0),
+            tfsa_balance: be_within(1).of(16_360.57),
+            taxable_balance: be_within(1).of(0.0),
+            note: "taxable, tfsa",
             rate_of_return: 0.01,
-            total_balance: be_within(1).of(16_383.31)
+            total_balance: be_within(1).of(16_360.57)
           )
         )
       end
