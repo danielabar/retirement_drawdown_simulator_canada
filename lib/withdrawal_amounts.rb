@@ -115,7 +115,11 @@ class WithdrawalAmounts
 
   def reverse_tax_results(exclude_tfsa_contribution: false)
     income = exclude_tfsa_contribution ? desired_income_excluding_tfsa_contribution : desired_income
-    @reverse_tax_results ||= @reverse_tax_calculator.calculate(income, app_config["province_code"])
+    # puts "=== CALCULATING REVERSE TAX RESULTS FOR INCOME: #{income}"
+    # debugger
+    # bug in memoization - if comes in with different income, uses memoized results which could be from a different income amount!
+    # @reverse_tax_results ||= @reverse_tax_calculator.calculate(income, app_config["province_code"])
+    @reverse_tax_calculator.calculate(income, app_config["province_code"])
   end
 
   def desired_income

@@ -166,6 +166,24 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
       end
     end
 
+    context "when rrsp doesn't have enough including tfsa contribution and other accounts don't have enough" do
+      # need rrsp to be down to 33_692.22 (just enough for after-tax desired spending but not enough for tfsa contrib)
+      # and need taxable and tfsa to be down to $1 so that all together not enough
+      # then it will recalculate everything based on no tfsa contribution,
+      # and in this case, rrsp has enough
+      before do
+        strategy.rrsp_account.withdraw(46_307.78)
+        strategy.taxable_account.withdraw(59_999)
+        strategy.tfsa_account.withdraw(29_999)
+      end
+
+      it "selects the rrsp account with gross desired spending amount" do
+        results = strategy.select_accounts(0.05)
+        pp results
+        expect(strategy.select_accounts(0.05)).to include(account: strategy.rrsp_account, amount: 33_692.22)
+      end
+    end
+
     context "when all accounts are depleted" do
       before do
         strategy.rrsp_account.withdraw(80_000)

@@ -94,7 +94,6 @@ module Strategy
       rrsp_withdrawal = withdrawal_amounts.annual_rrsp
       if rrsp_account.balance >= rrsp_withdrawal
         selected_accounts << { account: rrsp_account, amount: rrsp_withdrawal }
-        # puts "=== RRSP HAS ENOUGH FOR EVERYTHING ==="
         return selected_accounts
       end
 
@@ -103,7 +102,6 @@ module Strategy
         selected_accounts << { account: rrsp_account, amount: rrsp_account.balance }
         after_tax_rrsp_amt = @tax_calculator.calculate(rrsp_account.balance, app_config["province_code"])[:take_home]
         remaining_needed = withdrawal_amounts.annual_taxable - after_tax_rrsp_amt
-        # puts "=== WITHDRAWING PARTIAL FROM RRSP: #{NumericFormatter.format_currency(rrsp_account.balance)}, REMAINING NEEDED: #{NumericFormatter.format_currency(remaining_needed)} ==="
       end
 
       # If there's nothing left in RRSP, then we need to lean on the next account for the whole thing
@@ -112,7 +110,6 @@ module Strategy
       # If taxable account has remaining_needed, add it to selected_accounts and we're done
       if taxable_account.balance.positive? && taxable_account.balance >= remaining_needed
         selected_accounts << { account: taxable_account, amount: remaining_needed }
-        # puts "=== WITHDRAWING FROM TAXABLE: #{NumericFormatter.format_currency(remaining_needed)} ==="
         return selected_accounts
       end
 
@@ -125,14 +122,17 @@ module Strategy
     end
 
     def account_transactions_excluding_tfsa_contribution
+      # puts "=== RECALCULATING EXCLUDING TFSA CONTRIBUTION ==="
       selected_accounts = []
       remaining_needed = 0
 
       rrsp_withdrawal = withdrawal_amounts.annual_rrsp(exclude_tfsa_contribution: true)
+      # puts "=== RRSP ACCOUNT BALANCE: #{rrsp_account.balance}, RRSP WITHDRAWAL: #{rrsp_withdrawal} ==="
 
       # Simplest case: RRSP has enough for everything, we're done
       if rrsp_account.balance >= rrsp_withdrawal
         selected_accounts << { account: rrsp_account, amount: rrsp_withdrawal }
+        # puts "=== RRSP HAS ENOUGH FOR EVERYTHING ==="
         return selected_accounts
       end
 
