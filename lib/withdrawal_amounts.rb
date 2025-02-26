@@ -19,14 +19,6 @@ class WithdrawalAmounts
     @tax_calculator = Tax::IncomeTaxCalculator.new
   end
 
-  # TODO: 27 - no longer used?
-  def annual_amount(account)
-    method_name = ACCOUNT_WITHDRAWAL_METHODS[account.name]
-    raise ArgumentError, "Unknown account type: #{account.name}" unless method_name
-
-    send(method_name)
-  end
-
   # TODO: 27 - get rid of memoization - can be a source of subtle bugs
   def annual_rrsp(exclude_tfsa_contribution: false)
     return reverse_tax_results(exclude_tfsa_contribution: exclude_tfsa_contribution)[:gross_income] unless cpp_used?
@@ -61,11 +53,6 @@ class WithdrawalAmounts
                   end
     cpp_used? ? interim_amt - cpp_annual_net_income : interim_amt
   end
-
-  # def annual_taxable_excluding_tfsa_contribution
-  #   interim_amt = app_config["desired_spending"]
-  #   cpp_used? ? interim_amt - cpp_annual_net_income : interim_amt
-  # end
 
   def annual_tfsa
     cpp_used? ? app_config["desired_spending"] - cpp_annual_net_income : app_config["desired_spending"]
@@ -116,10 +103,6 @@ class WithdrawalAmounts
 
   def reverse_tax_results(exclude_tfsa_contribution: false)
     income = exclude_tfsa_contribution ? desired_income_excluding_tfsa_contribution : desired_income
-    # puts "=== CALCULATING REVERSE TAX RESULTS FOR INCOME: #{income}"
-    # debugger
-    # bug in memoization - if comes in with different income, uses memoized results which could be from a different income amount!
-    # @reverse_tax_results ||= @reverse_tax_calculator.calculate(income, app_config["province_code"])
     @reverse_tax_calculator.calculate(income, app_config["province_code"])
   end
 
