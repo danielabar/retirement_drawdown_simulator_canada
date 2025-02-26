@@ -121,7 +121,6 @@ module Strategy
       # If we get here, it means rrsp and/or taxable accounts don't have enough and we need to dip into TFSA.
       # In this case, we will not be making a TFSA contribution, therefore, we need to back up and recalculate
       # all amounts excluding the optional TFSA contribution.
-      # puts "=== RECALCULATING AMOUNTS WITHOUT TFSA CONTRIBUTION ==="
       account_transactions_excluding_tfsa_contribution
     end
 
@@ -138,14 +137,16 @@ module Strategy
       end
 
       # Otherwise drain what's left (if there's more than zero) and calculate how much more is needed
-      if rrsp_account.balance.positive? && rrsp_account.balance < rrsp_withdrawal.annual_rrsp
+      if rrsp_account.balance.positive? && rrsp_account.balance < rrsp_withdrawal
         selected_accounts << { account: rrsp_account, amount: rrsp_account.balance }
         after_tax_rrsp_amt = @tax_calculator.calculate(rrsp_account.balance, app_config["province_code"])[:take_home]
         remaining_needed = withdrawal_amounts.annual_taxable(exclude_tfsa_contribution: true) - after_tax_rrsp_amt
       end
 
       # If there's nothing left in RRSP, then we need to lean on the next account for the whole thing
-      remaining_needed = withdrawal_amounts.annual_taxable if rrsp_account.balance.zero?
+      if rrsp_account.balance.zero?
+        remaining_needed = withdrawal_amounts.annual_taxable(exclude_tfsa_contribution: true)
+      end
 
       # Try to use taxable account
       if remaining_needed.positive? && taxable_account.balance.positive?
