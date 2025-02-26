@@ -113,8 +113,6 @@ module Strategy
         return selected_accounts
       end
 
-      # TODO: 27 - If annual_tfsa_contribution was 0, then effectively above calculations were without TFSA contribution
-      # and no need to recalculate, just try to dip into TFSA and see if that works. Although it does no harm to recalculate.
       # If we get here, it means rrsp and/or taxable accounts don't have enough and we need to dip into TFSA.
       # In this case, we will not be making a TFSA contribution, therefore, we need to back up and recalculate
       # all amounts excluding the optional TFSA contribution.
@@ -122,17 +120,14 @@ module Strategy
     end
 
     def account_transactions_excluding_tfsa_contribution
-      # puts "=== RECALCULATING EXCLUDING TFSA CONTRIBUTION ==="
       selected_accounts = []
       remaining_needed = 0
 
       rrsp_withdrawal = withdrawal_amounts.annual_rrsp(exclude_tfsa_contribution: true)
-      # puts "=== RRSP ACCOUNT BALANCE: #{rrsp_account.balance}, RRSP WITHDRAWAL: #{rrsp_withdrawal} ==="
 
       # Simplest case: RRSP has enough for everything, we're done
       if rrsp_account.balance >= rrsp_withdrawal
         selected_accounts << { account: rrsp_account, amount: rrsp_withdrawal }
-        # puts "=== RRSP HAS ENOUGH FOR EVERYTHING ==="
         return selected_accounts
       end
 
