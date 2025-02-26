@@ -107,21 +107,33 @@ module Strategy
     def withdraw_from_rrsp(selected_accounts, exclude_tfsa_contribution)
       gross_withdrawal = withdrawal_amounts.annual_rrsp(exclude_tfsa_contribution: exclude_tfsa_contribution)
 
-      # RRSP has enough for everything, we're done
-      if rrsp_account.balance >= gross_withdrawal
-        selected_accounts << { account: rrsp_account, amount: gross_withdrawal }
+      if rrsp_has_sufficient_funds?(gross_withdrawal)
+        withdraw_full_gross_from_rrsp(selected_accounts, gross_withdrawal)
         return 0
+      elsif rrsp_has_partial_funds?
+        return drain_rrsp(selected_accounts, exclude_tfsa_contribution)
       end
 
-      # RRSP has some funds but not enough, so drain whatever's left and calculate how much is still needed
-      if rrsp_account.balance.positive?
-        selected_accounts << { account: rrsp_account, amount: rrsp_account.balance }
-        after_tax = after_tax_withdrawal(rrsp_account.balance)
-        return withdrawal_amounts.annual_taxable(exclude_tfsa_contribution: exclude_tfsa_contribution) - after_tax
-      end
-
-      # RRSP is empty, so return the amount needed from taxable account
+      # If we get here, it means RRSP is empty, so return the entire amount needed from taxable account
       withdrawal_amounts.annual_taxable(exclude_tfsa_contribution: exclude_tfsa_contribution)
+    end
+
+    def rrsp_has_sufficient_funds?(gross_withdrawal)
+      rrsp_account.balance >= gross_withdrawal
+    end
+
+    def rrsp_has_partial_funds?
+      rrsp_account.balance.positive?
+    end
+
+    def withdraw_full_gross_from_rrsp(selected_accounts, gross_withdrawal)
+      selected_accounts << { account: rrsp_account, amount: gross_withdrawal }
+    end
+
+    def drain_rrsp(selected_accounts, exclude_tfsa_contribution)
+      selected_accounts << { account: rrsp_account, amount: rrsp_account.balance }
+      after_tax = after_tax_withdrawal(rrsp_account.balance)
+      withdrawal_amounts.annual_taxable(exclude_tfsa_contribution: exclude_tfsa_contribution) - after_tax
     end
 
     def withdraw_from_taxable(selected_accounts, remaining_needed)
