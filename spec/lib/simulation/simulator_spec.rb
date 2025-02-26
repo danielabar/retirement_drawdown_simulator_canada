@@ -41,7 +41,6 @@ RSpec.describe Simulation::Simulator do
       let!(:yearly_results) { simulation_output[:yearly_results] }
 
       it "simulation runs up to age 69" do
-        pp yearly_results
         expect(yearly_results.last[:age]).to eq(69)
       end
 
@@ -155,23 +154,23 @@ RSpec.describe Simulation::Simulator do
 
       let!(:yearly_results) { described_class.new(app_config).run[:yearly_results] }
 
-      it "simulates RRSP drawdown until balance is less than withdrawal amount" do
-        final_rrsp_year = yearly_results.reverse.find { |r| r[:note] == "rrsp" }
-        expect(final_rrsp_year[:rrsp_balance]).to be < app_config["desired_spending"]
+      it "when rrsp doesn't have enough, combines withdrawals with taxable" do
+        rrsp_taxable_combined = yearly_results.find { |r| r[:note] == "rrsp, taxable" }
+        expect(rrsp_taxable_combined[:rrsp_balance]).to eq 0.0
       end
 
-      it "simulates taxable drawdown until balance is below the withdrawal amount" do
-        final_taxable_year = yearly_results.reverse.find { |r| r[:note] == "taxable" }
-        expect(final_taxable_year[:taxable_balance]).to be < 47_000
+      it "when taxable doesn't have enough, combines withdrawals with tfsa" do
+        taxable_tfsa_combined = yearly_results.find { |r| r[:note] == "taxable, tfsa" }
+        expect(taxable_tfsa_combined[:taxable_balance]).to eq 0.0
       end
 
-      it "simulates TFSA drawdown until balance is depleted" do
+      it "simulates TFSA drawdown until balance is below desired spending" do
         final_year = yearly_results.last
         expect(final_year[:tfsa_balance]).to be < 40_000
       end
 
-      it "supports desired income withdrawals up to age 105" do
-        expect(yearly_results.last[:age]).to eq 105
+      it "supports desired income withdrawals up to age 106" do
+        expect(yearly_results.last[:age]).to eq 106
       end
     end
 
@@ -210,7 +209,8 @@ RSpec.describe Simulation::Simulator do
       let!(:yearly_results) { described_class.new(app_config).run[:yearly_results] }
 
       it "supports desired income withdrawals to max age" do
-        expect(yearly_results.last[:age]).to eq 120 # max age from fixture
+        yearly_results
+        expect(yearly_results.last[:age]).to eq 120
       end
     end
   end

@@ -27,6 +27,7 @@ class WithdrawalAmounts
     send(method_name)
   end
 
+  # TODO: 27 - get rid of memoization - can be a source of subtle bugs
   def annual_rrsp(exclude_tfsa_contribution: false)
     return reverse_tax_results(exclude_tfsa_contribution: exclude_tfsa_contribution)[:gross_income] unless cpp_used?
 
