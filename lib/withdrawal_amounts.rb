@@ -19,11 +19,8 @@ class WithdrawalAmounts
     @tax_calculator = Tax::IncomeTaxCalculator.new
   end
 
-  # TODO: 27 - get rid of memoization - can be a source of subtle bugs
   def annual_rrsp(exclude_tfsa_contribution: false)
     return reverse_tax_results(exclude_tfsa_contribution: exclude_tfsa_contribution)[:gross_income] unless cpp_used?
-
-    return @annual_rrsp_memo if defined?(@annual_rrsp_memo)
 
     # Upper and lower bounds based on CPP and RRSP withdrawal
     # The upper bound is as if we didn't have CPP at all
@@ -33,9 +30,8 @@ class WithdrawalAmounts
     candidate_rrsp_withdrawal_upper = reverse_tax_results[:gross_income]
     candidate_rrsp_withdrawal_lower = reverse_tax_results[:gross_income] - cpp_annual_gross_income
 
-    # Memoize and return the final RRSP withdrawal
-    @annual_rrsp_memo = binary_search_rrsp_withdrawal(candidate_rrsp_withdrawal_upper,
-                                                      candidate_rrsp_withdrawal_lower)
+    binary_search_rrsp_withdrawal(candidate_rrsp_withdrawal_upper,
+                                  candidate_rrsp_withdrawal_lower)
   end
 
   def cpp_used?
