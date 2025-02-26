@@ -161,13 +161,5 @@ module Strategy
       market_return < app_config.annual_growth_rate["downturn_threshold"] &&
         cash_cushion.balance >= withdrawal_amounts.annual_cash_cushion
     end
-
-    # TODO: 27 - may no longer be used and can be removed
-    # We can't simply compare to `desired_spending` because withdrawals from
-    # RRSP count as income and are taxed, thus requiring a larger withdrawal.
-    def sufficient_balance?(account)
-      balance_needed = withdrawal_amounts.public_send("annual_#{account.name}")
-      account.balance >= balance_needed
-    end
   end
 end
