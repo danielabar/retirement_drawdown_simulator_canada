@@ -29,11 +29,9 @@ module Strategy
       end
     end
 
-    # TODO: 27 - tests
-    # TODO: 27 - rubocop complexity
     # TODO: 27 - arg should be named `transactions` rather than `accounts`
     def transact(accounts)
-      return if accounts.nil? || accounts.empty?
+      return if ran_out_of_money?(accounts)
 
       accounts.each do |entry|
         entry[:account].withdraw(entry[:amount])
@@ -61,6 +59,10 @@ module Strategy
     end
 
     private
+
+    def ran_out_of_money?(account_transactions)
+      account_transactions.nil? || account_transactions.empty?
+    end
 
     def load_accounts
       @rrsp_account = create_account("rrsp")
