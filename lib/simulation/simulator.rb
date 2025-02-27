@@ -15,7 +15,7 @@ module Simulation
       (retirement_age..max_age).each do |age|
         populate_current_age(age)
         market_return = return_sequence.get_return_for_age(age)
-        account_transactions = strategy.select_accounts(market_return)
+        account_transactions = strategy.select_account_transactions(market_return)
         break if account_transactions.empty?
 
         strategy.transact(account_transactions)

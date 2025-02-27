@@ -39,10 +39,10 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
     strategy.current_age = 65
   end
 
-  describe "#select_accounts" do
+  describe "#select_account_transactions" do
     context "when market return is below downturn threshold and cash cushion has enough funds" do
       it "selects the cash cushion account with desired spending amount" do
-        expect(strategy.select_accounts(-0.15)).to include(account: strategy.cash_cushion, amount: 30_000)
+        expect(strategy.select_account_transactions(-0.15)).to include(account: strategy.cash_cushion, amount: 30_000)
       end
     end
 
@@ -50,13 +50,14 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
       before { strategy.cash_cushion.withdraw(30_000) } # Empty Cash Cushion
 
       it "selects the rrsp account with gross withdrawal amount if it has sufficient balance" do
-        expect(strategy.select_accounts(-0.15)).to include(account: strategy.rrsp_account, amount: 33_704.73)
+        expect(strategy.select_account_transactions(-0.15)).to include(account: strategy.rrsp_account,
+                                                                       amount: 33_704.73)
       end
     end
 
     context "when RRSP has enough balance" do
       it "selects the RRSP account with gross withdrawal amount" do
-        expect(strategy.select_accounts(0.05)).to include(account: strategy.rrsp_account, amount: 33_704.73)
+        expect(strategy.select_account_transactions(0.05)).to include(account: strategy.rrsp_account, amount: 33_704.73)
       end
     end
 
@@ -64,7 +65,7 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
       before { strategy.rrsp_account.withdraw(80_000) } # Empty RRSP
 
       it "selects the taxable account with desired spending amount plus tfsa contribution" do
-        expect(strategy.select_accounts(0.05)).to include(account: strategy.taxable_account, amount: 30_010)
+        expect(strategy.select_account_transactions(0.05)).to include(account: strategy.taxable_account, amount: 30_010)
       end
     end
 
@@ -75,7 +76,7 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
       end
 
       it "selects the TFSA account with desired spending amount" do
-        expect(strategy.select_accounts(0.05)).to include(account: strategy.tfsa_account, amount: 30_000)
+        expect(strategy.select_account_transactions(0.05)).to include(account: strategy.tfsa_account, amount: 30_000)
       end
     end
 
@@ -92,7 +93,7 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
       # So we subtract off our take_home from RRSP from this amount to get the actual amount needed from taxable:
       # 30_010 - 19053.0735 = 10_956.9265
       it "selects the RRSP account with a partial amount and the taxable account with the remainder" do
-        expect(strategy.select_accounts(0.05))
+        expect(strategy.select_account_transactions(0.05))
           .to contain_exactly(a_hash_including(
                                 account: strategy.rrsp_account,
                                 amount: 20_000
@@ -113,7 +114,7 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
       it "selects the taxable account with a partial amount and the TFSA account with the remainder" do
         # In this case the withdrawal amount across the two accounts does NOT include the optional TFSA contribution
         # because that doesn't make sense if withdrawing from a TFSA account.
-        expect(strategy.select_accounts(0.05))
+        expect(strategy.select_account_transactions(0.05))
           .to contain_exactly(a_hash_including(
                                 account: strategy.taxable_account,
                                 amount: 10_000
@@ -138,7 +139,7 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
         # those accounts don't count as income the way an RRSP does.
         # Also since we're withdrawing from TFSA, will not be making the optional TFSA contribution.
         # So we're withdrawing exactly desired spending in this case of 30_000.
-        expect(strategy.select_accounts(0.05))
+        expect(strategy.select_account_transactions(0.05))
           .to contain_exactly(a_hash_including(
                                 account: strategy.rrsp_account,
                                 amount: 10_000
@@ -162,7 +163,7 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
       end
 
       it "returns an empty array" do
-        expect(strategy.select_accounts(0.05)).to eq([])
+        expect(strategy.select_account_transactions(0.05)).to eq([])
       end
     end
 
@@ -178,7 +179,7 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
       end
 
       it "selects the rrsp account with gross desired spending amount" do
-        expect(strategy.select_accounts(0.05)).to include(account: strategy.rrsp_account, amount: 33_692.22)
+        expect(strategy.select_account_transactions(0.05)).to include(account: strategy.rrsp_account, amount: 33_692.22)
       end
     end
 
@@ -191,7 +192,7 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
       end
 
       it "returns an empty array" do
-        expect(strategy.select_accounts(0.05)).to eq([])
+        expect(strategy.select_account_transactions(0.05)).to eq([])
       end
     end
   end
