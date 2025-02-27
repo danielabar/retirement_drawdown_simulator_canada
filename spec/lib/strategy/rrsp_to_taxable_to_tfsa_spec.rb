@@ -199,11 +199,11 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
 
   describe "#transact" do
     it "processes withdrawals from rrsp and taxable and makes a tfsa contribution" do
-      transactions = [
+      account_transactions = [
         { account: strategy.rrsp_account, amount: 5_000 },
         { account: strategy.taxable_account, amount: 10_000 }
       ]
-      strategy.transact(transactions)
+      strategy.transact(account_transactions)
 
       expect(strategy.rrsp_account.balance).to eq(75_000)
       expect(strategy.taxable_account.balance).to eq(50_000)
@@ -211,12 +211,12 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
     end
 
     it "processes withdrawals from rrsp, taxable and tfsa, and does not make a tfsa contribution" do
-      transactions = [
+      account_transactions = [
         { account: strategy.rrsp_account, amount: 5_000 },
         { account: strategy.taxable_account, amount: 10_000 },
         { account: strategy.tfsa_account, amount: 15_000 }
       ]
-      strategy.transact(transactions)
+      strategy.transact(account_transactions)
 
       expect(strategy.rrsp_account.balance).to eq(75_000)
       expect(strategy.taxable_account.balance).to eq(50_000)
@@ -224,10 +224,10 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
     end
 
     it "processes withdrawal from cash cushion and does not make a tfsa contribution" do
-      transactions = [
+      account_transactions = [
         { account: strategy.cash_cushion, amount: 10_000 }
       ]
-      strategy.transact(transactions)
+      strategy.transact(account_transactions)
 
       expect(strategy.cash_cushion.balance).to eq(20_000)
     end

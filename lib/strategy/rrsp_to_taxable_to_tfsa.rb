@@ -25,16 +25,15 @@ module Strategy
       end
     end
 
-    # TODO: 27 - arg should be named `account_transactions` rather than `accounts`
-    def transact(accounts)
-      return if ran_out_of_money?(accounts)
+    def transact(account_transactions)
+      return if ran_out_of_money?(account_transactions)
 
-      accounts.each do |entry|
+      account_transactions.each do |entry|
         entry[:account].withdraw(entry[:amount])
       end
 
       # Ensure TFSA deposits only happen if we withdrew from RRSP/Taxable
-      if accounts.none? { |entry| %w[tfsa cash_cushion].include?(entry[:account].name) } &&
+      if account_transactions.none? { |entry| %w[tfsa cash_cushion].include?(entry[:account].name) } &&
          app_config["annual_tfsa_contribution"].positive?
         tfsa_account.deposit(app_config["annual_tfsa_contribution"])
       end
