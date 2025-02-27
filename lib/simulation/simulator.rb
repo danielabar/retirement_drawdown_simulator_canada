@@ -15,12 +15,12 @@ module Simulation
       (retirement_age..max_age).each do |age|
         populate_current_age(age)
         market_return = return_sequence.get_return_for_age(age)
-        account = strategy.select_account(market_return)
-        break if account.nil?
+        account_transactions = strategy.select_account_transactions(market_return)
+        break if account_transactions.empty?
 
-        strategy.transact(account)
+        strategy.transact(account_transactions)
         strategy.apply_growth(market_return)
-        record_yearly_status(age, account, market_return, strategy)
+        record_yearly_status(age, account_transactions, market_return, strategy)
       end
 
       build_results
@@ -30,18 +30,27 @@ module Simulation
 
     attr_reader :app_config, :strategy, :retirement_age, :max_age, :return_sequence, :results
 
+    # call from run if need to troubleshoot
+    def print_transactions(age, accounts)
+      puts "Age: #{age}"
+      accounts.each do |transaction|
+        puts "  #{transaction[:account].name}: #{NumericFormatter.format_currency(transaction[:amount])}"
+      end
+      puts "-" * 30
+    end
+
     def populate_current_age(age)
       strategy.current_age = age
     end
 
-    def record_yearly_status(age, account, market_return, strategy)
+    def record_yearly_status(age, account_transactions, market_return, strategy)
       results << {
         age: age,
         rrsp_balance: strategy.rrsp_account.balance,
         tfsa_balance: strategy.tfsa_account.balance,
         taxable_balance: strategy.taxable_account.balance,
         cash_cushion_balance: strategy.cash_cushion.balance,
-        note: account.name,
+        note: account_transactions.map { |act| act[:account].name }.join(", "),
         cpp: strategy.cpp_used?,
         rate_of_return: market_return,
         total_balance: strategy.total_balance

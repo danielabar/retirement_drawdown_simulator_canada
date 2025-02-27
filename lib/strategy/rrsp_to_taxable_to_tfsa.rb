@@ -16,19 +16,27 @@ module Strategy
       @withdrawal_amounts.current_age = age
     end
 
-    # FIXME: https://github.com/danielabar/retirement_drawdown_simulator_canada/issues/20
-    def select_account(market_return)
-      select_cash_cushion(market_return) || select_investment_account
+    def select_account_transactions(market_return)
+      if withdraw_from_cash_cushion?(market_return)
+        [{ account: cash_cushion, amount: withdrawal_amounts.annual_cash_cushion }]
+      else
+        WithdrawalPlanner.new(withdrawal_amounts, rrsp_account, taxable_account, tfsa_account,
+                              app_config["province_code"]).plan_withdrawals
+      end
     end
 
-    def transact(current_account)
-      current_account.withdraw(withdrawal_amounts.annual_amount(current_account))
+    def transact(account_transactions)
+      return if ran_out_of_money?(account_transactions)
 
-      # Ensure we do not contribute to TFSA if withdrawing from TFSA or cash cushion
-      return unless !%w[tfsa
-                        cash_cushion].include?(current_account.name) && app_config["annual_tfsa_contribution"].positive?
+      account_transactions.each do |entry|
+        entry[:account].withdraw(entry[:amount])
+      end
 
-      tfsa_account.deposit(app_config["annual_tfsa_contribution"])
+      # Ensure TFSA deposits only happen if we withdrew from RRSP/Taxable
+      if account_transactions.none? { |entry| %w[tfsa cash_cushion].include?(entry[:account].name) } &&
+         app_config["annual_tfsa_contribution"].positive?
+        tfsa_account.deposit(app_config["annual_tfsa_contribution"])
+      end
     end
 
     def apply_growth(market_return)
@@ -47,6 +55,10 @@ module Strategy
 
     private
 
+    def ran_out_of_money?(account_transactions)
+      account_transactions.nil? || account_transactions.empty?
+    end
+
     def load_accounts
       @rrsp_account = create_account("rrsp")
       @taxable_account = create_account("taxable")
@@ -62,22 +74,9 @@ module Strategy
       Account.new("cash_cushion", app_config.accounts["cash_cushion"], app_config.annual_growth_rate["savings"])
     end
 
-    def select_cash_cushion(market_return)
-      cash_cushion if withdraw_from_cash_cushion?(market_return)
-    end
-
-    def select_investment_account
-      [rrsp_account, taxable_account, tfsa_account].find { |account| sufficient_balance?(account) }
-    end
-
     def withdraw_from_cash_cushion?(market_return)
       market_return < app_config.annual_growth_rate["downturn_threshold"] &&
         cash_cushion.balance >= withdrawal_amounts.annual_cash_cushion
-    end
-
-    def sufficient_balance?(account)
-      balance_needed = withdrawal_amounts.public_send("annual_#{account.name}")
-      account.balance >= balance_needed
     end
   end
 end

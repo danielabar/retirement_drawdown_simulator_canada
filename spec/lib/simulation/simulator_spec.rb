@@ -79,12 +79,12 @@ RSpec.describe Simulation::Simulator do
         expect(row).to match(
           a_hash_including(
             age: 67,
-            rrsp_balance: be_within(1).of(13_316),
-            tfsa_balance: be_within(1).of(30_940),
-            taxable_balance: be_within(1).of(31_508),
-            note: "taxable",
+            rrsp_balance: be_within(1).of(0.0),
+            tfsa_balance: be_within(1).of(30_939.63),
+            taxable_balance: be_within(1).of(44_801.54),
+            note: "rrsp, taxable",
             rate_of_return: 0.01,
-            total_balance: be_within(1).of(75_763.46)
+            total_balance: be_within(1).of(75_741.17)
           )
         )
       end
@@ -94,12 +94,12 @@ RSpec.describe Simulation::Simulator do
         expect(row).to match(
           a_hash_including(
             age: 68,
-            rrsp_balance: be_within(1).of(13_449),
-            tfsa_balance: be_within(1).of(31_259),
-            taxable_balance: be_within(1).of(1_513),
+            rrsp_balance: be_within(1).of(0.0),
+            tfsa_balance: be_within(1).of(31_259.13),
+            taxable_balance: be_within(1).of(14_939.45),
             note: "taxable",
             rate_of_return: 0.01,
-            total_balance: be_within(1).of(46_221.10)
+            total_balance: be_within(1).of(46_198.58)
           )
         )
       end
@@ -109,12 +109,12 @@ RSpec.describe Simulation::Simulator do
         expect(row).to match(
           a_hash_including(
             age: 69,
-            rrsp_balance: be_within(1).of(13_584),
-            tfsa_balance: be_within(1).of(1_272),
-            taxable_balance: be_within(1).of(1_528),
-            note: "tfsa",
+            rrsp_balance: be_within(1).of(0.0),
+            tfsa_balance: be_within(1).of(16_360.57),
+            taxable_balance: be_within(1).of(0.0),
+            note: "taxable, tfsa",
             rate_of_return: 0.01,
-            total_balance: be_within(1).of(16_383.31)
+            total_balance: be_within(1).of(16_360.57)
           )
         )
       end
@@ -154,23 +154,23 @@ RSpec.describe Simulation::Simulator do
 
       let!(:yearly_results) { described_class.new(app_config).run[:yearly_results] }
 
-      it "simulates RRSP drawdown until balance is less than withdrawal amount" do
-        final_rrsp_year = yearly_results.reverse.find { |r| r[:note] == "rrsp" }
-        expect(final_rrsp_year[:rrsp_balance]).to be < app_config["desired_spending"]
+      it "when rrsp doesn't have enough, combines withdrawals with taxable" do
+        rrsp_taxable_combined = yearly_results.find { |r| r[:note] == "rrsp, taxable" }
+        expect(rrsp_taxable_combined[:rrsp_balance]).to eq 0.0
       end
 
-      it "simulates taxable drawdown until balance is below the withdrawal amount" do
-        final_taxable_year = yearly_results.reverse.find { |r| r[:note] == "taxable" }
-        expect(final_taxable_year[:taxable_balance]).to be < 47_000
+      it "when taxable doesn't have enough, combines withdrawals with tfsa" do
+        taxable_tfsa_combined = yearly_results.find { |r| r[:note] == "taxable, tfsa" }
+        expect(taxable_tfsa_combined[:taxable_balance]).to eq 0.0
       end
 
-      it "simulates TFSA drawdown until balance is depleted" do
+      it "simulates TFSA drawdown until balance is below desired spending" do
         final_year = yearly_results.last
         expect(final_year[:tfsa_balance]).to be < 40_000
       end
 
-      it "supports desired income withdrawals up to age 105" do
-        expect(yearly_results.last[:age]).to eq 105
+      it "supports desired income withdrawals up to age 106" do
+        expect(yearly_results.last[:age]).to eq 106
       end
     end
 
@@ -209,7 +209,8 @@ RSpec.describe Simulation::Simulator do
       let!(:yearly_results) { described_class.new(app_config).run[:yearly_results] }
 
       it "supports desired income withdrawals to max age" do
-        expect(yearly_results.last[:age]).to eq 120 # max age from fixture
+        yearly_results
+        expect(yearly_results.last[:age]).to eq 120
       end
     end
   end

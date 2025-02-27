@@ -42,11 +42,19 @@ RSpec.describe WithdrawalAmounts do
       it "returns the RRSP withdrawal amount needed to meet spending needs accounting for income taxes" do
         expect(withdrawal_amounts.annual_rrsp).to eq(33_704.73)
       end
+
+      it "returns the RRSP withdrawal amount excluding tfsa contribution" do
+        expect(withdrawal_amounts.annual_rrsp(exclude_tfsa_contribution: true)).to eq(33_692.22)
+      end
     end
 
     describe "#annual_taxable" do
       it "returns desired spending plus TFSA contribution" do
         expect(withdrawal_amounts.annual_taxable).to eq(30_010)
+      end
+
+      it "returns desired spending excluding TFSA contribution" do
+        expect(withdrawal_amounts.annual_taxable(exclude_tfsa_contribution: true)).to eq(30_000)
       end
     end
 
