@@ -233,6 +233,22 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
 
       expect(strategy.cash_cushion.balance).to eq(20_000)
     end
+
+    it "processes withdrawal from rrsp and makes a deposit to taxable account if there is a RRIF forced excess" do
+      account_transactions = [
+        { account: strategy.rrsp_account, amount: 5_000, forced_net_excess: 1_000 }
+      ]
+      strategy.transact(account_transactions)
+
+      # rrsp account balance goes down by 5_000
+      expect(strategy.rrsp_account.balance).to eq(75_000)
+
+      # taxable account balance goes up by 1_000 due RRIF forced excess
+      expect(strategy.taxable_account.balance).to eq(61_000)
+
+      # still making a tfsa contribution
+      expect(strategy.tfsa_account.balance).to eq(30_010)
+    end
   end
 
   describe "#total_balance" do

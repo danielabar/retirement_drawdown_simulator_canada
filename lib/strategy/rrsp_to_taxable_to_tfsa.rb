@@ -34,11 +34,7 @@ module Strategy
 
       account_transactions.each do |entry|
         entry[:account].withdraw(entry[:amount])
-        if entry[:forced_net_excess]&.positive? # rubocop:disable Style/Next
-          # temp debug
-          # puts "=== DEPOSITING FORCED NET EXCESS: #{entry[:forced_net_excess]}"
-          taxable_account.deposit(entry[:forced_net_excess])
-        end
+        taxable_account.deposit(entry[:forced_net_excess]) if entry[:forced_net_excess]&.positive?
       end
 
       # Ensure TFSA deposits only happen if we withdrew from RRSP/Taxable
