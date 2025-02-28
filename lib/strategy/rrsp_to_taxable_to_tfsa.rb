@@ -27,21 +27,11 @@ module Strategy
       end
     end
 
-    # TODO: 26 - rubocop complexity
-    # TODO: 26 - test for depositing of forced_net_excess
     def transact(account_transactions)
       return if ran_out_of_money?(account_transactions)
 
-      account_transactions.each do |entry|
-        entry[:account].withdraw(entry[:amount])
-        taxable_account.deposit(entry[:forced_net_excess]) if entry[:forced_net_excess]&.positive?
-      end
-
-      # Ensure TFSA deposits only happen if we withdrew from RRSP/Taxable
-      if account_transactions.none? { |entry| %w[tfsa cash_cushion].include?(entry[:account].name) } &&
-         app_config["annual_tfsa_contribution"].positive?
-        tfsa_account.deposit(app_config["annual_tfsa_contribution"])
-      end
+      process_withdrawals(account_transactions)
+      handle_tfsa_contribution(account_transactions)
     end
 
     def apply_growth(market_return)
@@ -82,6 +72,31 @@ module Strategy
     def withdraw_from_cash_cushion?(market_return)
       market_return < app_config.annual_growth_rate["downturn_threshold"] &&
         cash_cushion.balance >= withdrawal_amounts.annual_cash_cushion
+    end
+
+    def process_withdrawals(account_transactions)
+      account_transactions.each do |entry|
+        entry[:account].withdraw(entry[:amount])
+        deposit_forced_net_excess(entry)
+      end
+    end
+
+    def deposit_forced_net_excess(entry)
+      return unless entry[:forced_net_excess]&.positive?
+
+      taxable_account.deposit(entry[:forced_net_excess])
+    end
+
+    def handle_tfsa_contribution(account_transactions)
+      return unless should_contribute_to_tfsa?(account_transactions)
+
+      tfsa_account.deposit(app_config["annual_tfsa_contribution"])
+    end
+
+    def should_contribute_to_tfsa?(account_transactions)
+      return false unless app_config["annual_tfsa_contribution"].positive?
+
+      account_transactions.none? { |entry| %w[tfsa cash_cushion].include?(entry[:account].name) }
     end
   end
 end
