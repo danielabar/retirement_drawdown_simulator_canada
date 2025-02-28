@@ -16,6 +16,8 @@ module Strategy
       @withdrawal_amounts.current_age = age
     end
 
+    # TODO: 26 - RRIF withdrawal may be required regardless of market conditions
+    # For now, lets ignore the cash cushion case and just focus on WithdrawalPlanner.
     def select_account_transactions(market_return)
       if withdraw_from_cash_cushion?(market_return)
         [{ account: cash_cushion, amount: withdrawal_amounts.annual_cash_cushion }]
@@ -25,11 +27,18 @@ module Strategy
       end
     end
 
+    # TODO: 26 - rubocop complexity
+    # TODO: 26 - test for depositing of forced_net_excess
     def transact(account_transactions)
       return if ran_out_of_money?(account_transactions)
 
       account_transactions.each do |entry|
         entry[:account].withdraw(entry[:amount])
+        if entry[:forced_net_excess]&.positive? # rubocop:disable Style/Next
+          # temp debug
+          # puts "=== DEPOSITING FORCED NET EXCESS: #{entry[:forced_net_excess]}"
+          taxable_account.deposit(entry[:forced_net_excess])
+        end
       end
 
       # Ensure TFSA deposits only happen if we withdrew from RRSP/Taxable

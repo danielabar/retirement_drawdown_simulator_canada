@@ -18,6 +18,8 @@ module Simulation
         account_transactions = strategy.select_account_transactions(market_return)
         break if account_transactions.empty?
 
+        # temp debug
+        # print_transactions(age, account_transactions)
         strategy.transact(account_transactions)
         strategy.apply_growth(market_return)
         record_yearly_status(age, account_transactions, market_return, strategy)
@@ -34,7 +36,19 @@ module Simulation
     def print_transactions(age, accounts)
       puts "Age: #{age}"
       accounts.each do |transaction|
-        puts "  #{transaction[:account].name}: #{NumericFormatter.format_currency(transaction[:amount])}"
+        account_name = transaction[:account].name
+        amount = NumericFormatter.format_currency(transaction[:amount])
+        if transaction[:forced_net_excess]
+          forced_net_excess = NumericFormatter.format_currency(transaction[:forced_net_excess])
+        end
+
+        # Print the basic transaction details
+        print_details = "  #{account_name}: #{amount}"
+
+        # If there's a forced excess, print it as well
+        print_details += " (Forced Net Excess: #{forced_net_excess})"
+
+        puts print_details
       end
       puts "-" * 30
     end
@@ -43,6 +57,7 @@ module Simulation
       strategy.current_age = age
     end
 
+    # TODO: 26 - it would be nice to show the forced_net_excess deposit if its greater than 0
     def record_yearly_status(age, account_transactions, market_return, strategy)
       results << {
         age: age,

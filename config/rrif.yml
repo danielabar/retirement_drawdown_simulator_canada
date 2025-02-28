@@ -1,4 +1,5 @@
-# As of 2025 from "All other RRIFs" column: https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/completing-slips-summaries/t4rsp-t4rif-information-returns/payments/chart-prescribed-factors.html
+# As of 2025 from "All other RRIFs" column:
+# https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/completing-slips-summaries/t4rsp-t4rif-information-returns/payments/chart-prescribed-factors.html
 withdrawal_rates:
   71: 0.0528
   72: 0.0540
