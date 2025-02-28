@@ -16,14 +16,14 @@ module Strategy
       @withdrawal_amounts.current_age = age
     end
 
-    # TODO: 26 - RRIF withdrawal may be required regardless of market conditions
-    # For now, lets ignore the cash cushion case and just focus on WithdrawalPlanner.
     def select_account_transactions(market_return)
-      if withdraw_from_cash_cushion?(market_return)
+      withdrawal_planner = WithdrawalPlanner.new(withdrawal_amounts, rrsp_account, taxable_account, tfsa_account,
+                                                 app_config["province_code"])
+
+      if withdraw_from_cash_cushion?(withdrawal_planner, market_return)
         [{ account: cash_cushion, amount: withdrawal_amounts.annual_cash_cushion }]
       else
-        WithdrawalPlanner.new(withdrawal_amounts, rrsp_account, taxable_account, tfsa_account,
-                              app_config["province_code"]).plan_withdrawals
+        withdrawal_planner.plan_withdrawals
       end
     end
 
@@ -69,7 +69,12 @@ module Strategy
       Account.new("cash_cushion", app_config.accounts["cash_cushion"], app_config.annual_growth_rate["savings"])
     end
 
-    def withdraw_from_cash_cushion?(market_return)
+    # TODO: 26 - test scenario where we would have wanted to use cash cushion
+    # and not sell investments during a severe downturn,
+    # but instead we're forced to withdraw from rrsp due to mandatory rrif
+    def withdraw_from_cash_cushion?(withdrawal_planner, market_return)
+      return false if withdrawal_planner.mandatory_rrif_withdrawal.positive?
+
       market_return < app_config.annual_growth_rate["downturn_threshold"] &&
         cash_cushion.balance >= withdrawal_amounts.annual_cash_cushion
     end

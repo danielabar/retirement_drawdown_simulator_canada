@@ -33,6 +33,16 @@ module Strategy
       remaining_needed.positive? ? [] : selected_accounts
     end
 
+    # TODO: 26 - now that this is a public method, add tests!
+    def mandatory_rrif_withdrawal
+      age = withdrawal_amounts.current_age
+      if rrif_calculator.mandatory_withdrawal?(age)
+        rrif_calculator.withdrawal_amount(age, rrsp_account.balance)
+      else
+        0
+      end
+    end
+
     private
 
     attr_reader :withdrawal_amounts, :rrif_calculator, :rrsp_account, :taxable_account, :tfsa_account, :province_code
@@ -89,15 +99,6 @@ module Strategy
 
     def handle_partial_rrsp_funds(selected_accounts, exclude_tfsa_contribution)
       drain_rrsp(selected_accounts, exclude_tfsa_contribution) # Withdraw all RRSP, return remaining needed
-    end
-
-    def mandatory_rrif_withdrawal
-      age = withdrawal_amounts.current_age
-      if rrif_calculator.mandatory_withdrawal?(age)
-        rrif_calculator.withdrawal_amount(age, rrsp_account.balance)
-      else
-        0
-      end
     end
 
     # Checks if RRSP has enough funds to cover gross withdrawal
