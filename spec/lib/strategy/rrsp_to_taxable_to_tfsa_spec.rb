@@ -39,6 +39,7 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
     strategy.current_age = 65
   end
 
+  # TODO: 26 - most of this belongs in WithdrawalPlanner tests for plan_withdrawals
   describe "#select_account_transactions" do
     context "when market return is below downturn threshold and cash cushion has enough funds" do
       it "selects the cash cushion account with desired spending amount" do
