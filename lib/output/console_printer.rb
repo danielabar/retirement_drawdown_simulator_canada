@@ -56,18 +56,27 @@ module Output
     end
 
     def formatted_yearly_result(record)
-      format_header_string(
+      formatted_values = format_yearly_values(record)
+      format_header_string(formatted_values)
+    end
+
+    def format_yearly_values(record)
+      {
         age: record[:age],
         rrsp: NumericFormatter.format_currency(record[:rrsp_balance]),
         tfsa: NumericFormatter.format_currency(record[:tfsa_balance]),
         taxable: NumericFormatter.format_currency(record[:taxable_balance]),
         cash_cushion: NumericFormatter.format_currency(record[:cash_cushion_balance]),
-        cpp: record[:cpp] ? "Yes" : "No",
+        cpp: cpp_value(record),
         total_balance: NumericFormatter.format_currency(record[:total_balance]),
         rrif_forced_net_excess: NumericFormatter.format_currency(record[:rrif_forced_net_excess]),
         note: record[:note],
         rate_of_return: NumericFormatter.format_percentage(record[:rate_of_return])
-      )
+      }
+    end
+
+    def cpp_value(record)
+      record[:cpp] ? "Yes" : "No"
     end
 
     def format_header_string(values)
