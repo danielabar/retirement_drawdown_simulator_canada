@@ -51,13 +51,14 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
 
       it "selects the rrsp account with gross withdrawal amount if it has sufficient balance" do
         expect(strategy.select_account_transactions(-0.15)).to include(account: strategy.rrsp_account,
-                                                                       amount: 33_704.73)
+                                                                       amount: 33_704.73, forced_net_excess: 0)
       end
     end
 
     context "when RRSP has enough balance" do
       it "selects the RRSP account with gross withdrawal amount" do
-        expect(strategy.select_account_transactions(0.05)).to include(account: strategy.rrsp_account, amount: 33_704.73)
+        expect(strategy.select_account_transactions(0.05)).to include(account: strategy.rrsp_account,
+                                                                      amount: 33_704.73, forced_net_excess: 0)
       end
     end
 
@@ -179,7 +180,8 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
       end
 
       it "selects the rrsp account with gross desired spending amount" do
-        expect(strategy.select_account_transactions(0.05)).to include(account: strategy.rrsp_account, amount: 33_692.22)
+        expect(strategy.select_account_transactions(0.05)).to include(account: strategy.rrsp_account,
+                                                                      amount: 33_692.22, forced_net_excess: 0)
       end
     end
 
