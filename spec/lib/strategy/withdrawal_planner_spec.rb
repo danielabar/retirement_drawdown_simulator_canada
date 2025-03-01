@@ -3,45 +3,45 @@
 require_relative "../../spec_helper"
 
 RSpec.describe Strategy::WithdrawalPlanner do
+  subject(:withdrawal_planner) do
+    described_class.new(withdrawal_amounts, rrsp_account, taxable_account, tfsa_account, "ONT")
+  end
+
+  let(:app_config) do
+    AppConfig.new(
+      "retirement_age" => 65,
+      "max_age" => 75,
+      "province_code" => "ONT",
+      "annual_tfsa_contribution" => 10,
+      "desired_spending" => 30_000,
+      "annual_growth_rate" => {
+        "average" => 0.01,
+        "min" => -0.1,
+        "max" => 0.1,
+        "savings" => 0.005,
+        "downturn_threshold" => -0.1
+      },
+      "accounts" => {
+        "rrsp" => 200_000,
+        "taxable" => 60_000,
+        "tfsa" => 30_000,
+        "cash_cushion" => 30_000
+      },
+      "taxes" => {
+        "rrsp_withholding_rate" => 0.3
+      },
+      "cpp" => {
+        "start_age" => 65,
+        "monthly_amount" => 0
+      }
+    )
+  end
+  let(:withdrawal_amounts) { WithdrawalAmounts.new(app_config) }
+  let(:rrsp_account) { Account.new("rrsp", app_config.accounts["rrsp"]) }
+  let(:taxable_account) { Account.new("taxable", app_config.accounts["taxable"]) }
+  let(:tfsa_account) { Account.new("tfsa", app_config.accounts["tfsa"]) }
+
   describe "#plan_withdrawals" do
-    subject(:withdrawal_planner) do
-      described_class.new(withdrawal_amounts, rrsp_account, taxable_account, tfsa_account, "ONT")
-    end
-
-    let(:app_config) do
-      AppConfig.new(
-        "retirement_age" => 65,
-        "max_age" => 75,
-        "province_code" => "ONT",
-        "annual_tfsa_contribution" => 10,
-        "desired_spending" => 30_000,
-        "annual_growth_rate" => {
-          "average" => 0.01,
-          "min" => -0.1,
-          "max" => 0.1,
-          "savings" => 0.005,
-          "downturn_threshold" => -0.1
-        },
-        "accounts" => {
-          "rrsp" => 200_000,
-          "taxable" => 60_000,
-          "tfsa" => 30_000,
-          "cash_cushion" => 30_000
-        },
-        "taxes" => {
-          "rrsp_withholding_rate" => 0.3
-        },
-        "cpp" => {
-          "start_age" => 65,
-          "monthly_amount" => 0
-        }
-      )
-    end
-    let(:withdrawal_amounts) { WithdrawalAmounts.new(app_config) }
-    let(:rrsp_account) { Account.new("rrsp", app_config.accounts["rrsp"]) }
-    let(:taxable_account) { Account.new("taxable", app_config.accounts["taxable"]) }
-    let(:tfsa_account) { Account.new("tfsa", app_config.accounts["tfsa"]) }
-
     context "when rrif withdrawals are required and greater than what user needs to withdraw" do
       before do
         # Set a high age for maximum forced rate of 20% (see `config/rrif_fixed.yml`)
@@ -89,6 +89,18 @@ RSpec.describe Strategy::WithdrawalPlanner do
                                                           forced_net_excess: 0
                                                         ))
       end
+    end
+  end
+
+  describe "#mandatory_rrif_withdrawal" do
+    it "returns rrif amount for age 71" do
+      withdrawal_amounts.current_age = 71
+      expect(withdrawal_planner.mandatory_rrif_withdrawal).to eq(10_560)
+    end
+
+    it "returns 0 for age less than 71" do
+      withdrawal_amounts.current_age = 70
+      expect(withdrawal_planner.mandatory_rrif_withdrawal).to eq(0)
     end
   end
 end
