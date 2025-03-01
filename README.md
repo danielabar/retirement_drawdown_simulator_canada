@@ -1,15 +1,16 @@
 # Retirement Drawdown Simulator 🇨🇦
 
-This is a simple retirement drawdown calculator for Canadians. It simulates how long your savings might last in retirement, assuming you have three accounts (RRSP, taxable, and TFSA) holding some broadly diversified ETFs or index funds for which you can specify an average market return.
+A retirement drawdown calculator for Canadians. It simulates how long your savings might last in retirement, assuming you have three accounts (RRSP, taxable, and TFSA) holding some broadly diversified ETFs or index funds for which you can specify an average market return.
 
-The strategy the simulation follows is:
+Features include:
 
 1. Withdraw from RRSP first, accounting for federal and provincial income taxes.
 2. Withdraw from Taxable account next.
 3. Withdraw from TFSA last.
-4. Optionally you can choose to make a TFSA contribution during the years that the RRSP and taxable accounts are being drawn down, in an attempt to maximize tax free withdrawals later in life.
+4. Optionally you can choose to make a TFSA contribution during the years that the RRSP and taxable accounts are being drawn down, in an attempt to maximize tax free withdrawals later in life (and minimize mandatory RRIF withdrawals after age 71).
 5. Optionally if you specify a cash cushion (i.e. amount of savings you have in an easily accessible liquid account like a high interest savings account), then the simulation will drawdown from the cash cushion rather than investment accounts during periods of market downturns.
 6. Optionally you can specify at what age you plan to take CPP and your monthly entitlement amount. In this case the simulator will reduce your withdrawals accordingly, including factoring in that both RRSP withdrawals and CPP count as taxable income.
+7. Mandatory RRIF withdrawals starting at age 71, according to these [rates](https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/completing-slips-summaries/t4rsp-t4rif-information-returns/payments/chart-prescribed-factors.html). If the mandatory withdrawal is greater than what you would have wanted to take out, then the after-tax amount is deposited into the taxable account.
 
 > [!IMPORTANT]
 > RRSP withdrawals are treated as income and subject to federal and provincial income tax. This project does a reverse tax calculation, to determine what amount you actually need to withdraw from RRSP to achieve desired spending (and optional TFSA contribution) amount. This is often overlooked in FIRE/retirement calculators. For example, if you want to spend `$40,000` from your RRSP in Ontario, as of 2025 tax rates, you'd have to withdraw approximately `$46,200`.
@@ -20,7 +21,7 @@ You can also run the same scenario over and over with different options for rand
 
 ## Why I Built This
 
-When I started looking for a basic tool to simulate a retirement drawdown in Canada, I couldn’t find anything — just advice to hire a financial planner. While professional guidance is valuable, a relatively simple, transparent tool should exist for those who want to see how long their savings might last under a relatively simple withdrawal strategy.
+When I started looking for a basic tool to simulate a retirement drawdown in Canada, I couldn’t find anything — just advice to hire a financial planner. While professional guidance is valuable, a free, transparent tool should exist for those who want to see how long their savings might last under a relatively simple withdrawal strategy.
 
 ### Disclaimer ⚠️
 
@@ -40,6 +41,8 @@ This tool is for **informational and educational purposes only**. It does **not*
    git clone https://github.com/danielabar/retirement-simulator.git
    cd retirement-simulator
    ```
+
+Or download and extract the [project zip file](https://github.com/danielabar/retirement_drawdown_simulator_canada/archive/refs/heads/main.zip).
 
 2. Install dependencies:
 
@@ -171,7 +174,9 @@ taxes:
 
 Here's a run using `inputs.yml` copied from `inputs.yml.template` with a successful result - i.e. money lasts from a starting retirement age of 65 until `max_age` of 95, with at least 1x desired_income left. The desired_income of `$40,000` is 4% of the total starting balance of `$1,000,000` (which is divided among RRSP, taxable, and TFSA accounts). i.e. this is the 4% rule over a thirty year retirement period. There's also 1 year's worth of spending set aside in a cash cushion for use in case of a severe market downturn, which gets used at age 67.
 
-If there's not enough in one account for the full year's spending, it will combine withdrawals from multiple accounts. For example, at age 84 it combines what's left of the RRSP, with some from taxable.
+If there's not enough in one account for the full year's spending, it will combine withdrawals from multiple accounts. For example, at age 82 it combines what's left of the RRSP, with some from taxable.
+
+Also note since the RRSP balance is drained relatively quickly from a combination of desired spending and optional TFSA contribution, by the time mandatory RRIF withdrawals start at age 71, the required percentage of the remaining balance is less than what this user would have withdrawn in any case, so there's never any excess forced withdrawal.
 
 ```
 ruby main.rb
@@ -179,7 +184,7 @@ ruby main.rb
 
 ![demo success](docs/images/demo_success.png "demo success")
 
-Here's another run where a bad initial sequence of returns causes the money to run out by age 82:
+Here's another run where a bad initial sequence of returns causes the money to run out by age 84. The market downturn threshold is set to -20% so you can see at age 76 that the cash cushion is being used, but that's not enough to save this scenario.
 
 ```
 ruby main.rb
@@ -189,7 +194,7 @@ ruby main.rb
 
 ### Determining Your Success Rate
 
-You can use the `success_rate` mode (either specify it in `inputs.yml` or override it at the command line as shown below) to run the simulation many times over. In this case, it calculates the percentage of successful scenarios. For example, this shows that the 4% withdrawal rate over a thirty year period has about a `79%` success rate, rather than the `95%` rate that's often reported in personal finance articles (which is based on US historical data):
+You can use the `success_rate` mode (either specify it in `inputs.yml` or override it at the command line as shown below) to run the simulation many times over. In this case, it calculates the percentage of successful scenarios. For example, this shows that the 4% withdrawal rate over a thirty year period has about a `78%` success rate, rather than the `95%` rate that's often reported in personal finance articles (which is based on US historical data):
 
 ```
 ruby main.rb success_rate
