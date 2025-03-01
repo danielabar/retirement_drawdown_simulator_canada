@@ -7,10 +7,11 @@ Features include:
 1. Withdraw from RRSP first, accounting for federal and provincial income taxes.
 2. Withdraw from Taxable account next.
 3. Withdraw from TFSA last.
-4. Optionally you can choose to make a TFSA contribution during the years that the RRSP and taxable accounts are being drawn down, in an attempt to maximize tax free withdrawals later in life (and minimize mandatory RRIF withdrawals after age 71).
-5. Optionally if you specify a cash cushion (i.e. amount of savings you have in an easily accessible liquid account like a high interest savings account), then the simulation will drawdown from the cash cushion rather than investment accounts during periods of market downturns.
-6. Optionally you can specify at what age you plan to take CPP and your monthly entitlement amount. In this case the simulator will reduce your withdrawals accordingly, including factoring in that both RRSP withdrawals and CPP count as taxable income.
-7. Mandatory RRIF withdrawals starting at age 71, according to these [rates](https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/completing-slips-summaries/t4rsp-t4rif-information-returns/payments/chart-prescribed-factors.html). If the mandatory withdrawal is greater than what you would have wanted to take out, then the after-tax amount is deposited into the taxable account.
+4. Withdrawals from multiple accounts are combined if there's not quite enough in one account, but there is in the next account.
+5. Optionally you can choose to make a TFSA contribution during the years that the RRSP and taxable accounts are being drawn down, in an attempt to maximize tax free withdrawals later in life (and minimize mandatory RRIF withdrawals after age 71).
+6. Optionally if you specify a cash cushion (i.e. amount of savings you have in an easily accessible liquid account like a high interest savings account), then the simulation will drawdown from the cash cushion rather than investment accounts during periods of market downturns.
+7. Optionally you can specify at what age you plan to take CPP and your monthly entitlement amount. In this case the simulator will reduce your withdrawals accordingly, including factoring in that both RRSP withdrawals and CPP count as taxable income.
+8. Mandatory RRIF withdrawals starting at age 71, according to these [rates](https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/completing-slips-summaries/t4rsp-t4rif-information-returns/payments/chart-prescribed-factors.html). If the mandatory withdrawal is greater than what you would have wanted to take out, then the after-tax amount is deposited into the taxable account.
 
 > [!IMPORTANT]
 > RRSP withdrawals are treated as income and subject to federal and provincial income tax. This project does a reverse tax calculation, to determine what amount you actually need to withdraw from RRSP to achieve desired spending (and optional TFSA contribution) amount. This is often overlooked in FIRE/retirement calculators. For example, if you want to spend `$40,000` from your RRSP in Ontario, as of 2025 tax rates, you'd have to withdraw approximately `$46,200`.
