@@ -33,7 +33,6 @@ module Strategy
       remaining_needed.positive? ? [] : selected_accounts
     end
 
-    # TODO: 26 - now that this is a public method, add tests!
     def mandatory_rrif_withdrawal
       age = withdrawal_amounts.current_age
       if rrif_calculator.mandatory_withdrawal?(age)
