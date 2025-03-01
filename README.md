@@ -184,7 +184,11 @@ ruby main.rb
 
 ![demo success](docs/images/demo_success.png "demo success")
 
-Here's another run where a bad initial sequence of returns causes the money to run out by age 84. The market downturn threshold is set to -20% so you can see at age 76 that the cash cushion is being used, but that's not enough to save this scenario.
+Here's another successful run with higher returns in the person's mid 80s that cause the RRSP balance to grow more. In this case, the mandatory RRIF rates by that age age greater than what the person needed to withdraw, resulting in an after-tax excess which gets deposited into the taxable account. This is shown as a positive RRIF Excess starting at age 84.
+
+![demo success rrif](docs/images/demo_success_rrif.png "demo success rrif")
+
+Here's a run where a bad initial sequence of returns causes the money to run out by age 84. The market downturn threshold is set to -20% so you can see at age 76 that the cash cushion is being used, but that's not enough to save this scenario.
 
 ```
 ruby main.rb
