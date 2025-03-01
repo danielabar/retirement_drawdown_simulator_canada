@@ -9,6 +9,7 @@ GEM
     diff-lcs (1.5.1)
     docile (1.4.1)
     enumerable-statistics (2.0.8)
+    equatable (0.7.0)
     io-console (0.8.0)
     irb (1.15.1)
       pp (>= 0.6.0)
@@ -16,10 +17,13 @@ GEM
       reline (>= 0.4.2)
     json (2.9.1)
     language_server-protocol (3.17.0.4)
+    necromancer (0.7.0)
     parallel (1.26.3)
     parser (3.3.7.0)
       ast (~> 2.4.1)
       racc
+    pastel (0.8.0)
+      tty-color (~> 0.5)
     pp (0.6.2)
       prettyprint
     prettyprint (0.2.0)
@@ -68,16 +72,27 @@ GEM
     simplecov-html (0.13.1)
     simplecov_json_formatter (0.1.4)
     stringio (3.1.2)
+    tty-color (0.6.0)
     tty-cursor (0.5.0)
     tty-progressbar (0.14.0)
       tty-cursor (~> 0.5.0)
       tty-screen (~> 0.6.4)
     tty-screen (0.6.5)
+    tty-table (0.3.0)
+      equatable (~> 0.5)
+      necromancer (~> 0.3)
+      pastel (~> 0.4)
+      tty-screen (~> 0.2)
+      unicode_utils (~> 1.4.0)
+      verse (~> 0.4)
     unicode-display_width (3.1.4)
       unicode-emoji (~> 4.0, >= 4.0.4)
     unicode-emoji (4.0.4)
     unicode_plot (0.0.5)
       enumerable-statistics (>= 2.0.1)
+    unicode_utils (1.4.0)
+    verse (0.4.0)
+      unicode_utils (~> 1.4.0)
 
 PLATFORMS
   arm64-darwin-23
@@ -91,6 +106,7 @@ DEPENDENCIES
   rubocop-rspec
   simplecov
   tty-progressbar
+  tty-table
   unicode_plot
 
 RUBY VERSION
