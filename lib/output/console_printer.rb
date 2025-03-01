@@ -25,7 +25,7 @@ module Output
     def print_first_year_cash_flow
       puts "=== First-Year Cash Flow Breakdown ==="
       table = TTY::Table.new(header: %w[Description Amount], rows: format_cash_flow_results)
-      puts table.render(:unicode, alignment: %i[left right])
+      puts table.render(:unicode, alignment: %i[left right], padding: [0, 1, 0, 1])
     end
 
     def format_cash_flow_results
@@ -38,7 +38,8 @@ module Output
       puts "=== Yearly Results ==="
       table = TTY::Table.new(header: formatted_header, rows: formatted_yearly_results)
       puts table.render(:unicode,
-                        alignment: %i[left right right right right left right right left right])
+                        alignment: %i[left right right right right left right right left right],
+                        padding: [0, 1, 0, 1])
     end
 
     def formatted_header
