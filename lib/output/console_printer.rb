@@ -26,7 +26,6 @@ module Output
       puts "=== First-Year Cash Flow Breakdown ==="
       table = TTY::Table.new(header: %w[Description Amount], rows: format_cash_flow_results)
       puts table.render(:unicode, alignment: %i[left right])
-      puts DASH_SEPARATOR
     end
 
     def format_cash_flow_results
@@ -40,7 +39,6 @@ module Output
       table = TTY::Table.new(header: formatted_header, rows: formatted_yearly_results)
       puts table.render(:unicode,
                         alignment: %i[left right right right right left right right left right])
-      puts DASH_SEPARATOR
     end
 
     def formatted_header
@@ -69,7 +67,6 @@ module Output
     end
 
     def print_simulation_evaluation
-      puts DASH_SEPARATOR
       success = @evaluator_results[:success]
       emoji = success ? "✅" : "❌"
       result_text = success ? "Success" : "Failure"
