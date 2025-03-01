@@ -43,16 +43,17 @@ module Output
     end
 
     def formatted_header
-      ["Age", "Taxable", "TFSA", "RRSP", "Cash Cushion", "CPP Used", "Total Balance", "RRIF Excess", "Note", "RoR"]
+      ["Age", "RRSP", "Taxable", "TFSA", "Cash Cushion", "CPP Used", "Total Balance", "RRIF Excess", "Note", "RoR"]
     end
 
+    # TODO: 30 - rubocop complexity
     def formatted_yearly_results
       @yearly_results.map do |record|
         [
           record[:age],
+          NumericFormatter.format_currency(record[:rrsp_balance].round),
           NumericFormatter.format_currency(record[:taxable_balance].round),
           NumericFormatter.format_currency(record[:tfsa_balance].round),
-          NumericFormatter.format_currency(record[:rrsp_balance].round),
           NumericFormatter.format_currency(record[:cash_cushion_balance].round),
           cpp_value(record),
           NumericFormatter.format_currency(record[:total_balance].round),
