@@ -44,6 +44,12 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
       it "selects the cash cushion account with desired spending amount" do
         expect(strategy.select_account_transactions(-0.15)).to include(account: strategy.cash_cushion, amount: 30_000)
       end
+
+      it "selects the rrsp account with gross withdrawal amount if mandatory rrif is in effect" do
+        strategy.current_age = 71
+        expect(strategy.select_account_transactions(-0.15)).to include(account: strategy.rrsp_account,
+                                                                       amount: 33_704.73, forced_net_excess: 0)
+      end
     end
 
     context "when market return is below downturn threshold and cash cushion does not have enough funds" do

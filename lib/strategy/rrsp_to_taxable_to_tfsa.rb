@@ -69,9 +69,6 @@ module Strategy
       Account.new("cash_cushion", app_config.accounts["cash_cushion"], app_config.annual_growth_rate["savings"])
     end
 
-    # TODO: 26 - test scenario where we would have wanted to use cash cushion
-    # and not sell investments during a severe downturn,
-    # but instead we're forced to withdraw from rrsp due to mandatory rrif
     def withdraw_from_cash_cushion?(withdrawal_planner, market_return)
       return false if withdrawal_planner.mandatory_rrif_withdrawal.positive?
 

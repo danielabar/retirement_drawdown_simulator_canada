@@ -9,8 +9,8 @@
 - OAS (make the value an input config as it could change)
 - Assuming all accounts invested in the same thing, therefore growing at the same rate
 - Transaction costs (RRSP withdrawal fee, TFSA withdrawal fee, ETF selling commission)
-- What if you reach age 71 and there's still funds in RRSP -> forced to RRIF and minimum withdrawals
-- support choice of multiple drawdown strategies (eg: TFSA first, taxable first)
+- Support choice of multiple drawdown strategies (eg: TFSA first, taxable first)
+- Cash cushion subtlety: If severe market downturn and mandatory RRIF in effect, it draws entire amount from RRSP, even though would have preferred to use cash cushion. It would be more optimal in this case to calculate minimum rrif required, calculate after-tax amount left from that, then withdraw remainder from cash cushion - to minimize tax impact and having to sell more investments during downturn.
 - Cash cushion refill if needed when market return is high (would need to track what original balance was or have user specify how many years worth they want to keep in this bucket).
 
 ### Sequence of Returns
