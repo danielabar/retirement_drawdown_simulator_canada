@@ -47,6 +47,11 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
 
       it "selects the rrsp account with gross withdrawal amount if mandatory rrif is in effect" do
         strategy.current_age = 71
+        # Mandatory RRIF at age 71 is:
+        # RRSP account balance * 0.0528 (see `config/rrif_fixed.yml`)
+        # = 80_000 * 0.0528 = 4_224
+        # This is less than what user needed in any case so the forced_net_excess will be 0,
+        # but they are withdrawing entirely from RRSP in this case.
         expect(strategy.select_account_transactions(-0.15)).to include(account: strategy.rrsp_account,
                                                                        amount: 33_704.73, forced_net_excess: 0)
       end
