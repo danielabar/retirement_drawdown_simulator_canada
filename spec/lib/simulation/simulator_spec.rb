@@ -54,7 +54,8 @@ RSpec.describe Simulation::Simulator do
             taxable_balance: be_within(1).of(60_600),
             note: "rrsp",
             rate_of_return: 0.01,
-            total_balance: be_within(1).of(137_668.32)
+            total_balance: be_within(1).of(137_668.32),
+            rrif_forced_net_excess: 0
           )
         )
       end
@@ -69,7 +70,8 @@ RSpec.describe Simulation::Simulator do
             taxable_balance: be_within(1).of(61_206),
             note: "rrsp",
             rate_of_return: 0.01,
-            total_balance: be_within(1).of(105_013.33)
+            total_balance: be_within(1).of(105_013.33),
+            rrif_forced_net_excess: 0
           )
         )
       end
@@ -84,7 +86,8 @@ RSpec.describe Simulation::Simulator do
             taxable_balance: be_within(1).of(44_801.54),
             note: "rrsp, taxable",
             rate_of_return: 0.01,
-            total_balance: be_within(1).of(75_741.17)
+            total_balance: be_within(1).of(75_741.17),
+            rrif_forced_net_excess: 0
           )
         )
       end
@@ -99,7 +102,8 @@ RSpec.describe Simulation::Simulator do
             taxable_balance: be_within(1).of(14_939.45),
             note: "taxable",
             rate_of_return: 0.01,
-            total_balance: be_within(1).of(46_198.58)
+            total_balance: be_within(1).of(46_198.58),
+            rrif_forced_net_excess: 0
           )
         )
       end
@@ -114,7 +118,8 @@ RSpec.describe Simulation::Simulator do
             taxable_balance: be_within(1).of(0.0),
             note: "taxable, tfsa",
             rate_of_return: 0.01,
-            total_balance: be_within(1).of(16_360.57)
+            total_balance: be_within(1).of(16_360.57),
+            rrif_forced_net_excess: 0
           )
         )
       end

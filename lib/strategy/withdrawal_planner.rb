@@ -3,7 +3,7 @@
 module Strategy
   # Handles the logic of determining withdrawal amounts and order.
   # Doesn't actually affect any account balances, this is just doing the planning work.
-  # - Withdraw from RRSP first, considering taxes
+  # - Withdraw from RRSP first, considering taxes and mandatory RRIF withdrawals
   # - Then withdraw from Taxable if needed
   # - Finally, withdraw from TFSA as a last resort
   # - Returns a structured list of planned transactions
@@ -14,6 +14,7 @@ module Strategy
       @taxable_account = taxable_account
       @tfsa_account = tfsa_account
       @tax_calculator = Tax::IncomeTaxCalculator.new
+      @rrif_calculator = Strategy::RRIFWithdrawalCalculator.new
       @province_code = province_code
     end
 
@@ -32,13 +33,22 @@ module Strategy
       remaining_needed.positive? ? [] : selected_accounts
     end
 
+    def mandatory_rrif_withdrawal
+      age = withdrawal_amounts.current_age
+      if rrif_calculator.mandatory_withdrawal?(age)
+        rrif_calculator.withdrawal_amount(age, rrsp_account.balance)
+      else
+        0
+      end
+    end
+
     private
 
-    attr_reader :withdrawal_amounts, :rrsp_account, :taxable_account, :tfsa_account, :province_code
+    attr_reader :withdrawal_amounts, :rrif_calculator, :rrsp_account, :taxable_account, :tfsa_account, :province_code
 
     # Attempts to withdraw required funds in order (RRSP -> Taxable -> TFSA)
     # exclude_tfsa_contribution: if true, does not factor in TFSA contributions
-    # Returns an array of planned withdrawals and the remaining shortfall (if any)
+    # Returns an array of planned withdrawals, which is a hash of the account and withdrawal amount
     def attempt_withdrawals(exclude_tfsa_contribution:)
       selected_accounts = []
       remaining_needed = withdraw_from_rrsp(selected_accounts, exclude_tfsa_contribution)
@@ -52,22 +62,42 @@ module Strategy
       [selected_accounts, remaining_needed]
     end
 
-    # Attempts to withdraw from RRSP while accounting for tax implications
+    # Attempts to withdraw from RRSP while accounting for tax implications and mandatory RRIF minimums.
     # If sufficient RRSP funds exist, withdraw full amount including taxes
     # If partial RRSP funds exist, withdraw everything and determine remaining shortfall
     # Returns remaining shortfall after RRSP withdrawal
     def withdraw_from_rrsp(selected_accounts, exclude_tfsa_contribution)
       gross_withdrawal = @withdrawal_amounts.annual_rrsp(exclude_tfsa_contribution: exclude_tfsa_contribution)
+      actual_gross, forced_net_excess = calculate_actual_gross_and_excess(gross_withdrawal)
 
-      if rrsp_has_sufficient_funds?(gross_withdrawal)
-        withdraw_full_gross_from_rrsp(selected_accounts, gross_withdrawal)
-        return 0 # Fully covered
-      elsif rrsp_has_partial_funds?
-        return drain_rrsp(selected_accounts, exclude_tfsa_contribution) # Withdraw all RRSP, return remaining needed
+      if rrsp_has_sufficient_funds?(actual_gross)
+        return handle_sufficient_rrsp_funds(selected_accounts, actual_gross,
+                                            forced_net_excess)
       end
+      return handle_partial_rrsp_funds(selected_accounts, exclude_tfsa_contribution) if rrsp_has_partial_funds?
 
-      # If we get here, it means RRSP is empty, so return the entire amount needed from taxable account
+      # If we get here, RRSP is empty, so return the entire amount needed from taxable account
       @withdrawal_amounts.annual_taxable(exclude_tfsa_contribution: exclude_tfsa_contribution)
+    end
+
+    def calculate_actual_gross_and_excess(gross_withdrawal)
+      return [gross_withdrawal, 0] if mandatory_rrif_withdrawal <= gross_withdrawal
+
+      actual_gross = mandatory_rrif_withdrawal
+      what_we_wanted_after_tax = after_tax_withdrawal(gross_withdrawal)
+      what_we_will_actually_have_after_tax = after_tax_withdrawal(mandatory_rrif_withdrawal)
+      forced_net_excess = what_we_will_actually_have_after_tax - what_we_wanted_after_tax
+
+      [actual_gross, forced_net_excess]
+    end
+
+    def handle_sufficient_rrsp_funds(selected_accounts, actual_gross, forced_net_excess)
+      withdraw_full_gross_from_rrsp(selected_accounts, actual_gross, forced_net_excess: forced_net_excess)
+      0 # Fully covered
+    end
+
+    def handle_partial_rrsp_funds(selected_accounts, exclude_tfsa_contribution)
+      drain_rrsp(selected_accounts, exclude_tfsa_contribution) # Withdraw all RRSP, return remaining needed
     end
 
     # Checks if RRSP has enough funds to cover gross withdrawal
@@ -81,8 +111,8 @@ module Strategy
     end
 
     # Withdraws the full gross amount from RRSP and adds it to planned transactions
-    def withdraw_full_gross_from_rrsp(selected_accounts, gross_withdrawal)
-      selected_accounts << { account: @rrsp_account, amount: gross_withdrawal }
+    def withdraw_full_gross_from_rrsp(selected_accounts, gross_withdrawal, forced_net_excess: 0)
+      selected_accounts << { account: @rrsp_account, amount: gross_withdrawal, forced_net_excess: forced_net_excess }
     end
 
     # Drains RRSP and calculates the remaining shortfall after tax

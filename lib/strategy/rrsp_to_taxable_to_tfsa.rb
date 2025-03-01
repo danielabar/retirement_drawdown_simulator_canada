@@ -17,26 +17,21 @@ module Strategy
     end
 
     def select_account_transactions(market_return)
-      if withdraw_from_cash_cushion?(market_return)
+      withdrawal_planner = WithdrawalPlanner.new(withdrawal_amounts, rrsp_account, taxable_account, tfsa_account,
+                                                 app_config["province_code"])
+
+      if withdraw_from_cash_cushion?(withdrawal_planner, market_return)
         [{ account: cash_cushion, amount: withdrawal_amounts.annual_cash_cushion }]
       else
-        WithdrawalPlanner.new(withdrawal_amounts, rrsp_account, taxable_account, tfsa_account,
-                              app_config["province_code"]).plan_withdrawals
+        withdrawal_planner.plan_withdrawals
       end
     end
 
     def transact(account_transactions)
       return if ran_out_of_money?(account_transactions)
 
-      account_transactions.each do |entry|
-        entry[:account].withdraw(entry[:amount])
-      end
-
-      # Ensure TFSA deposits only happen if we withdrew from RRSP/Taxable
-      if account_transactions.none? { |entry| %w[tfsa cash_cushion].include?(entry[:account].name) } &&
-         app_config["annual_tfsa_contribution"].positive?
-        tfsa_account.deposit(app_config["annual_tfsa_contribution"])
-      end
+      process_withdrawals(account_transactions)
+      handle_tfsa_contribution(account_transactions)
     end
 
     def apply_growth(market_return)
@@ -74,9 +69,36 @@ module Strategy
       Account.new("cash_cushion", app_config.accounts["cash_cushion"], app_config.annual_growth_rate["savings"])
     end
 
-    def withdraw_from_cash_cushion?(market_return)
+    def withdraw_from_cash_cushion?(withdrawal_planner, market_return)
+      return false if withdrawal_planner.mandatory_rrif_withdrawal.positive?
+
       market_return < app_config.annual_growth_rate["downturn_threshold"] &&
         cash_cushion.balance >= withdrawal_amounts.annual_cash_cushion
+    end
+
+    def process_withdrawals(account_transactions)
+      account_transactions.each do |entry|
+        entry[:account].withdraw(entry[:amount])
+        deposit_forced_net_excess(entry)
+      end
+    end
+
+    def deposit_forced_net_excess(entry)
+      return unless entry[:forced_net_excess]&.positive?
+
+      taxable_account.deposit(entry[:forced_net_excess])
+    end
+
+    def handle_tfsa_contribution(account_transactions)
+      return unless should_contribute_to_tfsa?(account_transactions)
+
+      tfsa_account.deposit(app_config["annual_tfsa_contribution"])
+    end
+
+    def should_contribute_to_tfsa?(account_transactions)
+      return false unless app_config["annual_tfsa_contribution"].positive?
+
+      account_transactions.none? { |entry| %w[tfsa cash_cushion].include?(entry[:account].name) }
     end
   end
 end

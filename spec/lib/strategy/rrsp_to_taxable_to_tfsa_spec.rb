@@ -44,6 +44,17 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
       it "selects the cash cushion account with desired spending amount" do
         expect(strategy.select_account_transactions(-0.15)).to include(account: strategy.cash_cushion, amount: 30_000)
       end
+
+      it "selects the rrsp account with gross withdrawal amount if mandatory rrif is in effect" do
+        strategy.current_age = 71
+        # Mandatory RRIF at age 71 is:
+        # RRSP account balance * 0.0528 (see `config/rrif_fixed.yml`)
+        # = 80_000 * 0.0528 = 4_224
+        # This is less than what user needed in any case so the forced_net_excess will be 0,
+        # but they are withdrawing entirely from RRSP in this case.
+        expect(strategy.select_account_transactions(-0.15)).to include(account: strategy.rrsp_account,
+                                                                       amount: 33_704.73, forced_net_excess: 0)
+      end
     end
 
     context "when market return is below downturn threshold and cash cushion does not have enough funds" do
@@ -51,13 +62,14 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
 
       it "selects the rrsp account with gross withdrawal amount if it has sufficient balance" do
         expect(strategy.select_account_transactions(-0.15)).to include(account: strategy.rrsp_account,
-                                                                       amount: 33_704.73)
+                                                                       amount: 33_704.73, forced_net_excess: 0)
       end
     end
 
     context "when RRSP has enough balance" do
       it "selects the RRSP account with gross withdrawal amount" do
-        expect(strategy.select_account_transactions(0.05)).to include(account: strategy.rrsp_account, amount: 33_704.73)
+        expect(strategy.select_account_transactions(0.05)).to include(account: strategy.rrsp_account,
+                                                                      amount: 33_704.73, forced_net_excess: 0)
       end
     end
 
@@ -179,7 +191,8 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
       end
 
       it "selects the rrsp account with gross desired spending amount" do
-        expect(strategy.select_account_transactions(0.05)).to include(account: strategy.rrsp_account, amount: 33_692.22)
+        expect(strategy.select_account_transactions(0.05)).to include(account: strategy.rrsp_account,
+                                                                      amount: 33_692.22, forced_net_excess: 0)
       end
     end
 
@@ -230,6 +243,22 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
       strategy.transact(account_transactions)
 
       expect(strategy.cash_cushion.balance).to eq(20_000)
+    end
+
+    it "processes withdrawal from rrsp and makes a deposit to taxable account if there is a RRIF forced excess" do
+      account_transactions = [
+        { account: strategy.rrsp_account, amount: 5_000, forced_net_excess: 1_000 }
+      ]
+      strategy.transact(account_transactions)
+
+      # rrsp account balance goes down by 5_000
+      expect(strategy.rrsp_account.balance).to eq(75_000)
+
+      # taxable account balance goes up by 1_000 due RRIF forced excess
+      expect(strategy.taxable_account.balance).to eq(61_000)
+
+      # still making a tfsa contribution
+      expect(strategy.tfsa_account.balance).to eq(30_010)
     end
   end
 
