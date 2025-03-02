@@ -2,8 +2,11 @@
 
 class NumericFormatter
   # Formats a number as currency
+  # def self.format_currency(amount)
+  #   "$#{format('%.2f', amount).reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse}"
+  # end
   def self.format_currency(amount)
-    "$#{format('%.2f', amount).reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse}"
+    "$#{amount.round.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse}"
   end
 
   # Formats a number as a percentage with 2 decimal places
