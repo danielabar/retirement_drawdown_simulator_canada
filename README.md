@@ -201,7 +201,7 @@ ruby main.rb
 
 ### Determining Your Success Rate
 
-You can use the `success_rate` mode (either specify it in `inputs.yml` or override it at the command line as shown below) to run the simulation many times over. In this case, it calculates the percentage of successful scenarios. For example, this shows that the 4% withdrawal rate over a thirty year period has about a `78%` success rate, rather than the `95%` rate that's often reported in personal finance articles (which is based on US historical data):
+You can use the `success_rate` mode (either specify it in `inputs.yml` or override it at the command line as shown below) to run the simulation many times over. In this case, it calculates the percentage of successful scenarios. For example, this shows that the 4% withdrawal rate over a thirty year period has a `79%` success rate, rather than the `95%` rate that's often reported in personal finance articles (which is based on US historical data).
 
 ```
 ruby main.rb success_rate
