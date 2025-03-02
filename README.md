@@ -173,13 +173,11 @@ taxes:
 
 ## Sample Output
 
-TODO: 30 - Update sample descriptions
+Here's a run using `inputs.yml` copied from `inputs.yml.template` with a successful result - i.e. money lasts from a starting retirement age of 65 until `max_age` of 95, with at least 1x desired_income left. The desired_income of `$40,000` is 4% of the total starting balance of `$1,000,000` (which is divided among RRSP, taxable, and TFSA accounts). i.e. this is the 4% rule over a thirty year retirement period. There's also 1 year's worth of spending set aside in a cash cushion for use in case of a severe market downturn, although in this case, it doesn't get used.
 
-Here's a run using `inputs.yml` copied from `inputs.yml.template` with a successful result - i.e. money lasts from a starting retirement age of 65 until `max_age` of 95, with at least 1x desired_income left. The desired_income of `$40,000` is 4% of the total starting balance of `$1,000,000` (which is divided among RRSP, taxable, and TFSA accounts). i.e. this is the 4% rule over a thirty year retirement period. There's also 1 year's worth of spending set aside in a cash cushion for use in case of a severe market downturn, which gets used at age 67.
+If there's not enough in one account for the full year's spending, it will combine withdrawals from multiple accounts. For example, at age 87 it combines what's left of the RRSP, with some from taxable.
 
-If there's not enough in one account for the full year's spending, it will combine withdrawals from multiple accounts. For example, at age 82 it combines what's left of the RRSP, with some from taxable.
-
-Also note since the RRSP balance is drained relatively quickly from a combination of desired spending and optional TFSA contribution, by the time mandatory RRIF withdrawals start at age 71, the required percentage of the remaining balance is less than what this user would have withdrawn in any case, so there's never any excess forced withdrawal.
+Also note since the RRSP balance is reduced relatively quickly, by the time mandatory RRIF withdrawals start at age 71, the required percentage of the remaining balance is less than what this user would have withdrawn in any case, so there's never any excess forced RRIF withdrawal.
 
 ```
 ruby main.rb
@@ -193,7 +191,7 @@ The RRIF Excess is the net amount, i.e. what you're left with after taxes from b
 
 ![demo success rrif](docs/images/demo_success_rrif.png "demo success rrif")
 
-Here's a run where a bad initial sequence of returns causes the money to run out by age 84. The market downturn threshold is set to -20% so you can see at age 76 that the cash cushion is being used, but that's not enough to save this scenario.
+Here's a run where a bad initial sequence of returns causes the money to run out at age 94.
 
 ```
 ruby main.rb
