@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "tty-table"
-
 module Output
   class ConsolePrinter
     def initialize(summary, simulation_output, first_year_cash_flow_results, evaluator_results, visual: true)
