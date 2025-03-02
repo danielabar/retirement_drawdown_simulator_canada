@@ -43,25 +43,36 @@ module Output
     end
 
     def formatted_header
-      ["Age", "RRSP", "Taxable", "TFSA", "Cash Cushion", "CPP Used", "Total Balance", "RRIF Excess", "Note", "RoR"]
+      ["Age", "RRSP", "Taxable", "TFSA", "Cash Cushion", "CPP Used", "Total Balance", "RRIF Net Excess", "Note", "RoR"]
     end
 
-    # TODO: 30 - rubocop complexity
     def formatted_yearly_results
       @yearly_results.map do |record|
-        [
-          record[:age],
-          NumericFormatter.format_currency(record[:rrsp_balance].round),
-          NumericFormatter.format_currency(record[:taxable_balance].round),
-          NumericFormatter.format_currency(record[:tfsa_balance].round),
-          NumericFormatter.format_currency(record[:cash_cushion_balance].round),
-          cpp_value(record),
-          NumericFormatter.format_currency(record[:total_balance].round),
-          NumericFormatter.format_currency(record[:rrif_forced_net_excess].round),
-          record[:note],
-          NumericFormatter.format_percentage(record[:rate_of_return])
-        ]
+        format_record(record)
       end
+    end
+
+    def format_record(record)
+      [
+        record[:age],
+        format_currency(record[:rrsp_balance]),
+        format_currency(record[:taxable_balance]),
+        format_currency(record[:tfsa_balance]),
+        format_currency(record[:cash_cushion_balance]),
+        cpp_value(record),
+        format_currency(record[:total_balance]),
+        format_currency(record[:rrif_forced_net_excess]),
+        record[:note],
+        format_percentage(record[:rate_of_return])
+      ]
+    end
+
+    def format_currency(value)
+      NumericFormatter.format_currency(value.round)
+    end
+
+    def format_percentage(value)
+      NumericFormatter.format_percentage(value)
     end
 
     def cpp_value(record)
