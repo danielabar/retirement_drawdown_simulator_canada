@@ -33,12 +33,24 @@ RSpec.describe Output::ConsolePrinter do
     )
   end
 
+  let(:summary) { app_config.summary }
   let(:expected_ages) { [65, 66, 67, 68, 69] }
   let(:expected_rate_of_returns) { [0.01, 0.01, 0.01, 0.01, 0.01] }
   let(:expected_total_balances) { [137_668.32, 105_013.33, 75_741.17, 46_198.58, 16_360.57] }
 
   let(:expected_output) do
     <<~OUTPUT
+      === Retirement Plan Summary ===
+      ┌──────────────────────────────┬──────────┐
+      │ Description                  │    Value │
+      ├──────────────────────────────┼──────────┤
+      │ Rrsp                         │  $80,000 │
+      │ Taxable                      │  $60,000 │
+      │ Tfsa                         │  $30,000 │
+      │ Cash_cushion                 │       $0 │
+      │ Total Starting Balance       │ $170,000 │
+      │ Intended Retirement Duration │ 10 years │
+      └──────────────────────────────┴──────────┘
       === First-Year Cash Flow Breakdown ===
       ┌───────────────────────────────────────────────────┬─────────┐
       │ Description                                       │  Amount │
@@ -72,7 +84,8 @@ RSpec.describe Output::ConsolePrinter do
     simulation_output = Simulation::Simulator.new(app_config).run
     evaluator_results = Simulation::SimulationEvaluator.new(simulation_output[:yearly_results], app_config).evaluate
     first_year_cash_flow_results = FirstYearCashFlow.new(app_config).calculate
-    simulator_formatter = described_class.new(simulation_output, first_year_cash_flow_results, evaluator_results,
+    simulator_formatter = described_class.new(summary, simulation_output, first_year_cash_flow_results,
+                                              evaluator_results,
                                               visual: false)
 
     expect { simulator_formatter.print_all }.to output(expected_output).to_stdout
@@ -82,7 +95,8 @@ RSpec.describe Output::ConsolePrinter do
     simulation_output = Simulation::Simulator.new(app_config).run
     evaluator_results = Simulation::SimulationEvaluator.new(simulation_output[:yearly_results], app_config).evaluate
     first_year_cash_flow_results = FirstYearCashFlow.new(app_config).calculate
-    simulator_formatter = described_class.new(simulation_output, first_year_cash_flow_results, evaluator_results)
+    simulator_formatter = described_class.new(summary, simulation_output, first_year_cash_flow_results,
+                                              evaluator_results)
 
     allow(Output::ConsolePlotter).to receive(:plot_return_sequence)
     allow(Output::ConsolePlotter).to receive(:plot_total_balance)

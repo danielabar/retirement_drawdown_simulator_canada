@@ -4,9 +4,8 @@ require "tty-table"
 
 module Output
   class ConsolePrinter
-    DASH_SEPARATOR = "-" * 100
-
-    def initialize(simulation_output, first_year_cash_flow_results, evaluator_results, visual: true)
+    def initialize(summary, simulation_output, first_year_cash_flow_results, evaluator_results, visual: true)
+      @summary = summary
       @yearly_results = simulation_output[:yearly_results]
       @first_year_cash_flow_results = first_year_cash_flow_results
       @evaluator_results = evaluator_results
@@ -14,6 +13,7 @@ module Output
     end
 
     def print_all
+      print_summary
       print_first_year_cash_flow
       print_yearly_results
       print_simulation_evaluation
@@ -21,6 +21,20 @@ module Output
     end
 
     private
+
+    def print_summary
+      puts "=== Retirement Plan Summary ==="
+
+      rows = @summary[:starting_balances].map do |account, balance|
+        [account.capitalize, format_currency(balance)]
+      end
+
+      rows << ["Total Starting Balance", format_currency(@summary[:starting_total_balance])]
+      rows << ["Intended Retirement Duration", "#{@summary[:intended_retirement_duration]} years"]
+
+      balances_table = TTY::Table.new(header: %w[Description Value], rows: rows)
+      puts balances_table.render(:unicode, alignment: %i[left right], padding: [0, 1, 0, 1])
+    end
 
     def print_first_year_cash_flow
       puts "=== First-Year Cash Flow Breakdown ==="
