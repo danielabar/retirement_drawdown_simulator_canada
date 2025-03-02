@@ -28,7 +28,7 @@ success_factor: 1
 # The min and max are to constrain volatility. For example the market has dropped
 # by 30% and has grown by that much as well.
 # Set a downturn_threshold so if market return is below this amount, use cash_cushion.
-# Set savings rate to be whatever you're earning on your cash cushion. Probably lower than market rate.
+# Set savings to the interest rate you're earning on your cash cushion.
 annual_growth_rate:
   average: 0.05
   min: -0.3
