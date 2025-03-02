@@ -173,6 +173,8 @@ taxes:
 
 ## Sample Output
 
+TODO: specify savings rate in inputs yml template and demo! Then redo screenshots!!
+
 Here's a run using `inputs.yml` copied from `inputs.yml.template` with a successful result - i.e. money lasts from a starting retirement age of 65 until `max_age` of 95, with at least 1x desired_income left. The desired_income of `$40,000` is 4% of the total starting balance of `$1,000,000` (which is divided among RRSP, taxable, and TFSA accounts). i.e. this is the 4% rule over a thirty year retirement period. There's also 1 year's worth of spending set aside in a cash cushion for use in case of a severe market downturn, although in this case, it doesn't get used.
 
 If there's not enough in one account for the full year's spending, it will combine withdrawals from multiple accounts. For example, at age 87 it combines what's left of the RRSP, with some from taxable.
@@ -198,6 +200,41 @@ ruby main.rb
 ```
 
 ![demo failure](docs/images/demo_failure.png "demo failure")
+
+### Interpreting Yearly Output
+
+Each row in the yearly output table represents what happened during that year. For example, given these starting balances:
+```
+=== Retirement Plan Summary ===
+┌──────────────────────────────┬────────────┐
+│ Description                  │      Value │
+├──────────────────────────────┼────────────┤
+│ Rrsp                         │   $600,000 │
+│ Taxable                      │   $200,000 │
+│ Tfsa                         │   $200,000 │
+│ Cash_cushion                 │    $40,000 │
+│ Total Starting Balance       │ $1,040,000 │
+│ Intended Retirement Duration │   30 years │
+└──────────────────────────────┴────────────┘
+```
+
+And a desired income of `$40,000`, then to interpret these yearly results:
+```
+=== Yearly Results ===
+┌─────┬──────────┬──────────┬────────────┬──────────────┬──────────┬───────────────┬─────────────────┬───────────────┬─────────┐
+│ Age │     RRSP │  Taxable │       TFSA │ Cash Cushion │ CPP Used │ Total Balance │ RRIF Net Excess │ Note          │     RoR │
+├─────┼──────────┼──────────┼────────────┼──────────────┼──────────┼───────────────┼─────────────────┼───────────────┼─────────┤
+│ 65  │ $531,238 │ $191,852 │   $191,852 │      $38,370 │ No       │      $953,312 │              $0 │ rrsp          │  -4.07% │
+│ 66  │ $514,817 │ $203,631 │   $203,631 │      $40,726 │ No       │      $962,805 │              $0 │ rrsp          │   6.14% │
+│ 67  │ $470,095 │ $204,273 │   $204,273 │      $40,855 │ No       │      $919,496 │              $0 │ rrsp          │   0.32% │
+...
+```
+
+Starting at age 65:
+- `$46,200` was withdrawn from the RRSP, which is necessary to be left with an after-tax income of `$40,000`.
+- Since the RRSP account had more than enough to accommodate gross income, that was the only account withdrawn from.
+- FIXME: apply growth, cash cushion should be at savings rate, not market rate, but not existing in inputs yml
+
 
 ### Determining Your Success Rate
 

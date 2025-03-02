@@ -28,11 +28,13 @@ success_factor: 1
 # The min and max are to constrain volatility. For example the market has dropped
 # by 30% and has grown by that much as well.
 # Set a downturn_threshold so if market return is below this amount, use cash_cushion.
+# Set savings rate to be whatever you're earning on your cash cushion. Probably lower than market rate.
 annual_growth_rate:
   average: 0.05
   min: -0.3
   max: 0.3
   downturn_threshold: -0.2
+  savings: 0.005
 
 # Choose the return sequence generator: mean, geometric_brownian_motion, constant
 # If using `success_rate` mode, then choose either `mean` or `geometric_brownian_motion`
