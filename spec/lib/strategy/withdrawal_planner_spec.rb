@@ -90,6 +90,62 @@ RSpec.describe Strategy::WithdrawalPlanner do
                                                         ))
       end
     end
+
+    context "when rrif withdrawals are required and user is also taking cpp" do
+      let(:app_config) do
+        AppConfig.new(
+          "retirement_age" => 65,
+          "max_age" => 95,
+          "province_code" => "ONT",
+          "annual_tfsa_contribution" => 10,
+          "desired_spending" => 30_000,
+          "annual_growth_rate" => {
+            "average" => 0.01,
+            "min" => -0.1,
+            "max" => 0.1,
+            "savings" => 0.005,
+            "downturn_threshold" => -0.1
+          },
+          "accounts" => {
+            "rrsp" => 500_000,
+            "taxable" => 60_000,
+            "tfsa" => 30_000,
+            "cash_cushion" => 30_000
+          },
+          "taxes" => {
+            "rrsp_withholding_rate" => 0.3
+          },
+          "cpp" => {
+            "start_age" => 70,
+            "monthly_amount" => 1200
+          }
+        )
+      end
+
+      before do
+        withdrawal_amounts.current_age = 95 # RRIF is 20% (see `config/rrif_fixed.yml`)
+      end
+
+      it "calculates forced net excess withdrawal considering rrif and cpp" do
+        # rrsp balance: 500_000
+        # mandatory rrif: 500_000 * .2 = 100_000
+        # annual cpp gross: 1200 * 12 = 14_400
+        # desired take home (spending + tfsa contrib): 30_000 + 10 = 30_010
+        # if it wasn't for rrif, we only want to withdraw from rrsp: 19_305.608906250003
+        # because gross 19_305.608906250003 + 14_400 = 33_705.60890625 and take home on that: 30_010.70782054688
+        # BUT we're being forced to take out 100_000 gross from rrsp, plus we're still getting gross cpp of 14_400
+        # So our actual taxable income is: 100_000 + 14_400 = 114_400
+        # That results in a take home of: 88_694.062
+        # But we only wanted a take home of: 30_010
+        # So our forced net excess is 88_694.06 - 30_010 = 58_684.06
+        account_transactions = withdrawal_planner.plan_withdrawals
+        expect(account_transactions).to contain_exactly(a_hash_including(
+                                                          account: rrsp_account,
+                                                          amount: a_value_within(0.01).of(100_000),
+                                                          forced_net_excess: a_value_within(0.01).of(58_684.06)
+                                                        ))
+      end
+    end
   end
 
   describe "#mandatory_rrif_withdrawal" do
