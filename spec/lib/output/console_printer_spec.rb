@@ -40,22 +40,27 @@ RSpec.describe Output::ConsolePrinter do
   let(:expected_output) do
     <<~OUTPUT
       === First-Year Cash Flow Breakdown ===
-      Desired Income Including TFSA Contribution: $30,010.00
-      RRSP Withdrawal Amount (higher due to income tax): $33,704.73
-      RRSP Withholding Tax: $10,111.42
-      Actual Tax Bill: $3,694.72
-      Expected Tax Refund: $6,416.70
-      RRSP Available After Withholding: $23,593.31
-      Required Cash Buffer for First Year: $6,416.69
-      #{'-' * 180}
-      Age        RRSP                 TFSA                 Taxable              Cash Cushion         CPP Used   Total Balance        RRIF Excess          Note                        RoR
-      #{'-' * 180}
-      65         $46,758.22           $30,310.10           $60,600.00           $0.00                No         $137,668.32          $0.00                rrsp                       1.0%
-      66         $13,184.03           $30,623.30           $61,206.00           $0.00                No         $105,013.33          $0.00                rrsp                       1.0%
-      67         $0.00                $30,939.63           $44,801.54           $0.00                No         $75,741.17           $0.00                rrsp, taxable              1.0%
-      68         $0.00                $31,259.13           $14,939.45           $0.00                No         $46,198.58           $0.00                taxable                    1.0%
-      69         $0.00                $16,360.57           $0.00                $0.00                No         $16,360.57           $0.00                taxable, tfsa              1.0%
-      #{'-' * 180}
+      ┌───────────────────────────────────────────────────┬─────────┐
+      │ Description                                       │  Amount │
+      ├───────────────────────────────────────────────────┼─────────┤
+      │ Desired Income Including TFSA Contribution        │ $30,010 │
+      │ RRSP Withdrawal Amount (higher due to income tax) │ $33,705 │
+      │ RRSP Withholding Tax                              │ $10,111 │
+      │ Actual Tax Bill                                   │  $3,695 │
+      │ Expected Tax Refund                               │  $6,417 │
+      │ RRSP Available After Withholding                  │ $23,593 │
+      │ Required Cash Buffer for First Year               │  $6,417 │
+      └───────────────────────────────────────────────────┴─────────┘
+      === Yearly Results ===
+      ┌─────┬─────────┬─────────┬─────────┬──────────────┬──────────┬───────────────┬─────────────────┬───────────────┬──────┐
+      │ Age │    RRSP │ Taxable │    TFSA │ Cash Cushion │ CPP Used │ Total Balance │ RRIF Net Excess │ Note          │  RoR │
+      ├─────┼─────────┼─────────┼─────────┼──────────────┼──────────┼───────────────┼─────────────────┼───────────────┼──────┤
+      │ 65  │ $46,758 │ $60,600 │ $30,310 │           $0 │ No       │      $137,668 │              $0 │ rrsp          │ 1.0% │
+      │ 66  │ $13,184 │ $61,206 │ $30,623 │           $0 │ No       │      $105,013 │              $0 │ rrsp          │ 1.0% │
+      │ 67  │      $0 │ $44,802 │ $30,940 │           $0 │ No       │       $75,741 │              $0 │ rrsp, taxable │ 1.0% │
+      │ 68  │      $0 │ $14,939 │ $31,259 │           $0 │ No       │       $46,199 │              $0 │ taxable       │ 1.0% │
+      │ 69  │      $0 │      $0 │ $16,361 │           $0 │ No       │       $16,361 │              $0 │ taxable, tfsa │ 1.0% │
+      └─────┴─────────┴─────────┴─────────┴──────────────┴──────────┴───────────────┴─────────────────┴───────────────┴──────┘
       Simulation Result: ❌ Failure
       Simulation failed. Max age 75 not reached. Final age is 69.
       Withdrawal Rate: 17.65%
