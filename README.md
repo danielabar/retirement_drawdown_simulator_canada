@@ -173,6 +173,8 @@ taxes:
 
 ## Sample Output
 
+TODO: 30 - Update sample descriptions
+
 Here's a run using `inputs.yml` copied from `inputs.yml.template` with a successful result - i.e. money lasts from a starting retirement age of 65 until `max_age` of 95, with at least 1x desired_income left. The desired_income of `$40,000` is 4% of the total starting balance of `$1,000,000` (which is divided among RRSP, taxable, and TFSA accounts). i.e. this is the 4% rule over a thirty year retirement period. There's also 1 year's worth of spending set aside in a cash cushion for use in case of a severe market downturn, which gets used at age 67.
 
 If there's not enough in one account for the full year's spending, it will combine withdrawals from multiple accounts. For example, at age 82 it combines what's left of the RRSP, with some from taxable.

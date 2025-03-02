@@ -42,7 +42,7 @@ return_sequence_type: geometric_brownian_motion
 
 # Optionally continue to make TFSA contributions during RRSP and Taxable drawdown phases
 # If you don't want to make any TFSA contributions during drawdown, set this to 0.
-annual_tfsa_contribution: 7000
+annual_tfsa_contribution: 0
 
 # After tax amount you need per year in retirement (NOT including TFSA contribution, this is your spending number).
 # To get an accurate number here, you should track your spending for at least a year
