@@ -120,7 +120,7 @@ annual_growth_rate:
   average: 0.05
   min: -0.3
   max: 0.3
-  downturn_threshold: -0.2
+  downturn_threshold: -0.1
   savings: 0.005
 
 # Choose the return sequence generator: mean, geometric_brownian_motion, constant
@@ -175,11 +175,9 @@ taxes:
 
 ## Sample Output
 
-TODO: specify savings rate in inputs yml template and demo! Then redo screenshots!!
-
 Here's a run using `inputs.yml` copied from `inputs.yml.template` with a successful result - i.e. money lasts from a starting retirement age of 65 until `max_age` of 95, with at least 1x desired_income left. The desired_income of `$40,000` is 4% of the total starting balance of `$1,000,000` (which is divided among RRSP, taxable, and TFSA accounts). i.e. this is the 4% rule over a thirty year retirement period. There's also 1 year's worth of spending set aside in a cash cushion for use in case of a severe market downturn, although in this case, it doesn't get used.
 
-If there's not enough in one account for the full year's spending, it will combine withdrawals from multiple accounts. For example, at age 87 it combines what's left of the RRSP, with some from taxable.
+If there's not enough in one account for the full year's spending, it will combine withdrawals from multiple accounts. For example, at age 79 it combines what's left of the RRSP, with some from taxable. And again at age 89, when the taxable account is running low, it gets combined with tfsa.
 
 Also note since the RRSP balance is reduced relatively quickly, by the time mandatory RRIF withdrawals start at age 71, the required percentage of the remaining balance is less than what this user would have withdrawn in any case, so there's never any excess forced RRIF withdrawal.
 
@@ -189,13 +187,13 @@ ruby main.rb
 
 ![demo success](docs/images/demo_success.png "demo success")
 
-Here's another successful run with higher returns in the person's mid 80s that cause the RRSP balance to grow more. In this case, the mandatory RRIF rates by that age age greater than what the person needed to withdraw, resulting in an after-tax excess which gets deposited into the taxable account. This is shown as a positive RRIF Excess starting at age 84.
+Here's another successful run with higher returns in the person's mid 80s that cause the RRSP balance to grow more. In this case, the mandatory RRIF rates by that age age greater than what the person needed to withdraw, resulting in an after-tax excess which gets deposited into the taxable account. This is shown as a positive RRIF Excess starting at age 78.
 
 The RRIF Excess is the net amount, i.e. what you're left with after taxes from being forced to withdraw the larger amount. That's how the government gets their cut 🤑
 
 ![demo success rrif](docs/images/demo_success_rrif.png "demo success rrif")
 
-Here's a run where a bad initial sequence of returns causes the money to run out at age 94.
+Here's a run where a bad initial sequence of returns causes the money to run out at age 92. The one year's worth cash cushion is used at age 66 where there's an especially negative return but it's insufficient to save this scenario.
 
 ```
 ruby main.rb
@@ -223,24 +221,38 @@ Each row in the yearly output table represents what happened during that year. F
 And a desired income of `$40,000`, then to interpret these yearly results:
 ```
 === Yearly Results ===
-┌─────┬──────────┬──────────┬────────────┬──────────────┬──────────┬───────────────┬─────────────────┬───────────────┬─────────┐
-│ Age │     RRSP │  Taxable │       TFSA │ Cash Cushion │ CPP Used │ Total Balance │ RRIF Net Excess │ Note          │     RoR │
-├─────┼──────────┼──────────┼────────────┼──────────────┼──────────┼───────────────┼─────────────────┼───────────────┼─────────┤
-│ 65  │ $531,238 │ $191,852 │   $191,852 │      $38,370 │ No       │      $953,312 │              $0 │ rrsp          │  -4.07% │
-│ 66  │ $514,817 │ $203,631 │   $203,631 │      $40,726 │ No       │      $962,805 │              $0 │ rrsp          │   6.14% │
-│ 67  │ $470,095 │ $204,273 │   $204,273 │      $40,855 │ No       │      $919,496 │              $0 │ rrsp          │   0.32% │
+┌─────┬──────────┬──────────┬──────────┬──────────────┬──────────┬───────────────┬─────────────────┬───────────────┬─────────┐
+│ Age │     RRSP │  Taxable │     TFSA │ Cash Cushion │ CPP Used │ Total Balance │ RRIF Net Excess │ Note          │     RoR │
+├─────┼──────────┼──────────┼──────────┼──────────────┼──────────┼───────────────┼─────────────────┼───────────────┼─────────┤
+│ 65  │ $610,121 │ $220,340 │ $220,340 │      $40,200 │ No       │    $1,091,001 │              $0 │ rrsp          │  10.17% │
+│ 66  │ $638,867 │ $249,623 │ $249,623 │      $40,401 │ No       │    $1,178,514 │              $0 │ rrsp          │  13.29% │
 ...
 ```
 
 Starting at age 65:
 - `$46,200` was withdrawn from the RRSP, which is necessary to be left with an after-tax income of `$40,000`.
-- Since the RRSP account had more than enough to accommodate gross income, that was the only account withdrawn from.
-- FIXME: apply growth, cash cushion should be at savings rate, not market rate, but not existing in inputs yml
+- Since the RRSP account had more than enough to accommodate gross income, that was the only account withdrawn from, which reduces the starting balance of `$600,000` to `$553,800`
+- Then all investment accounts (RRSP, taxable, TFSA) then have the market growth applied (shown as RoR for rate of return) in the table.
+- For the RRSP, the reduced balance of `$553,800` grows to `$610,121` (`$553,800` * `1.1017`).
+- The taxable and TFSA accounts also grow (or shrink) by the market RoR for that year, which is 10.17% in the first year.
+- The following year the process repeats - given the previous year's RRSP balance of `$610,121`, there's plenty to support the gross withdrawal of `$46,200`, and then growth is applied.
+- This continues until the RRSP is drained and it has to start drawing down the taxable account.
 
+### CPP
+
+TODO: Explain how CPP counts as taxable income so the impact varies if planned withdrawal is coming from RRSP, vs taxable or TFSA.
+
+### Mandatory RRIF Withdrawals
+
+TODO: Explain
+
+### Rate of Return
+
+TODO: Explanation about use of GBM rather than constant or even average returns, drifts, volatility, random shocks in an attempt to be more realistic.
 
 ### Determining Your Success Rate
 
-You can use the `success_rate` mode (either specify it in `inputs.yml` or override it at the command line as shown below) to run the simulation many times over. In this case, it calculates the percentage of successful scenarios. For example, this shows that the 4% withdrawal rate over a thirty year period has a `79%` success rate, rather than the `95%` rate that's often reported in personal finance articles (which is based on US historical data).
+You can use the `success_rate` mode (either specify it in `inputs.yml` or override it at the command line as shown below) to run the simulation many times over. In this case, it calculates the percentage of successful scenarios. For example, this shows that the 4% withdrawal rate over a thirty year period has just over a `77%` success rate, rather than the `95%` rate that's often reported in personal finance articles (which is based on US historical data).
 
 ```
 ruby main.rb success_rate

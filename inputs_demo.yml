@@ -33,7 +33,7 @@ annual_growth_rate:
   average: 0.05
   min: -0.3
   max: 0.3
-  downturn_threshold: -0.2
+  downturn_threshold: -0.1
   savings: 0.005
 
 # Choose the return sequence generator: mean, geometric_brownian_motion, constant

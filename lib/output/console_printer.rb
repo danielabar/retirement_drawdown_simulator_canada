@@ -42,7 +42,7 @@ module Output
 
     def format_cash_flow_results
       @first_year_cash_flow_results.map do |label, value|
-        [label, NumericFormatter.format_currency(value.round)]
+        [label, NumericFormatter.format_currency(value)]
       end
     end
 
@@ -80,7 +80,7 @@ module Output
     end
 
     def format_currency(value)
-      NumericFormatter.format_currency(value.round)
+      NumericFormatter.format_currency(value)
     end
 
     def format_percentage(value)
