@@ -57,3 +57,4 @@ Document insights discovered from using this tool to analyze scenarios such as:
 - How does starting CPP at age 60 vs 65 vs 70 impact success rate?
   - Initial analysis shows the only way to get a success rate at or over 95% for a long retirement is to count on CPP
 - What is the actual safe withdrawal rate (seems to be a function of how many years spending in retirement)
+- Capture distribution of outcomes with GBM compared to constant average return
