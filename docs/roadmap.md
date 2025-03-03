@@ -4,8 +4,6 @@
 
 - When evaluating results, also capture what the final total balance was, and for success rate run, show average (or middle?) total balance
   - i.e. we're defining success by ending up with at least 1x (success_factor) desired spending, but maybe certain strategies result on average in MUCH MORE than this and we should show it somehow
-- Cascading/multi-account withdrawals - a little left in one account but not enough to fund that years spending so have to go to next account
-- Inflation (simple: constant, complicated: varying).
 - OAS (make the value an input config as it could change)
 - Assuming all accounts invested in the same thing, therefore growing at the same rate
 - Transaction costs (RRSP withdrawal fee, TFSA withdrawal fee, ETF selling commission)
@@ -21,12 +19,8 @@
 
 ### Output
 
-- Instead of space separated console output, consider gem, should make it easier to add columns and right-align numbers https://github.com/piotrmurach/tty-table
-- Round all balance numbers to the nearest dollar (including cents is noisy and unneeded accuracy)
-- Swap order of TFSA and Taxable accounts since Taxable is drawn down first
 - Add column for how much was withdrawn
 - Add column for how much was paid in income tax
-- Display initial account balances and total balance
 - Support multiple output/printer formats like console, csv, pdf, html, xlsx
 
 ### Ergonomics
