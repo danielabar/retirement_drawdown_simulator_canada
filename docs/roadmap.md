@@ -2,6 +2,7 @@
 
 ## Enhancements
 
+- OAS and clawback
 - When evaluating results, also capture what the final total balance was, and for success rate run, show average (or middle?) total balance
   - i.e. we're defining success by ending up with at least 1x (success_factor) desired spending, but maybe certain strategies result on average in MUCH MORE than this and we should show it somehow
 - OAS (make the value an input config as it could change)
