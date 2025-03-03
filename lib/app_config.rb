@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "yaml"
-
 class AppConfig
   attr_reader :data
 
@@ -27,5 +25,16 @@ class AppConfig
 
   def annual_growth_rate
     data["annual_growth_rate"]
+  end
+
+  def summary
+    total_balance = accounts.values.sum
+    retirement_duration = data["max_age"] - data["retirement_age"]
+
+    {
+      starting_balances: accounts,
+      starting_total_balance: total_balance,
+      intended_retirement_duration: retirement_duration
+    }
   end
 end

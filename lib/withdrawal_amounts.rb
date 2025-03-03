@@ -34,6 +34,10 @@ class WithdrawalAmounts
                                   candidate_rrsp_withdrawal_lower)
   end
 
+  def cpp_annual_gross_income
+    app_config.cpp["monthly_amount"] * 12
+  end
+
   def cpp_used?
     app_config.cpp["monthly_amount"].positive? && current_age >= app_config.cpp["start_age"]
   end
@@ -58,6 +62,10 @@ class WithdrawalAmounts
   # so we won't be making the optional TFSA contributions during this time.
   def annual_cash_cushion
     cpp_used? ? app_config["desired_spending"] - cpp_annual_net_income : app_config["desired_spending"]
+  end
+
+  def desired_income
+    app_config["desired_spending"] + app_config["annual_tfsa_contribution"]
   end
 
   private
@@ -102,19 +110,11 @@ class WithdrawalAmounts
     @reverse_tax_calculator.calculate(income, app_config["province_code"])
   end
 
-  def desired_income
-    app_config["desired_spending"] + app_config["annual_tfsa_contribution"]
-  end
-
   def desired_income_excluding_tfsa_contribution
     app_config["desired_spending"]
   end
 
   def cpp_annual_net_income
     @tax_calculator.calculate(cpp_annual_gross_income, app_config["province_code"])[:take_home]
-  end
-
-  def cpp_annual_gross_income
-    app_config.cpp["monthly_amount"] * 12
   end
 end

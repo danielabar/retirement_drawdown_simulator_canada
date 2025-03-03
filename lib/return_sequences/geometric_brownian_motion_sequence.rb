@@ -19,7 +19,7 @@ module ReturnSequences
       (@start_age..@max_age).each do |age|
         z = rand_normal
         r = Math.exp(drift - (0.5 * (sigma**2)) + (sigma * z)) - 1
-        sequence[age] = r
+        sequence[age] = r.round(4)
       end
 
       sequence

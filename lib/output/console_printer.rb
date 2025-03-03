@@ -2,9 +2,8 @@
 
 module Output
   class ConsolePrinter
-    DASH_SEPARATOR = "-" * 180
-
-    def initialize(simulation_output, first_year_cash_flow_results, evaluator_results, visual: true)
+    def initialize(summary, simulation_output, first_year_cash_flow_results, evaluator_results, visual: true)
+      @summary = summary
       @yearly_results = simulation_output[:yearly_results]
       @first_year_cash_flow_results = first_year_cash_flow_results
       @evaluator_results = evaluator_results
@@ -12,8 +11,8 @@ module Output
     end
 
     def print_all
+      print_summary
       print_first_year_cash_flow
-      print_header
       print_yearly_results
       print_simulation_evaluation
       print_charts if @visual
@@ -21,74 +20,78 @@ module Output
 
     private
 
+    def print_summary
+      puts "=== Retirement Plan Summary ==="
+
+      rows = @summary[:starting_balances].map do |account, balance|
+        [account.capitalize, format_currency(balance)]
+      end
+
+      rows << ["Total Starting Balance", format_currency(@summary[:starting_total_balance])]
+      rows << ["Intended Retirement Duration", "#{@summary[:intended_retirement_duration]} years"]
+
+      balances_table = TTY::Table.new(header: %w[Description Value], rows: rows)
+      puts balances_table.render(:unicode, alignment: %i[left right], padding: [0, 1, 0, 1])
+    end
+
     def print_first_year_cash_flow
       puts "=== First-Year Cash Flow Breakdown ==="
-      @first_year_cash_flow_results.each do |label, value|
-        puts "#{label}: #{NumericFormatter.format_currency(value)}"
+      table = TTY::Table.new(header: %w[Description Amount], rows: format_cash_flow_results)
+      puts table.render(:unicode, alignment: %i[left right], padding: [0, 1, 0, 1])
+    end
+
+    def format_cash_flow_results
+      @first_year_cash_flow_results.map do |label, value|
+        [label, NumericFormatter.format_currency(value)]
       end
-      puts DASH_SEPARATOR
-    end
-
-    def print_header
-      puts formatted_header
-      puts DASH_SEPARATOR
-    end
-
-    def formatted_header
-      format_header_string(
-        age: "Age",
-        rrsp: "RRSP",
-        tfsa: "TFSA",
-        taxable: "Taxable",
-        cash_cushion: "Cash Cushion",
-        cpp: "CPP Used",
-        total_balance: "Total Balance",
-        rrif_forced_net_excess: "RRIF Excess",
-        note: "Note",
-        rate_of_return: "RoR"
-      )
     end
 
     def print_yearly_results
-      @yearly_results.each do |record|
-        puts formatted_yearly_result(record)
+      puts "=== Yearly Results ==="
+      table = TTY::Table.new(header: formatted_header, rows: formatted_yearly_results)
+      puts table.render(:unicode,
+                        alignment: %i[left right right right right left right right left right],
+                        padding: [0, 1, 0, 1])
+    end
+
+    def formatted_header
+      ["Age", "RRSP", "Taxable", "TFSA", "Cash Cushion", "CPP Used", "Total Balance", "RRIF Net Excess", "Note", "RoR"]
+    end
+
+    def formatted_yearly_results
+      @yearly_results.map do |record|
+        format_record(record)
       end
     end
 
-    def formatted_yearly_result(record)
-      formatted_values = format_yearly_values(record)
-      format_header_string(formatted_values)
+    def format_record(record)
+      [
+        record[:age],
+        format_currency(record[:rrsp_balance]),
+        format_currency(record[:taxable_balance]),
+        format_currency(record[:tfsa_balance]),
+        format_currency(record[:cash_cushion_balance]),
+        cpp_value(record),
+        format_currency(record[:total_balance]),
+        format_currency(record[:rrif_forced_net_excess]),
+        record[:note],
+        format_percentage(record[:rate_of_return])
+      ]
     end
 
-    def format_yearly_values(record)
-      {
-        age: record[:age],
-        rrsp: NumericFormatter.format_currency(record[:rrsp_balance]),
-        tfsa: NumericFormatter.format_currency(record[:tfsa_balance]),
-        taxable: NumericFormatter.format_currency(record[:taxable_balance]),
-        cash_cushion: NumericFormatter.format_currency(record[:cash_cushion_balance]),
-        cpp: cpp_value(record),
-        total_balance: NumericFormatter.format_currency(record[:total_balance]),
-        rrif_forced_net_excess: NumericFormatter.format_currency(record[:rrif_forced_net_excess]),
-        note: record[:note],
-        rate_of_return: NumericFormatter.format_percentage(record[:rate_of_return])
-      }
+    def format_currency(value)
+      NumericFormatter.format_currency(value)
+    end
+
+    def format_percentage(value)
+      NumericFormatter.format_percentage(value)
     end
 
     def cpp_value(record)
       record[:cpp] ? "Yes" : "No"
     end
 
-    def format_header_string(values)
-      format(
-        "%<age>-10s %<rrsp>-20s %<tfsa>-20s %<taxable>-20s %<cash_cushion>-20s " \
-        "%<cpp>-10s %<total_balance>-20s %<rrif_forced_net_excess>-20s %<note>-20s %<rate_of_return>10s",
-        values
-      )
-    end
-
     def print_simulation_evaluation
-      puts DASH_SEPARATOR
       success = @evaluator_results[:success]
       emoji = success ? "✅" : "❌"
       result_text = success ? "Success" : "Failure"

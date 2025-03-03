@@ -16,7 +16,7 @@ RSpec.describe Simulation::SimulationEvaluator do
       it "is successful because max age reached and total balance is >= success threshold" do
         expect(evaluator.evaluate).to eq(
           success: true,
-          explanation: "Simulation successful with total balance of $30,000.00.",
+          explanation: "Simulation successful with total balance of $30,000.",
           withdrawal_rate: 0.02,
           average_rate_of_return: 0.04
         )
@@ -46,8 +46,8 @@ RSpec.describe Simulation::SimulationEvaluator do
       it "fails because total balance is less than the success threshold" do
         expect(evaluator.evaluate).to eq(
           success: false,
-          explanation: "Simulation failed. Max age reached, but total balance of $15,000.00 " \
-                       "is below success threshold of $20,000.00.",
+          explanation: "Simulation failed. Max age reached, but total balance of $15,000 " \
+                       "is below success threshold of $20,000.",
           withdrawal_rate: 0.02,
           average_rate_of_return: 0.04
         )
@@ -65,7 +65,7 @@ RSpec.describe Simulation::SimulationEvaluator do
       it "is successful if total balance meets or exceeds threshold" do
         expect(evaluator.evaluate).to eq(
           success: true,
-          explanation: "Simulation successful with total balance of $45,000.00.",
+          explanation: "Simulation successful with total balance of $45,000.",
           withdrawal_rate: 0.02,
           average_rate_of_return: 0.04
         )
@@ -81,8 +81,8 @@ RSpec.describe Simulation::SimulationEvaluator do
       it "fails because total balance is below threshold" do
         expect(evaluator.evaluate).to eq(
           success: false,
-          explanation: "Simulation failed. Max age reached, but total balance of $21,000.00 " \
-                       "is below success threshold of $30,000.00.",
+          explanation: "Simulation failed. Max age reached, but total balance of $21,000 " \
+                       "is below success threshold of $30,000.",
           withdrawal_rate: 0.02,
           average_rate_of_return: 0.04
         )
