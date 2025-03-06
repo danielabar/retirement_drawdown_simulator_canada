@@ -7,6 +7,7 @@ ruby "3.3.7"
 
 # Dependencies
 gem "debug"
+gem "descriptive_statistics"
 gem "rspec"
 gem "rspec-core"
 gem "rubocop", require: false

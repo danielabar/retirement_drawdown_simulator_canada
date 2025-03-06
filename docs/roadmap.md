@@ -53,8 +53,9 @@ Document insights discovered from using this tool to analyze scenarios such as:
   - 30 year retirement
   - 40 - 50 year retirement (success rate seems to drop significantly when going over 30 years!)
 - Does draining down RRSP faster by also contributing to TFSA during this time help or hinder success rate?
-- How does use of cash cushion compare to having it invested in taxable account (no difference!)
+- How does use of cash cushion compare to having it invested in taxable account?
 - How does starting CPP at age 60 vs 65 vs 70 impact success rate?
   - Initial analysis shows the only way to get a success rate at or over 95% for a long retirement is to count on CPP
 - What is the actual safe withdrawal rate (seems to be a function of how many years spending in retirement)
 - Capture distribution of outcomes with GBM compared to constant average return
+- Compare to scenarios from https://youtu.be/HOZWpQuPzXc?si=ScDl5z_38fB79b9y
