@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "tty-table"
+
 module Output
   class SuccessRatePrinter
     def initialize(results)
@@ -7,28 +9,42 @@ module Output
     end
 
     def print_summary
-      puts "\nSimulation Results:"
-      puts "Success Rate: #{format_percentage(results.success_rate)}"
-      puts "Average Final Balance: #{format_currency(results.average_final_balance)}"
-      puts "Withdrawal Rate: #{format_percentage(results.withdrawal_rate)}"
-
-      print_percentiles
+      puts "=== Simulation Results ==="
+      print_summary_section
+      print_percentiles_section
     end
 
     private
 
     attr_reader :results
 
-    def print_percentiles
+    def print_summary_section
+      data = [
+        ["Withdrawal Rate", format_percentage(results.withdrawal_rate)],
+        ["Success Rate", format_percentage(results.success_rate)],
+        ["Average Final Balance", format_currency(results.average_final_balance)]
+      ]
+      print_table("Summary", data)
+    end
+
+    def print_percentiles_section
       percentiles = results.percentiles
-      puts "\nFinal Balance Percentiles:"
-      puts "  5th Percentile: #{format_currency(percentiles[:p5])}"
-      puts "  10th Percentile: #{format_currency(percentiles[:p10])}"
-      puts "  25th Percentile: #{format_currency(percentiles[:p25])}"
-      puts "  50th Percentile (Median): #{format_currency(percentiles[:median])}"
-      puts "  75th Percentile: #{format_currency(percentiles[:p75])}"
-      puts "  90th Percentile: #{format_currency(percentiles[:p90])}"
-      puts "  95th Percentile: #{format_currency(percentiles[:p95])}"
+      data = [
+        ["5th Percentile", format_currency(percentiles[:p5])],
+        ["10th Percentile", format_currency(percentiles[:p10])],
+        ["25th Percentile", format_currency(percentiles[:p25])],
+        ["50th Percentile (Median)", format_currency(percentiles[:median])],
+        ["75th Percentile", format_currency(percentiles[:p75])],
+        ["90th Percentile", format_currency(percentiles[:p90])],
+        ["95th Percentile", format_currency(percentiles[:p95])]
+      ]
+      print_table("Final Balance Percentiles", data)
+    end
+
+    def print_table(title, data)
+      table = TTY::Table.new(%w[Description Amount], data)
+      puts "\n#{title}:"
+      puts table.render(:unicode, alignment: %i[left right], padding: [0, 1, 0, 1])
     end
 
     def format_percentage(value)
