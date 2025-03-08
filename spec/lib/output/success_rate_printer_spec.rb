@@ -16,8 +16,8 @@ RSpec.describe Output::SuccessRatePrinter do
     let(:success_rate_results) { SuccessRateResults.new(simulation_results) }
     let(:printer) { described_class.new(success_rate_results) }
 
-    it "prints the success rate and percentile values correctly in tabular format" do
-      expected_output = <<~OUTPUT
+    let(:expected_output) do
+      <<~OUTPUT
         === Simulation Results ===
 
         Summary:
@@ -42,7 +42,9 @@ RSpec.describe Output::SuccessRatePrinter do
         │ 95th Percentile          │ $2,100,000 │
         └──────────────────────────┴────────────┘
       OUTPUT
+    end
 
+    it "prints the success rate and percentile values correctly in tabular format" do
       expect { printer.print_summary }
         .to output(expected_output).to_stdout
     end
