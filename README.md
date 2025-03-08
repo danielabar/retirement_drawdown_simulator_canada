@@ -4,7 +4,7 @@
 
 - [Retirement Drawdown Simulator 🇨🇦](#retirement-drawdown-simulator-)
   - [Why I Built This](#why-i-built-this)
-  - [Disclaimer ⚠️](#disclaimer-️)
+  - [Disclaimer](#disclaimer)
   - [Getting Started](#getting-started)
     - [Prerequisites](#prerequisites)
     - [Installation](#installation)
@@ -17,7 +17,7 @@
     - [Mandatory RRIF Withdrawals](#mandatory-rrif-withdrawals)
     - [Rate of Return](#rate-of-return)
     - [Determining Your Success Rate](#determining-your-success-rate)
-  - [⚠️ Important: Keep `inputs.yml` Private](#️-important-keep-inputsyml-private)
+  - [Important: Keep `inputs.yml` Private](#important-keep-inputsyml-private)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -47,7 +47,7 @@ You can also run the same scenario over and over with different options for rand
 
 When I started looking for a basic tool to simulate a retirement drawdown in Canada, I couldn’t find anything — just advice to hire a financial planner. While professional guidance is valuable, a free, transparent tool should exist for those who want to see how long their savings might last under a relatively simple withdrawal strategy.
 
-## Disclaimer ⚠️
+## Disclaimer
 
 This tool is for **informational and educational purposes only**. It does **not** constitute financial, tax, or investment advice. The calculations are based on **simplified assumptions** and **may not reflect your actual financial situation**. You should consult with a **qualified financial professional** before making any retirement, investment, or other financial decisions. Use this tool at your own risk.
 
@@ -297,7 +297,7 @@ The reason for the variability in outcomes is usage of the Geometric Brownian Mo
 > [!NOTE]
 > The 4% rule research considers reaching the end of life with even just `$1.00` a "success". Realistically, most people would be freaking out if they were getting on in their 90's and their account balance was dwindling down like that.
 
-## ⚠️ Important: Keep `inputs.yml` Private
+## Important: Keep `inputs.yml` Private
 
 Since `inputs.yml` contains personal financial information, it is **ignored by Git** (see `.gitignore`).
 **Do not commit it** to avoid exposing sensitive data.
