@@ -33,7 +33,7 @@ module Output
         ["5th Percentile", format_currency(percentiles[:p5])],
         ["10th Percentile", format_currency(percentiles[:p10])],
         ["25th Percentile", format_currency(percentiles[:p25])],
-        ["50th Percentile (Median)", format_currency(percentiles[:median])],
+        ["50th Percentile (Median)", format_currency(percentiles[:p50])],
         ["75th Percentile", format_currency(percentiles[:p75])],
         ["90th Percentile", format_currency(percentiles[:p90])],
         ["95th Percentile", format_currency(percentiles[:p95])]

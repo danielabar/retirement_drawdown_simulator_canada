@@ -10,7 +10,7 @@ class SuccessRateResults
   end
 
   def average_final_balance
-    final_balances.sum / total_runs
+    final_balances.sum.to_f / total_runs
   end
 
   def withdrawal_rate
@@ -23,7 +23,7 @@ class SuccessRateResults
       p5: percentile(sorted, 5),
       p10: percentile(sorted, 10),
       p25: percentile(sorted, 25),
-      median: percentile(sorted, 50),
+      p50: percentile(sorted, 50),
       p75: percentile(sorted, 75),
       p90: percentile(sorted, 90),
       p95: percentile(sorted, 95)
