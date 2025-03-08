@@ -27,8 +27,12 @@ module Output
     end
 
     def print_percentiles_section
-      percentiles = results.percentiles
-      data = [
+      data = build_percentiles_data(results.percentiles)
+      print_table("Final Balance Percentiles", data)
+    end
+
+    def build_percentiles_data(percentiles)
+      [
         ["5th Percentile", format_currency(percentiles[:p5])],
         ["10th Percentile", format_currency(percentiles[:p10])],
         ["25th Percentile", format_currency(percentiles[:p25])],
@@ -37,7 +41,6 @@ module Output
         ["90th Percentile", format_currency(percentiles[:p90])],
         ["95th Percentile", format_currency(percentiles[:p95])]
       ]
-      print_table("Final Balance Percentiles", data)
     end
 
     def print_table(title, data)
