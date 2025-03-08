@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 class SuccessRateResults
   def initialize(simulation_results)
     @simulation_results = simulation_results
   end
 
   def success_rate
-    (successful_runs.to_f / total_runs) * 100
+    (successful_runs.to_f / total_runs)
   end
 
   def average_final_balance
@@ -18,11 +20,13 @@ class SuccessRateResults
   def percentiles
     sorted = final_balances.sort
     {
+      p5: percentile(sorted, 5),
       p10: percentile(sorted, 10),
       p25: percentile(sorted, 25),
       median: percentile(sorted, 50),
       p75: percentile(sorted, 75),
-      p90: percentile(sorted, 90)
+      p90: percentile(sorted, 90),
+      p95: percentile(sorted, 95)
     }
   end
 
@@ -32,6 +36,7 @@ class SuccessRateResults
 
   def successful_runs
     simulation_results.count { |result| result[:success] }
+    # simulation_results.sum { |result| result[:success] }
   end
 
   def total_runs

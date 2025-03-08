@@ -22,19 +22,21 @@ module Output
     def print_percentiles
       percentiles = results.percentiles
       puts "\nFinal Balance Percentiles:"
+      puts "  5th Percentile: #{format_currency(percentiles[:p5])}"
       puts "  10th Percentile: #{format_currency(percentiles[:p10])}"
       puts "  25th Percentile: #{format_currency(percentiles[:p25])}"
       puts "  50th Percentile (Median): #{format_currency(percentiles[:median])}"
       puts "  75th Percentile: #{format_currency(percentiles[:p75])}"
       puts "  90th Percentile: #{format_currency(percentiles[:p90])}"
+      puts "  95th Percentile: #{format_currency(percentiles[:p95])}"
     end
 
     def format_percentage(value)
-      "#{value.round(2)}%"
+      NumericFormatter.format_percentage(value)
     end
 
     def format_currency(value)
-      "$#{value.round(2)}"
+      NumericFormatter.format_currency(value)
     end
   end
 end
