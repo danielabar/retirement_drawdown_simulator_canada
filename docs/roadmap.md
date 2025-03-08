@@ -2,15 +2,20 @@
 
 ## Enhancements
 
-- OAS and clawback: https://www.canada.ca/en/services/benefits/publicpensions/old-age-security/benefit-amount.html
-- When evaluating results, also capture what the final total balance was, and for success rate run, show average (or middle?) total balance
-  - i.e. we're defining success by ending up with at least 1x (success_factor) desired spending, but maybe certain strategies result on average in MUCH MORE than this and we should show it somehow
-- OAS (make the value an input config as it could change)
 - Assuming all accounts invested in the same thing, therefore growing at the same rate
 - Transaction costs (RRSP withdrawal fee, TFSA withdrawal fee, ETF selling commission)
 - Support choice of multiple drawdown strategies (eg: TFSA first, taxable first)
-- Cash cushion subtlety: If severe market downturn and mandatory RRIF in effect, it draws entire amount from RRSP, even though would have preferred to use cash cushion. It would be more optimal in this case to calculate minimum rrif required, calculate after-tax amount left from that, then withdraw remainder from cash cushion - to minimize tax impact and having to sell more investments during downturn.
-- Cash cushion refill if needed when market return is high (would need to track what original balance was or have user specify how many years worth they want to keep in this bucket).
+- Other [enhancements](https://github.com/danielabar/retirement_drawdown_simulator_canada/issues?q=is%3Aissue%20state%3Aopen%20label%3Aenhancement)
+
+### OAS
+
+- OAS (make the value an input config as it could change)
+- Clawback: https://www.canada.ca/en/services/benefits/publicpensions/old-age-security/benefit-amount.html
+
+### Cash Cushion
+
+- Subtlety: If severe market downturn and mandatory RRIF in effect, it draws entire amount from RRSP, even though would have preferred to use cash cushion. It would be more optimal in this case to calculate minimum rrif required, calculate after-tax amount left from that, then withdraw remainder from cash cushion - to minimize tax impact and having to sell more investments during downturn.
+- Refill if needed when market return is high (would need to track what original balance was or have user specify how many years worth they want to keep in this bucket).
 
 ### Sequence of Returns
 
@@ -20,16 +25,12 @@
 
 ### Output
 
-- Add column for how much was withdrawn
-- Add column for how much was paid in income tax
 - Support multiple output/printer formats like console, csv, pdf, html, xlsx
 
 ### Ergonomics
 
 - Validation on loading AppConfig, consider bringing in ActiveModel for this, and easier to access attributes via `.` rather than `[...]`.
 - Make it easier to specify alternate input files
-- Bundle as homebrew for easier installation on a Mac
-- Bundle as whatever the Windows equivalent of homebrew is for easier installation on Windows
 - Replay a particular sequence with alternate inputs
 
 ### Tax Complications
