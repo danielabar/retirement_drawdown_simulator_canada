@@ -1,3 +1,26 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [Retirement Drawdown Simulator 🇨🇦](#retirement-drawdown-simulator-)
+  - [Why I Built This](#why-i-built-this)
+  - [Disclaimer ⚠️](#disclaimer-️)
+  - [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+    - [Setup](#setup)
+    - [Configuration](#configuration)
+    - [Running the Simulation](#running-the-simulation)
+  - [Output](#output)
+    - [Interpreting Yearly Output](#interpreting-yearly-output)
+    - [CPP](#cpp)
+    - [Mandatory RRIF Withdrawals](#mandatory-rrif-withdrawals)
+    - [Rate of Return](#rate-of-return)
+    - [Determining Your Success Rate](#determining-your-success-rate)
+  - [⚠️ Important: Keep `inputs.yml` Private](#️-important-keep-inputsyml-private)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Retirement Drawdown Simulator 🇨🇦
 
 A retirement drawdown calculator for Canadians. It simulates how long your savings might last in retirement, assuming you have three accounts (RRSP, taxable, and TFSA) holding some broadly diversified ETFs or index funds for which you can specify an average market return.
@@ -24,7 +47,7 @@ You can also run the same scenario over and over with different options for rand
 
 When I started looking for a basic tool to simulate a retirement drawdown in Canada, I couldn’t find anything — just advice to hire a financial planner. While professional guidance is valuable, a free, transparent tool should exist for those who want to see how long their savings might last under a relatively simple withdrawal strategy.
 
-### Disclaimer ⚠️
+## Disclaimer ⚠️
 
 This tool is for **informational and educational purposes only**. It does **not** constitute financial, tax, or investment advice. The calculations are based on **simplified assumptions** and **may not reflect your actual financial situation**. You should consult with a **qualified financial professional** before making any retirement, investment, or other financial decisions. Use this tool at your own risk.
 
@@ -64,23 +87,7 @@ Or download and extract the [project zip file](https://github.com/danielabar/ret
    - The template file (`inputs.yml.template`) contains example values.
    - Open `inputs.yml` in a text editor and replace the values with your actual financial information.
 
-### Running the Simulation
-
-Run the script with:
-
-```sh
-ruby main.rb
-```
-
-The output will display a table showing account balances each year until depletion, and whether your plan was successful or failed.
-
-Or to run the simulation multiple times to see what percentage of scenarios are successful, run:
-
-```sh
-ruby main.rb success_rate
-```
-
-## Configuration
+### Configuration
 
 Your financial inputs are stored in `inputs.yml`. Below is an example:
 
@@ -173,7 +180,24 @@ taxes:
   rrsp_withholding_rate: 0.3
 ```
 
-## Sample Output
+### Running the Simulation
+
+Run the script with:
+
+```sh
+ruby main.rb
+```
+
+The output will display a table showing account balances each year until depletion, and whether your plan was successful or failed.
+
+Or to run the simulation multiple times to see what percentage of scenarios are successful, run:
+
+```sh
+ruby main.rb success_rate
+```
+
+
+## Output
 
 Here's a run using `inputs.yml` copied from `inputs.yml.template` with a successful result - i.e. money lasts from a starting retirement age of 65 until `max_age` of 95, with at least 1x desired_income left. The desired_income of `$40,000` is 4% of the total starting balance of `$1,000,000` (which is divided among RRSP, taxable, and TFSA accounts). i.e. this is the 4% rule over a thirty year retirement period. There's also 1 year's worth of spending set aside in a cash cushion for use in case of a severe market downturn, although in this case, it doesn't get used.
 
@@ -252,9 +276,9 @@ TODO: Explanation about use of GBM rather than constant or even average returns,
 
 ### Determining Your Success Rate
 
-You can use the `success_rate` mode (either specify it in `inputs.yml` or override it at the command line as shown below) to run the simulation many times over. In this case, it calculates the percentage of successful scenarios. For example, this shows that the 4% withdrawal rate over a thirty year period has just over a `77%` success rate, rather than the `95%` rate that's often reported in personal finance articles (which is based on US historical data).
+You can use the `success_rate` mode (either specify it in `inputs.yml` or override it at the command line as shown below) to run the simulation many times over. In this case, it calculates the percentage of successful scenarios. For example, this shows that the 4% withdrawal rate over a thirty year period has about a `79%` success rate, rather than the `95%` rate that's often reported in personal finance articles (which is based on US historical data).
 
-```
+```bash
 ruby main.rb success_rate
 ```
 
@@ -264,10 +288,16 @@ Success is defined as making it to `max_age` with at least `success_factor` * an
 
 For example, suppose `max_age` is `105`, `desired_spending` is `40000` and success_factor is `1.5`. Then if the scenario shows that there's still 40000 * 1.5 = `$60,000` left by age `105`, this is considered a success.
 
+It also calculates the dispersion of outcomes with respect to the final balance. This is shown in the "Final Balance Percentiles" table. From the example output above, we can see that the median outcome is `$726,113`. That is, out of 1000 runs of the simulator, 50% of those cases resulted in a final balance less than this, and the other 50% of cases resulted in a final balance greater than this.
+
+You can also see on the extreme end of things, that the bottom 5% of cases resulted in a frighteningly low balance of `$11,661`. While the top 5% of cases (i.e. at the 95th percentile) resulted in a much higher balance of over 4.5M, which is much greater than the 1M started with.
+
+The reason for the variability in outcomes is usage of the Geometric Brownian Motion rate of return sequence generator. i.e. even if historically the market has returned, let's say a 8% average return, there is volatility and random shocks that can make the actual return in any given year vary wildly from this average. And when you're withdrawing during this volatility, the ending results will vary wildly.
+
 > [!NOTE]
 > The 4% rule research considers reaching the end of life with even just `$1.00` a "success". Realistically, most people would be freaking out if they were getting on in their 90's and their account balance was dwindling down like that.
 
-### ⚠️ Important: Keep `inputs.yml` Private
+## ⚠️ Important: Keep `inputs.yml` Private
 
 Since `inputs.yml` contains personal financial information, it is **ignored by Git** (see `.gitignore`).
 **Do not commit it** to avoid exposing sensitive data.
