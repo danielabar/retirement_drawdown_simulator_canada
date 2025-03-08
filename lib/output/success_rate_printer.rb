@@ -4,6 +4,7 @@ require "tty-table"
 
 module Output
   class SuccessRatePrinter
+    # Initialized with a populated instance of SuccessRateResults
     def initialize(results)
       @results = results
     end
