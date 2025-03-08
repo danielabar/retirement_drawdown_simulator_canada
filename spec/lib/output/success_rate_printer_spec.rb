@@ -33,13 +33,13 @@ RSpec.describe Output::SuccessRatePrinter do
         ┌──────────────────────────┬────────────┐
         │ Description              │     Amount │
         ├──────────────────────────┼────────────┤
-        │ 5th Percentile           │   $900,000 │
-        │ 10th Percentile          │   $900,000 │
-        │ 25th Percentile          │   $900,000 │
-        │ 50th Percentile (Median) │ $1,200,000 │
-        │ 75th Percentile          │ $1,500,000 │
-        │ 90th Percentile          │ $2,100,000 │
-        │ 95th Percentile          │ $2,100,000 │
+        │ 5th Percentile           │   $945,000 │
+        │ 10th Percentile          │   $990,000 │
+        │ 25th Percentile          │ $1,125,000 │
+        │ 50th Percentile (Median) │ $1,350,000 │
+        │ 75th Percentile          │ $1,650,000 │
+        │ 90th Percentile          │ $1,920,000 │
+        │ 95th Percentile          │ $2,010,000 │
         └──────────────────────────┴────────────┘
       OUTPUT
     end

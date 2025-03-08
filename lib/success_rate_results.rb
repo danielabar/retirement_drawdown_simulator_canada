@@ -20,13 +20,13 @@ class SuccessRateResults
   def percentiles
     sorted = final_balances.sort
     {
-      p5: percentile(sorted, 5),
-      p10: percentile(sorted, 10),
-      p25: percentile(sorted, 25),
-      p50: percentile(sorted, 50),
-      p75: percentile(sorted, 75),
-      p90: percentile(sorted, 90),
-      p95: percentile(sorted, 95)
+      p5: sorted.percentile(5),
+      p10: sorted.percentile(10),
+      p25: sorted.percentile(25),
+      p50: sorted.percentile(50),
+      p75: sorted.percentile(75),
+      p90: sorted.percentile(90),
+      p95: sorted.percentile(95)
     }
   end
 
@@ -36,7 +36,6 @@ class SuccessRateResults
 
   def successful_runs
     simulation_results.count { |result| result[:success] }
-    # simulation_results.sum { |result| result[:success] }
   end
 
   def total_runs
@@ -45,10 +44,5 @@ class SuccessRateResults
 
   def final_balances
     simulation_results.map { |result| result[:final_balance] }
-  end
-
-  def percentile(sorted, p)
-    index = (p * total_runs / 100.0).ceil - 1
-    sorted[[index, 0].max] # Ensure index isn't negative
   end
 end

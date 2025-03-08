@@ -37,13 +37,13 @@ RSpec.describe SuccessRateResults do
     it "calculates correct percentiles for final balances" do
       expect(results.percentiles).to eq(
         {
-          p5: 900_000,
-          p10: 900_000,
-          p25: 900_000,
-          p50: 1_200_000,
-          p75: 1_500_000,
-          p90: 2_100_000,
-          p95: 2_100_000
+          p5: 945_000.0,   # Interpolated value between 900_000 and 1_200_000
+          p10: 990_000.0,  # Interpolated value between 900_000 and 1_200_000
+          p25: 1_125_000.0, # Interpolated value between 1_200_000 and 1_500_000
+          p50: 1_350_000.0, # Interpolated value between 1_200_000 and 1_500_000
+          p75: 1_650_000.0, # Interpolated value between 1_500_000 and 2_100_000
+          p90: 1_920_000.0000000002, # Interpolated value between 1_500_000 and 2_100_000
+          p95: 2_010_000.0 # Interpolated value between 1_500_000 and 2_100_000
         }
       )
     end
