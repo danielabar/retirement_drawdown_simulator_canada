@@ -12,3 +12,11 @@ IRB.conf[:PROMPT][:APP] = {
 }
 
 IRB.conf[:PROMPT_MODE] = :APP # Set custom prompt
+
+# Reloads the current IRB session.
+#
+# This is useful when you want to re-run your .irbrc file to pick up
+# changes, or when you want to try out a new version of the app.
+def reload!
+  exec "irb"
+end
