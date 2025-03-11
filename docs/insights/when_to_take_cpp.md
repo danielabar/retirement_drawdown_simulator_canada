@@ -6,13 +6,15 @@ Another way to frame the question of when to take CPP is how does delaying impac
 
 Let's consider a 60 year old that wants to retire with an annual desired spending of `$40,000`. They have a 1M portfolio divided among RRSP, taxable, and TFSA. They define success as reaching age 95 with at least their desired spending left.
 
-Let's assume they've been working for 40 years, earning the maximum pensionable earnings each year, which would entitle them to the following monthly CPP amounts:
+Let's assume they've been working for 40 years, earning the maximum pensionable earnings each year. Depending on when they start CPP, they would receive the following **fixed** monthly amounts for life:
 
 | Age | Amount |
 | --- | ------ |
 | 60  | 896    |
 | 65  | 1524   |
 | 70  | 2223   |
+
+Once CPP starts, the amount remains the same (except for inflation adjustments), so the decision of when to begin has long-term consequences.
 
 > [!TIP]
 >  See https://research-tools.pwlcapital.com/research/cpp for CPP calculator that considers years worked and earnings.
