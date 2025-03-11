@@ -152,7 +152,7 @@ The **Final Balance Percentiles** also shift favorably:
 - The **5th percentile balance** increases from **`$36K` to `$87K`**, reducing the risk of running out of money.
 - The **10th percentile balance** jumps from **`$193K` to `$277K`**, meaning even in poor market conditions, retirees have a better financial cushion.
 - The **median final balance** increases from **`$1.58M` to `$1.82M`**, showing that in typical scenarios, delaying CPP leads to better long-term financial outcomes.
-- The **95th percentile** remains high (`$7.6M` vs. `$8.0M`), reinforcing that high-earning outcomes are still possible even with a lower initial withdrawal burden.
+- The **95th percentile** remains high (`$7.6M` vs. `$8.0M`), showing that even though retirees spent the first few years withdrawing exclusively from their portfolio, this did not constrain the upside in strong market conditions.
 
 ### Why Does Delaying CPP Improve Success Rates?
 
