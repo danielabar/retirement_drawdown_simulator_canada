@@ -17,7 +17,7 @@
     - [Mandatory RRIF Withdrawals](#mandatory-rrif-withdrawals)
     - [Rate of Return](#rate-of-return)
     - [Determining Your Success Rate](#determining-your-success-rate)
-  - [Important: Keep `inputs.yml` Private](#important-keep-inputsyml-private)
+  - [Insights](#insights)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -180,6 +180,9 @@ taxes:
   rrsp_withholding_rate: 0.3
 ```
 
+> [!WARNING]
+> Since `inputs.yml` contains personal financial information, it is ignored by Git (see `.gitignore`). Do not commit it to avoid exposing sensitive data.
+
 ### Running the Simulation
 
 Run the script with:
@@ -297,7 +300,8 @@ The reason for the variability in outcomes is usage of the Geometric Brownian Mo
 > [!NOTE]
 > The 4% rule research considers reaching the end of life with even just `$1.00` a "success". Realistically, most people would be freaking out if they were getting on in their 90's and their account balance was dwindling down like that.
 
-## Important: Keep `inputs.yml` Private
+## Insights
 
-Since `inputs.yml` contains personal financial information, it is **ignored by Git** (see `.gitignore`).
-**Do not commit it** to avoid exposing sensitive data.
+Discover key insights from running thousands of retirement simulations. These deep dives explore critical decisions, such as when to take CPP, and reveal how different strategies can impact your financial security and success in retirement.
+
+* [When to take CPP](docs/insights/when_to_take_cpp.md)

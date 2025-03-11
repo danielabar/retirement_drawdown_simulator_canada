@@ -1,0 +1,33 @@
+mode: success_rate
+total_runs: 1000
+retirement_age: 60
+max_age: 95
+desired_spending: 40000
+annual_tfsa_contribution: 0
+province_code: ONT
+success_factor: 1
+
+return_sequence_type: geometric_brownian_motion
+annual_growth_rate:
+  average: 0.05
+  min: -0.3
+  max: 0.3
+  downturn_threshold: -0.1
+  savings: 0.005
+
+accounts:
+  rrsp: 600000
+  taxable: 200000
+  tfsa: 200000
+  cash_cushion: 40000
+
+cpp:
+  # start_age: 60
+  # monthly_amount: 896
+  # start_age: 65
+  # monthly_amount: 1524
+  start_age: 70
+  monthly_amount: 2223
+
+taxes:
+  rrsp_withholding_rate: 0.3
