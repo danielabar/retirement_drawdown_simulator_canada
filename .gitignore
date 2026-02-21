@@ -2,3 +2,6 @@ coverage
 inputs.yml
 my_inputs.yml
 scratch.md
+
+# AI assistants
+.claude/settings.local.json
