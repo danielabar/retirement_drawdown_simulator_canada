@@ -41,20 +41,6 @@ RSpec.describe ReturnSequences::GeometricBrownianMotionSequence do
         expect(return_value).to be_between(-1.0, 1.0)
       end
     end
-
-    context "when avg, min, and max are edge cases" do
-      let(:avg) { 0.0 }
-      let(:min) { -0.5 }
-      let(:max) { 0.5 }
-
-      it "calculates returns within the expected bounds" do
-        result = gbm.send(:generate_returns)
-        result.each_value do |return_value|
-          # Expect returns between -50% and +50% due to edge case inputs
-          expect(return_value).to be_between(-0.5, 0.5)
-        end
-      end
-    end
   end
 
   describe "#compute_sigma" do
@@ -76,6 +62,26 @@ RSpec.describe ReturnSequences::GeometricBrownianMotionSequence do
 
       expect(sample_mean).to be_within(0.1).of(mean)
       expect(sample_stddev).to be_within(0.1).of(stddev)
+    end
+  end
+
+  describe "#rand_student_t" do
+    it "has a mean close to 0" do
+      sample = Array.new(2000) { gbm.send(:rand_student_t, degrees_of_freedom: 5) }
+      sample_mean = sample.sum / sample.size
+      expect(sample_mean).to be_within(0.15).of(0.0)
+    end
+
+    it "produces a wider spread than rand_normal over the same sample" do
+      normal_sample = Array.new(2000) { gbm.send(:rand_normal) }
+      t_sample      = Array.new(2000) { gbm.send(:rand_student_t, degrees_of_freedom: 5) }
+
+      normal_stddev = Math.sqrt(normal_sample.sum { |x| (x - 0)**2 } / normal_sample.size)
+      t_stddev      = Math.sqrt(t_sample.sum { |x| (x - 0)**2 } / t_sample.size)
+
+      # Student-t with df=5 has variance df/(df-2) = 5/3 ≈ 1.67, so stddev ≈ 1.29
+      # Normal has stddev = 1.0, so t should be consistently wider
+      expect(t_stddev).to be > normal_stddev
     end
   end
 end

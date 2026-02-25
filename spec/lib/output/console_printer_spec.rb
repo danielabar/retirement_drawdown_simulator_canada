@@ -81,6 +81,11 @@ RSpec.describe Output::ConsolePrinter do
   end
 
   it "prints exactly the expected output without charts" do
+    # tty-table auto-detects terminal width and collapses to vertical layout when
+    # there is no real TTY (e.g. running tests from a tool or CI). Force a wide
+    # width so the spec produces consistent output regardless of environment.
+    allow(TTY::Screen).to receive(:width).and_return(200)
+
     simulation_output = Simulation::Simulator.new(app_config).run
     evaluator_results = Simulation::SimulationEvaluator.new(simulation_output[:yearly_results], app_config).evaluate
     first_year_cash_flow_results = FirstYearCashFlow.new(app_config).calculate
