@@ -21,25 +21,66 @@ province_code: ONT
 # Supports fractional, eg: 1.5
 success_factor: 1
 
-# Growth rate average, min, and max to generate variability
-# Enter the "real" return rather than nominal as inflation isn't handled currently.
-# For example if you're invested in broad market index funds or ETF's and using
-# an average return of 8%, but inflation is around 3%, then put 5% real return here.
-# The min and max are to constrain volatility. For example the market has dropped
-# by 30% and has grown by that much as well.
-# Set a downturn_threshold so if market return is below this amount, use cash_cushion.
-# Set savings to the interest rate you're earning on your cash cushion.
+# Growth rate settings for your portfolio.
+# Enter "real" returns (i.e. after subtracting inflation), not nominal returns.
+# For example: if your investments historically return 8% but inflation is 3%, enter 0.05.
+#
+# average: the long-run average annual real return you expect from your portfolio.
+#   Broad global equity index funds (e.g. XEQT, VEQT): ~0.05 to 0.07
+#   Balanced 60/40 portfolio: ~0.03 to 0.05
+#
+# min and max: the historical extreme annual returns for your investment type.
+#   These are NOT a typical range — they represent the worst and best single years
+#   ever recorded. The simulation uses them to calibrate how volatile your returns are.
+#   Setting them too narrow makes the simulation unrealistically calm.
+#
+#   100% global equity (e.g. XEQT, VEQT — all stocks, no bonds):
+#     average: 0.05 to 0.07
+#     min: -0.40  (a globally diversified portfolio fell ~40% in 2008; -45% figures
+#                  are for US-only equities in 1931, less relevant to modern global funds)
+#     max: 0.45   (best recorded calendar years for globally diversified equity)
+#   80/20 stocks/bonds (e.g. broadly diversified with US, Canada, international):
+#     average: 0.04 to 0.05
+#     min: -0.33  (bonds cushion the crash — a bad equity year becomes less severe)
+#     max: 0.38   (bonds also cap the upside in boom years)
+#   60/40 stocks/bonds (balanced portfolio):
+#     average: 0.03 to 0.04
+#     min: -0.25
+#     max: 0.35
+#
+# downturn_threshold: if the simulated return falls below this, the cash cushion is used
+#   instead of selling investments at a loss. Set to 0 to disable.
+# savings: the annual interest rate you earn on your cash cushion (e.g. HISA or GIC rate).
 annual_growth_rate:
   average: 0.05
-  min: -0.3
-  max: 0.3
+  min: -0.40
+  max: 0.45
   downturn_threshold: -0.1
   savings: 0.005
 
 # Choose the return sequence generator: mean, geometric_brownian_motion, constant
 # If using `success_rate` mode, then choose either `mean` or `geometric_brownian_motion`
-# `constant` returns are conceptually easy to understand, and produce pleasing predictable results,
-# but are unrealistic as the market doesn't actually do this.
+#
+# `constant`: every year returns exactly the average. Easy to understand and produces
+#   clean, predictable results, but completely unrealistic — markets don't do this.
+#
+# `mean`: returns are random each year but always average out to exactly your target
+#   over the full simulation. Useful for understanding the model, but still unrealistic
+#   because real retirement outcomes are sensitive to the *order* of good and bad years,
+#   not just the average.
+#
+# `geometric_brownian_motion`: each year gets a realistic random return — mostly near
+#   the average, with occasional good and bad years, including rare severe crashes.
+#   This is the most realistic option and the recommended choice for success_rate mode.
+#
+#   Important caveat: this model will produce more conservative (lower) success rates
+#   than you might expect from published research like the "4% rule" or the
+#   "2.7% global safe withdrawal rate". That's intentional — the model is designed to
+#   stress-test your plan against scenarios that could be worse than anything in the
+#   historical record. Real markets tend to recover after crashes (mean reversion),
+#   but this model does not simulate that — every year is drawn independently.
+#   Think of it as: "if the future is somewhat worse than history, will my plan survive?"
+#   rather than: "how often has this worked historically?"
 return_sequence_type: geometric_brownian_motion
 
 # Optionally continue to make TFSA contributions during RRSP and Taxable drawdown phases
