@@ -1,0 +1,35 @@
+# CPP timing comparison — delaying CPP to the maximum age (70).
+# $1,000,000 portfolio ($600K RRSP / $200K Taxable / $200K TFSA) plus a $40,000 cash cushion,
+# retiring at 60 with $40,000/year spending, running to 95 (35-year horizon), Ontario.
+# CPP at 70 pays $2,223/month — the maximum benefit, delayed 10 years from retirement.
+# Compare to demo/cpp_at_60.yml and demo/cpp_at_65.yml.
+# Used in docs/insights/when_to_take_cpp.md.
+# mode: success_rate
+total_runs: 1000
+retirement_age: 60
+max_age: 95
+desired_spending: 40000
+annual_tfsa_contribution: 0
+province_code: ONT
+success_factor: 1
+
+return_sequence_type: geometric_brownian_motion
+annual_growth_rate:
+  average: 0.05
+  min: -0.25
+  max: 0.35
+  downturn_threshold: -0.1
+  savings: 0.005
+
+accounts:
+  rrsp: 600000
+  taxable: 200000
+  tfsa: 200000
+  cash_cushion: 40000
+
+cpp:
+  start_age: 70
+  monthly_amount: 2223
+
+taxes:
+  rrsp_withholding_rate: 0.3

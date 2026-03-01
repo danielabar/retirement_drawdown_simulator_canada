@@ -1,0 +1,36 @@
+# Standard retirement: $40,000/year spending, 3.5% withdrawal rate, Canadian retiree with
+# CPP. Investable portfolio of $1,143,000 (RRSP + Taxable + TFSA) plus a $40,000 cash
+# cushion (1 year of spending) on top — $1,183,000 total.
+#
+# The cash cushion activates when the annual market return falls below -10%. Compare to
+# demo/cash_cushion_without.yml, which puts the same $1,183,000 entirely into invested
+# accounts with no cushion.
+# mode: success_rate
+total_runs: 1000
+retirement_age: 65
+max_age: 95
+desired_spending: 40000
+annual_tfsa_contribution: 0
+province_code: ONT
+success_factor: 1
+
+return_sequence_type: geometric_brownian_motion
+annual_growth_rate:
+  average: 0.04
+  min: -0.25
+  max: 0.35
+  downturn_threshold: -0.1
+  savings: 0.005
+
+accounts:
+  rrsp: 685800
+  taxable: 228600
+  tfsa: 228600
+  cash_cushion: 40000
+
+cpp:
+  start_age: 65
+  monthly_amount: 800
+
+taxes:
+  rrsp_withholding_rate: 0.3

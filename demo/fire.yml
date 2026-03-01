@@ -1,0 +1,33 @@
+# FIRE scenario: same $1,000,000 portfolio and $40,000/year spending as the classic
+# 4% rule demo, but retiring at 45 — a 50-year retirement horizon. No CPP, since
+# FIRE adherents stopping work young accumulate little entitlement and often don't
+# count on it. Compare success rate to demo/four_percent_rule.yml.
+# mode: success_rate
+total_runs: 1000
+retirement_age: 45
+max_age: 95
+desired_spending: 40000
+annual_tfsa_contribution: 0
+province_code: ONT
+success_factor: 1
+
+return_sequence_type: geometric_brownian_motion
+annual_growth_rate:
+  average: 0.05
+  min: -0.40
+  max: 0.45
+  downturn_threshold: -0.1
+  savings: 0.005
+
+accounts:
+  rrsp: 600000
+  taxable: 200000
+  tfsa: 200000
+  cash_cushion: 40000
+
+cpp:
+  start_age: 45
+  monthly_amount: 0
+
+taxes:
+  rrsp_withholding_rate: 0.3
