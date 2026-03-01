@@ -1,0 +1,33 @@
+# Same as demo/tfsa_drawdown_fire.yml but with a $7,000/year TFSA contribution.
+# The question: does the longer horizon (50 years vs 30) and more years of tax-free
+# compounding make TFSA contributions during drawdown more worthwhile than in the
+# standard retirement case?
+# mode: success_rate
+total_runs: 1000
+retirement_age: 45
+max_age: 95
+desired_spending: 40000
+annual_tfsa_contribution: 7000
+province_code: ONT
+success_factor: 1
+
+return_sequence_type: geometric_brownian_motion
+annual_growth_rate:
+  average: 0.05
+  min: -0.40
+  max: 0.45
+  downturn_threshold: -0.1
+  savings: 0.005
+
+accounts:
+  rrsp: 685800
+  taxable: 228600
+  tfsa: 228600
+  cash_cushion: 40000
+
+cpp:
+  start_age: 65
+  monthly_amount: 500
+
+taxes:
+  rrsp_withholding_rate: 0.3

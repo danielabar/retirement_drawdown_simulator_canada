@@ -5,8 +5,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```sh
-ruby main.rb                  # Run simulation in detailed mode (single run, table output)
-ruby main.rb success_rate     # Run simulation in success_rate mode (many runs, percentile stats)
+ruby main.rb                                          # detailed mode, reads inputs.yml
+ruby main.rb success_rate                             # success_rate mode, reads inputs.yml
+ruby main.rb demo/four_percent_rule.yml               # custom file, mode from YAML or defaults to detailed
+ruby main.rb success_rate demo/four_percent_rule.yml  # success_rate mode, custom file (order doesn't matter)
 bin/rspec                     # Run all tests
 bin/rspec spec/lib/tax/income_tax_calculator_spec.rb  # Run a single spec file
 bin/rubocop                   # Lint
@@ -20,7 +22,7 @@ The `inputs.yml` file (gitignored) holds user financial inputs. Copy from `input
 
 ### Entry point and run modes
 
-`main.rb` → `Run::AppRunner` reads `inputs.yml` and dispatches to either `Run::SimulationDetailed` or `Run::SuccessRateSimulation` based on the `mode` config key (or `ARGV[0]` override).
+`main.rb` → `Run::AppRunner` reads the inputs file and dispatches to either `Run::SimulationDetailed` or `Run::SuccessRateSimulation`. The inputs file defaults to `inputs.yml`; pass any `.yml` path as a CLI argument to override. Mode is detected from a `detailed`/`success_rate` argument, falling back to the `mode` key in the inputs file, then `"detailed"`.
 
 ### Simulation loop
 

@@ -5,6 +5,7 @@ module Run
     def initialize(config_file, mode_override = nil)
       @app_config = AppConfig.new(config_file)
       @mode = mode_override || @app_config["mode"] || "detailed"
+      puts "AppRunner initialized with config: #{config_file}, resolved mode: #{@mode}"
     end
 
     def run

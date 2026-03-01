@@ -1,6 +1,9 @@
-mode: success_rate
+# Classic 4% rule scenario: $1,000,000 portfolio, $40,000/year spending,
+# retiring at 65, running to 95 (30-year retirement). No CPP to isolate the
+# pure portfolio effect. Used in docs/insights/four_percent_rule.md.
+# mode: success_rate
 total_runs: 1000
-retirement_age: 60
+retirement_age: 65
 max_age: 95
 desired_spending: 40000
 annual_tfsa_contribution: 0
@@ -9,9 +12,9 @@ success_factor: 1
 
 return_sequence_type: geometric_brownian_motion
 annual_growth_rate:
-  average: 0.05
-  min: -0.3
-  max: 0.3
+  average: 0.04
+  min: -0.25
+  max: 0.35
   downturn_threshold: -0.1
   savings: 0.005
 
@@ -22,12 +25,8 @@ accounts:
   cash_cushion: 40000
 
 cpp:
-  # start_age: 60
-  # monthly_amount: 896
-  # start_age: 65
-  # monthly_amount: 1524
-  start_age: 70
-  monthly_amount: 2223
+  start_age: 65
+  monthly_amount: 0
 
 taxes:
   rrsp_withholding_rate: 0.3

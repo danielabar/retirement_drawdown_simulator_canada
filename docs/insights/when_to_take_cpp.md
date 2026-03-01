@@ -19,198 +19,106 @@ Once CPP starts, the amount remains the same (except for inflation adjustments),
 > [!TIP]
 >  See https://research-tools.pwlcapital.com/research/cpp for CPP calculator that considers years worked and earnings.
 
+In all three scenarios below, this person retires at 60. The retirement age is constant — only the CPP start age changes. This is what makes it a fair comparison: the same portfolio, the same spending, the same 35-year horizon, just different CPP timing decisions.
+
 We can run the simulation in "success rate" mode, which runs it over and over, calculating what percentage of runs result in success. Then we can modify the age at which CPP is taken to see how this affects the success rate.
 
 ## CPP at 60
 
-Inputs are as follows:
+Taking CPP at 60 means smaller monthly payments — $896/month — but they start arriving immediately, reducing the portfolio’s workload from year one of retirement.
 
-```yml
-mode: success_rate
-total_runs: 1000
-retirement_age: 60
-max_age: 95
-desired_spending: 40000
-annual_tfsa_contribution: 0
-province_code: ONT
-success_factor: 1
-
-return_sequence_type: geometric_brownian_motion
-annual_growth_rate:
-  average: 0.05
-  min: -0.3
-  max: 0.3
-  downturn_threshold: -0.1
-  savings: 0.005
-
-accounts:
-  rrsp: 600000
-  taxable: 200000
-  tfsa: 200000
-  cash_cushion: 40000
-
-cpp:
-  start_age: 60
-  monthly_amount: 896
-
-taxes:
-  rrsp_withholding_rate: 0.3
+```bash
+ruby main.rb success_rate demo/cpp_at_60.yml
 ```
 
-Run the program with `ruby main.rb`, and the output is:
+| | |
+|---|---|
+| **Withdrawal Rate** | 4.0% |
+| **Success Rate** | 94.9% |
 
-```
-Summary:
-┌───────────────────────┬────────────┐
-│ Description           │     Amount │
-├───────────────────────┼────────────┤
-│ Withdrawal Rate       │       4.0% │
-│ Success Rate          │      93.0% │
-│ Average Final Balance │ $2,578,949 │
-└───────────────────────┴────────────┘
+| Percentile | Final Balance |
+|---|---|
+| 5th | $41,338 |
+| 10th | $292,795 |
+| 25th | $777,347 |
+| 50th (Median) | $1,641,191 |
+| 75th | $3,093,438 |
+| 90th | $5,586,025 |
+| 95th | $7,039,281 |
 
-Final Balance Percentiles:
-┌──────────────────────────┬────────────┐
-│ Description              │     Amount │
-├──────────────────────────┼────────────┤
-│ 5th Percentile           │    $36,078 │
-│ 10th Percentile          │   $193,513 │
-│ 25th Percentile          │   $702,307 │
-│ 50th Percentile (Median) │ $1,583,744 │
-│ 75th Percentile          │ $3,355,852 │
-│ 90th Percentile          │ $5,864,793 │
-│ 95th Percentile          │ $8,024,417 │
-└──────────────────────────┴────────────┘
-```
+A 94.9% success rate means roughly 1 in 20 retirees in this scenario runs out of money before 95. The 5th percentile balance of $41K confirms how close those scenarios are — retirement ends with essentially nothing. The 10th percentile at $293K means 1 in 10 retirees ends with under three years of spending left.
 
-The success rate of 93% might sound reassuring at first. If you got a 93% on a school exam, you’d probably feel pretty good about it. But retirement planning isn’t like a school test, where getting a few questions wrong just means losing a few points. In retirement, failure means running out of money while you’re still alive.
-
-A better analogy is flying on an airplane. If an airline told you that a particular flight had a 93% chance of arriving safely, you probably wouldn’t board that plane! In the same way, a 93% success rate in retirement means that 7 out of 100 retirees in this situation will run out of money before reaching 95. That’s a big risk if you’re the one facing the shortfall.
-
-### Interpreting the Final Balance Percentiles
-
-While the **93% success rate** tells us the likelihood of not running out of money, the **Final Balance Percentiles** give us a sense of how much money might be left in different scenarios. This dispersion highlights the range of possible financial outcomes depending on how the market performs.
-
-- The **5th percentile** (`$36,078`) shows a near-worst-case scenario—these retirees barely scrape by, finishing retirement with almost nothing left.
-- The **10th percentile** (`$193,513`) is still quite low, meaning even in the bottom 10% of scenarios, people may come close to running out of money.
-- The **25th percentile** (`$702,307`) suggests that a quarter of retirees end up with under $700K, which, while better, might still be concerning depending on spending needs.
-- The **50th percentile (median) at `$1.58M`** represents the typical outcome—half of retirees end up with more than this, half with less.
-- The **75th to 95th percentiles** show the upside potential, with some retirees accumulating several million dollars by the end of their lifespan.
-
-### Key Takeaways
-
-1. **Significant Variability:** There’s a **huge** spread between the worst and best-case outcomes. In some cases, people end up nearly broke, while in others, they finish retirement with over $8M. This highlights the uncertainty of investing and withdrawal planning.
-
-2. **A Risk of Inefficiency:** If someone reaches 95 with $8M (the 95th percentile), it suggests they could have **spent more freely** during retirement. This raises a common challenge: balancing spending to avoid both running out of money and living too frugally.
-
-3. **Impact of Market Performance:** The range of outcomes is largely driven by **market volatility**. Since the simulation uses a **Geometric Brownian Motion return model**, some runs experience strong market growth, while others hit downturns at unfortunate times. This reflects real-world investment risk.
-
-4. **Why Guaranteed Income Matters:** A broad dispersion like this makes a strong case for securing guaranteed income sources like CPP. Since delaying CPP increases lifelong payments, it can help smooth out the worst-case scenarios and reduce reliance on volatile investments.
-
-The goal of retirement planning isn’t just to maximize wealth but to minimize the risk of running out of money. That’s why strategies like delaying CPP, which increases guaranteed income for life, can be so valuable. Let's see how taking CPP later changes this probability.
+The upper half is much more comfortable: the median final balance is $1.6M, and the top quartile ends well above the starting portfolio. The wide spread from near-zero to $7M reflects how much sequence-of-returns risk dominates a 35-year retirement. The $40,000 cash cushion provides one year of spending as a buffer against bad markets, but it’s a one-time tool — once depleted in a downturn, it’s permanently gone with no refill mechanism. CPP’s $896/month provides some ongoing relief, but partial coverage for 35 years leaves significant exposure in the lower tail.
 
 ## CPP at 65
 
-We'll run the program again, with the only change being in the CPP, which we'll take at age 65. The remainder of the inputs are the same:
+Delaying CPP to 65 means no government income for the first five years — the portfolio carries the full $40,000/year load alone. In exchange, the monthly payment rises from $896 to $1,524.
 
-```yml
-cpp:
-  start_age: 65
-  monthly_amount: 1524
+```bash
+ruby main.rb success_rate demo/cpp_at_65.yml
 ```
 
-Here are the results:
+| | |
+|---|---|
+| **Withdrawal Rate** | 4.0% |
+| **Success Rate** | 97.2% |
 
-```
-Summary:
-┌───────────────────────┬────────────┐
-│ Description           │     Amount │
-├───────────────────────┼────────────┤
-│ Withdrawal Rate       │       4.0% │
-│ Success Rate          │      96.6% │
-│ Average Final Balance │ $2,564,931 │
-└───────────────────────┴────────────┘
+| Percentile | Final Balance |
+|---|---|
+| 5th | $208,834 |
+| 10th | $459,940 |
+| 25th | $987,748 |
+| 50th (Median) | $1,931,847 |
+| 75th | $3,369,207 |
+| 90th | $5,703,553 |
+| 95th | $7,399,626 |
 
-Final Balance Percentiles:
-┌──────────────────────────┬────────────┐
-│ Description              │     Amount │
-├──────────────────────────┼────────────┤
-│ 5th Percentile           │    $87,337 │
-│ 10th Percentile          │   $277,590 │
-│ 25th Percentile          │   $824,848 │
-│ 50th Percentile (Median) │ $1,817,265 │
-│ 75th Percentile          │ $3,308,657 │
-│ 90th Percentile          │ $5,635,425 │
-│ 95th Percentile          │ $7,592,854 │
-└──────────────────────────┴────────────┘
-```
+The success rate rises from 94.9% to 97.2% (+2.3 percentage points), but the more striking change is in the lower tail. The 5th percentile jumps from $41K to $209K — a fivefold increase. The 10th percentile goes from $293K to $460K. These aren’t just numbers getting better; they represent a qualitative shift from near-failure to a meaningful financial cushion.
 
-When CPP is delayed to **age 65**, the success rate increases from **93% to 96.6%**, meaning fewer retirees run out of money before **age 95**. While a **3.6% increase** might not seem huge, it represents a meaningful reduction in retirement failure risk.
-
-The **Final Balance Percentiles** also shift favorably:
-
-- The **5th percentile balance** increases from **`$36K` to `$87K`**, reducing the risk of running out of money.
-- The **10th percentile balance** jumps from **`$193K` to `$277K`**, meaning even in poor market conditions, retirees have a better financial cushion.
-- The **median final balance** increases from **`$1.58M` to `$1.82M`**, showing that in typical scenarios, delaying CPP leads to better long-term financial outcomes.
-- The **95th percentile** remains high (`$7.6M` vs. `$8.0M`), showing that even though retirees spent the first few years withdrawing exclusively from their portfolio, this did not constrain the upside in strong market conditions.
-
-### Why Does Delaying CPP Improve Success Rates?
-
-1. **Higher Guaranteed Income** – With CPP increasing from **`$896` to `$1,524`/month**, retirees rely less on investment withdrawals, preserving portfolio longevity.
-2. **Market Risk Reduction** – A higher baseline income means fewer withdrawals during downturns, reducing sequence-of-returns risk.
-3. **Longevity Protection** – Since CPP payments last for life, retirees are less exposed to outliving their assets.
-
-While the average final balance stays similar, delaying CPP **shifts more retirees away from failure scenarios**, making it a strong strategy for those concerned about running out of money.
+The reason is sequence-of-returns risk. The critical period for any retirement portfolio is the first decade: bad returns early, combined with forced withdrawals, compound into irreversible damage. CPP at 65 starts reducing portfolio withdrawals right at the midpoint of that 10-year vulnerable window. From age 65 onwards, the portfolio no longer carries the full spending load alone. That ongoing relief is enough to convert many of the near-failure scenarios into survivors, which is why the lower tail improves so dramatically.
 
 ## CPP at 70
 
-Finally we run the program delaying CPP all the way to age 70:
+Delaying all the way to 70 means a full decade with no CPP — the heaviest ask on the portfolio of the three scenarios. The payoff is the maximum monthly amount: $2,223.
 
-```yml
-cpp:
-  start_age: 70
-  monthly_amount: 2223
+```bash
+ruby main.rb success_rate demo/cpp_at_70.yml
 ```
 
-```
-Summary:
-┌───────────────────────┬────────────┐
-│ Description           │     Amount │
-├───────────────────────┼────────────┤
-│ Withdrawal Rate       │       4.0% │
-│ Success Rate          │      98.1% │
-│ Average Final Balance │ $2,654,830 │
-└───────────────────────┴────────────┘
+| | |
+|---|---|
+| **Withdrawal Rate** | 4.0% |
+| **Success Rate** | 98.8% |
 
-Final Balance Percentiles:
-┌──────────────────────────┬────────────┐
-│ Description              │     Amount │
-├──────────────────────────┼────────────┤
-│ 5th Percentile           │   $213,424 │
-│ 10th Percentile          │   $437,657 │
-│ 25th Percentile          │   $971,247 │
-│ 50th Percentile (Median) │ $1,832,769 │
-│ 75th Percentile          │ $3,321,924 │
-│ 90th Percentile          │ $5,373,945 │
-│ 95th Percentile          │ $7,882,663 │
-└──────────────────────────┴────────────┘
-```
+| Percentile | Final Balance |
+|---|---|
+| 5th | $304,434 |
+| 10th | $569,436 |
+| 25th | $1,070,762 |
+| 50th (Median) | $1,961,542 |
+| 75th | $3,680,474 |
+| 90th | $5,825,029 |
+| 95th | $8,209,128 |
 
-This time, delaying CPP **all the way to age 70** increases the success rate to **98.1%**, the highest so far. This means that almost every retiree in the simulation reaches age 95 without running out of money.
+Delaying CPP to 70 pushes the success rate to 98.8% — the highest of the three scenarios. But the improvement over CPP at 65 (+1.6 percentage points) is smaller than the improvement from 60 to 65 (+2.3 percentage points). The intuition that a 46% higher monthly payment should buy proportionally more safety doesn’t quite hold, and the reason is structural.
 
-The **Final Balance Percentiles** show an even greater improvement:
+Delaying to 70 means the portfolio faces the full $40,000/year drawdown burden for the entire first decade of retirement — the highest-risk window for any retirement plan. The cash cushion covers roughly one year of exposure when a severe downturn hits, but once depleted it’s permanently gone. By the time CPP starts paying $2,223/month at age 70, the worst-case scenarios have already played out: a bad sequence of returns in the first decade has depleted the portfolio past the point of recovery, and higher income from 70 onwards can’t undo that damage.
 
-- The **5th percentile balance** rises dramatically from **`$87K` (CPP at 65) to `$213K`**, meaning even in the worst 5% of cases, retirees maintain a much stronger financial cushion.
-- The **10th percentile balance** more than **doubles** compared to CPP at 60, reaching **`$437K`**, significantly reducing the risk of financial shortfall.
-- The **median final balance** remains similar to CPP at 65, around **`$1.83M`**, but with **fewer retirees falling into low-balance scenarios**.
-- The **95th percentile balance** stays high at **`$7.88M`**, showing that delaying CPP does not limit the upside potential.
+CPP at 65 breaks the 10-year vulnerable window in half. The portfolio still faces 5 unprotected years (ages 60–64), but from 65 onwards the spending load drops meaningfully. The marginal scenarios — those that barely survived — had enough portfolio left at 65 for CPP to rescue them. The scenarios that fail even with CPP at 65 are the severe ones: two or three catastrophically bad years in the first decade that wrecked the portfolio before CPP could help. Those same scenarios fail with CPP at 70 too, because the damage was done before age 70 arrived.
 
-### Why Does Delaying CPP to 70 Improve Outcomes Even Further?
+The lower tail improvement is real and worth noting. The 5th percentile rises from $209K to $304K, and the 10th from $460K to $569K — these are scenarios that survive either way but end with meaningfully more in reserve. The average final balance rises to $2.82M (vs. $2.61M at 65), and the upper percentiles are higher across the board. In scenarios with good or median returns, the larger CPP payment compounds into substantially more wealth by 95.
 
-1. **Maximum Guaranteed Income** – At **`$2,223`/month**, CPP now replaces a larger portion of spending needs, significantly reducing pressure on investment withdrawals.
-2. **Even Greater Market Risk Protection** – The need to sell investments in a downturn is further reduced, mitigating **sequence-of-returns risk**.
-3. **Better Outcomes in the Worst Scenarios** – The biggest improvement is in the **low-percentile cases**—delaying CPP provides a substantial financial buffer for those who might otherwise struggle.
+## The Bottom Line
 
-### The Bottom Line
+| CPP Start Age | Monthly CPP | Success Rate |
+|---|---|---|
+| 60 | $896 | 94.9% |
+| 65 | $1,524 | 97.2% |
+| 70 | $2,223 | 98.8% |
 
-Delaying CPP to 70 offers the **best protection against running out of money** while maintaining strong upside potential. The difference is most striking in poor market conditions, where retirees who delay are far better off. For those in good health, with a long retirement ahead, **delaying CPP is one of the most effective ways to improve financial security**.
+Delaying CPP improves retirement success rates across the board, but the improvement is concentrated where it matters most: the lower tail. The largest single gain is the jump from 60 to 65, because CPP at 65 starts reducing portfolio withdrawals during the second half of the highest-risk decade. CPP at 70 adds further improvement, but with a smaller success rate gain — the borderline cases are already rescued at 65, and what remains failing at 97.2% are severe early-downturn scenarios that higher income from 70 can’t undo.
+
+For those in good health with sufficient savings to bridge the gap: delaying is the right call. The question of how far — 65 or 70 — is a closer one than it might appear. The gap in success rate is only 1.6 percentage points.
+
+> [!NOTE]
+> The absolute success rates here are lower than historical replay studies would show — by design. See [how it works](../how-it-works.md#geometric_brownian_motion-recommended) for a full explanation of how this simulator's GBM model acts as a stress test rather than a historical backtest. The case for 70 is strongest if you’re focused on the lower tail (where the improvement is clearest) and if you have enough portfolio to sustain a decade of full drawdown without taking on excessive sequence-of-returns risk in the process.

@@ -1,0 +1,40 @@
+# FIRE scenario: same as demo/fire_3pct_modest_cpp.yml but retiring at 50 instead
+# of 45 — 5 more years of work. Same portfolio ($1,333,333) and 3% withdrawal rate
+# ($40,000/year) to isolate the effect of the shorter retirement horizon and the
+# extra CPP entitlement that comes from working longer.
+#
+# CPP assumption: ~$650/month at age 65.
+#   With 25 years of median-income contributions (~$55,000/year, roughly 75% of the
+#   YMPE), a rough estimate is: $1,364 × 0.75 × (25/39) ≈ $655/month. We use $650
+#   as a round number. The gap before CPP starts is also shorter — 15 years instead
+#   of 20 — which means the portfolio carries the full load for less time before
+#   guaranteed income kicks in.
+# mode: success_rate
+total_runs: 1000
+retirement_age: 50
+max_age: 95
+desired_spending: 40000
+annual_tfsa_contribution: 0
+province_code: ONT
+success_factor: 1
+
+return_sequence_type: geometric_brownian_motion
+annual_growth_rate:
+  average: 0.05
+  min: -0.40
+  max: 0.45
+  downturn_threshold: -0.1
+  savings: 0.005
+
+accounts:
+  rrsp: 800000
+  taxable: 266667
+  tfsa: 266666
+  cash_cushion: 40000
+
+cpp:
+  start_age: 65
+  monthly_amount: 650
+
+taxes:
+  rrsp_withholding_rate: 0.3

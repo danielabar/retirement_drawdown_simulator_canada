@@ -1,3 +1,21 @@
+# Configuration Reference
+
+Your financial inputs are stored in `inputs.yml`. To create it, copy the template:
+
+```sh
+cp inputs.yml.template inputs.yml
+```
+
+Then open it in a text editor and replace the values with your actual financial information.
+
+> [!WARNING]
+> `inputs.yml` contains personal financial information and is excluded from Git (see `.gitignore`). Do not commit it.
+
+---
+
+## Full Reference
+
+```yaml
 # Mode can be 'detailed' for a single run with detailed output, or 'success_rate'
 mode: detailed
 
@@ -15,6 +33,7 @@ max_age: 95
 
 # Province or territory where you reside
 # Valid values are: ONT, NL, PE, NS, NB, MB, SK, AB, BC, YT, NT, NU
+# Note: Quebec is not supported due to QPP and provincial tax differences.
 province_code: ONT
 
 # Success factor: defines the multiplier for total_balance needed by max_age for success.
@@ -77,16 +96,15 @@ annual_growth_rate:
 #   This is the most realistic option and the recommended choice for success_rate mode.
 #
 #   Important caveat: this model will produce more conservative (lower) success rates
-#   than you might expect from published research like the "4% rule" or the
-#   "2.7% global safe withdrawal rate". That's intentional — the model is designed to
-#   stress-test your plan against scenarios that could be worse than anything in the
-#   historical record. Real markets tend to recover after crashes (mean reversion),
-#   but this model does not simulate that — every year is drawn independently.
-#   Think of it as: "if the future is somewhat worse than history, will my plan survive?"
-#   rather than: "how often has this worked historically?"
+#   than you might expect from published research like the "4% rule". That's intentional —
+#   the model is designed to stress-test your plan against scenarios that could be worse
+#   than anything in the historical record. Real markets tend to recover after crashes
+#   (mean reversion), but this model does not simulate that — every year is drawn
+#   independently. Think of it as: "if the future is somewhat worse than history, will
+#   my plan survive?" rather than: "how often has this worked historically?"
 return_sequence_type: geometric_brownian_motion
 
-# Optionally continue to make TFSA contributions during RRSP and Taxable drawdown phases
+# Optionally continue to make TFSA contributions during RRSP and Taxable drawdown phases.
 # If you don't want to make any TFSA contributions during drawdown, set this to 0.
 annual_tfsa_contribution: 0
 
@@ -94,17 +112,17 @@ annual_tfsa_contribution: 0
 # Express this in today's dollars. This amount stays fixed — there is no built-in inflation
 # adjustment. If you entered real (after-inflation) returns above, spending maintains its
 # purchasing power. If you entered nominal returns, it will silently decline in real terms.
-# To get an accurate number here, you should track your spending for at least a year
-# Or review a year's worth of past credit card statements and other sources of spending.
-# Add up:
+# To get an accurate number here, track your spending for at least a year, or review
+# a year's worth of credit card statements and other sources of spending. Add up:
 #   1. Variable spending (groceries, personal, entertainment, travel, etc.)
 #   2. Fixed spending (any constant recurring payments)
-#   3. Lumpy (eg: new car, replace roof, replace appliances etc. only happen every few years so divide amount by how many years expense occurs)
+#   3. Lumpy (e.g. new car, replace roof, replace appliances — divide total cost by
+#      the number of years between each occurrence)
 desired_spending: 40000
 
 # Starting account balances.
-# The cash_cushion will be used in case of market downturns (value you set earlier in downturn_threshold).
-# Set cash_cushion balance to 0 if you don't want to use it or don't have a cash cushion.
+# The cash_cushion will be used during market downturns (see downturn_threshold above).
+# Set cash_cushion to 0 if you don't have one or don't want to model it.
 accounts:
   rrsp: 600000
   taxable: 200000
@@ -113,21 +131,33 @@ accounts:
 
 # Enter the age at which you plan to start CPP and the monthly amount you're entitled to.
 # You can find this value by logging in to your My Service Canada account.
-# The values shown in My Service Canada assume you continue to work at your current income
-# up until the age you start taking CPP.
-# If you're planning on retiring earlier than this, then your actual CPP numbers will be
-# lower due to those additional years of no contributions.
-# In this case, use https://research-tools.pwlcapital.com/research/cpp to estimate what you may actually get.
-# To run the simulation without CPP, set the monthly_amount to 0.
+#
+# Note: the My Service Canada estimate assumes you continue working at your current income
+# until the age you start CPP. If you're retiring earlier, your actual CPP will be lower
+# due to additional years of no contributions.
+# Use https://research-tools.pwlcapital.com/research/cpp to estimate what you may actually
+# receive if retiring before you take CPP.
+#
+# To run the simulation without CPP, set monthly_amount to 0.
 cpp:
   start_age: 65
   monthly_amount: 0
 
 # Taxes
-# Withholding tax may be greater than your actual tax bill, you'll get a refund when you file your taxes.
-# In the first year of retirement, you'll have to have some extra cash available to "float" the difference.
-# In subsequent years, the previous year's tax refund will be used to fund part of next years spending.
-# RRSP Withholding tax: https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/rrsps-related-plans/making-withdrawals/tax-rates-on-withdrawals.html
-# Assumption is you'll be withdrawing at least 15K which lands in 30% withholding tax.
+# Withholding tax may be greater than your actual tax bill — you'll get a refund when
+# you file your return. In the first year of retirement, you'll need extra cash to float
+# the difference. In subsequent years, the previous year's refund covers part of the gap.
+#
+# RRSP withholding tax rates:
+# https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/rrsps-related-plans/making-withdrawals/tax-rates-on-withdrawals.html
+#
+# Assumption: you'll be withdrawing at least $15,000/year, which falls in the 30% bracket.
 taxes:
   rrsp_withholding_rate: 0.3
+```
+
+---
+
+## First Year Cash Flow
+
+Before retiring, review the [First Year of RRSP Withdrawals](first_year.md) explainer. There is a nuance with RRSP withholding tax that can create a cash shortfall in your first year, and you need to account for it before pulling the trigger on retirement.

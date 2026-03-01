@@ -1,0 +1,36 @@
+# FIRE version of demo/cash_cushion_with.yml: same $40,000 spending and total portfolio
+# ($1,183,000), but retiring at 45 (50-year horizon) with 100% equity returns and modest
+# CPP of $500/month at 65. The portfolio carries the full $40K/year load for 20 years
+# before CPP arrives.
+#
+# The question: does the cash cushion matter more or less over a 50-year horizon with
+# higher volatility (100% equity)? Compare to demo/cash_cushion_fire_without.yml.
+# mode: success_rate
+total_runs: 1000
+retirement_age: 45
+max_age: 95
+desired_spending: 40000
+annual_tfsa_contribution: 0
+province_code: ONT
+success_factor: 1
+
+return_sequence_type: geometric_brownian_motion
+annual_growth_rate:
+  average: 0.05
+  min: -0.40
+  max: 0.45
+  downturn_threshold: -0.1
+  savings: 0.005
+
+accounts:
+  rrsp: 685800
+  taxable: 228600
+  tfsa: 228600
+  cash_cushion: 40000
+
+cpp:
+  start_age: 65
+  monthly_amount: 500
+
+taxes:
+  rrsp_withholding_rate: 0.3

@@ -1,0 +1,36 @@
+# Canadian retiree baseline: $35,000/year spending at a 3.5% withdrawal rate.
+# Portfolio of $1,000,000 is sized so that $35,000 represents exactly 3.5%
+# ($35,000 / 0.035). CPP $800/month at 65. No TFSA contribution during drawdown.
+# Lower spending means lower taxable income each year — a lower marginal tax bracket
+# than the $40K scenario. Used in docs/insights/tfsa_contributions_during_drawdown.md
+# to explore whether tax bracket affects the value of TFSA contributions.
+# Compare to demo/tfsa_drawdown_35k_contrib.yml.
+# mode: success_rate
+total_runs: 1000
+retirement_age: 65
+max_age: 95
+desired_spending: 35000
+annual_tfsa_contribution: 0
+province_code: ONT
+success_factor: 1
+
+return_sequence_type: geometric_brownian_motion
+annual_growth_rate:
+  average: 0.04
+  min: -0.25
+  max: 0.35
+  downturn_threshold: -0.1
+  savings: 0.005
+
+accounts:
+  rrsp: 600000
+  taxable: 200000
+  tfsa: 200000
+  cash_cushion: 35000
+
+cpp:
+  start_age: 65
+  monthly_amount: 800
+
+taxes:
+  rrsp_withholding_rate: 0.3
