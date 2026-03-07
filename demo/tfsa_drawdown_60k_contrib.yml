@@ -1,13 +1,13 @@
-# Same as demo/tfsa_drawdown_40k.yml but with a $7,000/year TFSA contribution
-# during the RRSP drawdown phase. The contribution is on top of the $40,000
-# spending, so the portfolio must fund $47,000/year equivalent — meaning a larger
+# Same as demo/tfsa_drawdown_60k.yml but with a $7,000/year TFSA contribution
+# during the RRSP drawdown phase. The contribution is on top of the $60,000
+# spending, so the portfolio must fund $67,000/year equivalent — meaning a larger
 # gross RRSP withdrawal each year (since RRSP withdrawals are taxable income).
-# Compare success rate and percentiles to demo/tfsa_drawdown_40k.yml.
+# Compare success rate and percentiles to demo/tfsa_drawdown_60k.yml.
 # mode: success_rate
 total_runs: 1000
 retirement_age: 65
 max_age: 95
-desired_spending: 40000
+desired_spending: 60000
 annual_tfsa_contribution: 7000
 province_code: ONT
 success_factor: 1
@@ -21,14 +21,18 @@ annual_growth_rate:
   savings: 0.005
 
 accounts:
-  rrsp: 685800
-  taxable: 228600
-  tfsa: 228600
-  cash_cushion: 40000
+  rrsp: 1028400
+  taxable: 342800
+  tfsa: 342800
+  cash_cushion: 60000
 
 cpp:
   start_age: 65
   monthly_amount: 800
+
+oas:
+  start_age: 65
+  years_in_canada_after_18: 40
 
 taxes:
   rrsp_withholding_rate: 0.3

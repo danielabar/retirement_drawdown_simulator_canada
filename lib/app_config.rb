@@ -19,6 +19,10 @@ class AppConfig
     data["cpp"]
   end
 
+  def oas
+    data["oas"]
+  end
+
   def taxes
     data["taxes"]
   end

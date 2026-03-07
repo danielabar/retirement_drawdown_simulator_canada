@@ -146,6 +146,86 @@ RSpec.describe Strategy::WithdrawalPlanner do
                                                         ))
       end
     end
+
+    context "when rrif withdrawals are required and user is taking both cpp and oas" do
+      let(:app_config) do
+        AppConfig.new(
+          "retirement_age" => 65,
+          "max_age" => 95,
+          "province_code" => "ONT",
+          "annual_tfsa_contribution" => 10,
+          "desired_spending" => 30_000,
+          "annual_growth_rate" => {
+            "average" => 0.01,
+            "min" => -0.1,
+            "max" => 0.1,
+            "savings" => 0.005,
+            "downturn_threshold" => -0.1
+          },
+          "accounts" => {
+            "rrsp" => 500_000,
+            "taxable" => 60_000,
+            "tfsa" => 30_000,
+            "cash_cushion" => 30_000
+          },
+          "taxes" => {
+            "rrsp_withholding_rate" => 0.3
+          },
+          "cpp" => {
+            "start_age" => 70,
+            "monthly_amount" => 1200
+          },
+          "oas" => {
+            "start_age" => 65,
+            "years_in_canada_after_18" => 40
+          }
+        )
+      end
+
+      before do
+        withdrawal_amounts.current_age = 95 # RRIF is 20% (see config/rrif_fixed.yml)
+      end
+
+      it "calculates forced net excess withdrawal considering rrif, cpp, and oas" do
+        # rrsp balance: 500_000
+        # mandatory rrif: 500_000 * 0.2 = 100_000
+        # annual cpp gross: 1_200 * 12 = 14_400
+        # annual oas gross (age 95 = 75+ rate): (40/40.0) * 816.54 * 1.0 * 12 = 9_798.48
+        # total taxable income: 100_000 + 14_400 + 9_798.48 = 124_198.48
+        # take_home(124_198.48) = 94_870.68
+        # desired take home: 30_010
+        # forced net excess: 94_870.68 - 30_010 = 64_860.68
+        account_transactions = withdrawal_planner.plan_withdrawals
+        expect(account_transactions).to contain_exactly(a_hash_including(
+                                                          account: rrsp_account,
+                                                          amount: a_value_within(0.01).of(100_000),
+                                                          forced_net_excess: a_value_within(0.01).of(64_860.68)
+                                                        ))
+      end
+    end
+
+    context "when rrif withdrawals are required and user is taking oas only" do
+      before do
+        app_config.data["oas"] = { "start_age" => 65, "years_in_canada_after_18" => 40 }
+        withdrawal_amounts.current_age = 95 # RRIF is 20% (see config/rrif_fixed.yml)
+      end
+
+      it "calculates forced net excess withdrawal considering rrif and oas" do
+        # rrsp balance: 200_000
+        # mandatory rrif: 200_000 * 0.2 = 40_000
+        # annual oas gross (age 95 = 75+ rate): (40/40.0) * 816.54 * 1.0 * 12 = 9_798.48
+        # total taxable income: 40_000 + 9_798.48 = 49_798.48
+        # take_home(49_798.48) = 42_876.96
+        # desired take home: 30_010
+        # forced net excess: 42_876.96 - 30_010 = 12_866.96
+        account_transactions = withdrawal_planner.plan_withdrawals
+        expect(account_transactions).to contain_exactly(a_hash_including(
+                                                          account: rrsp_account,
+                                                          amount: a_value_within(0.01).of(40_000),
+                                                          forced_net_excess: a_value_within(0.01).of(12_866.96)
+                                                        ))
+      end
+    end
   end
 
   describe "#mandatory_rrif_withdrawal" do

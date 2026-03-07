@@ -1,9 +1,9 @@
-# FIRE scenario: same $40,000 spending and 3.5% withdrawal rate as demo/tfsa_drawdown_40k.yml,
-# but retiring at 45 (50-year horizon) with 100% equity returns and modest CPP at 65.
+# FIRE scenario: same $60,000 spending (single, modest Vancouver/Toronto) and ~3.5%
+# withdrawal rate as demo/tfsa_drawdown_60k.yml, but retiring at 45 (50-year horizon)
+# with 100% equity returns and modest CPP at 65.
 #
-# CPP assumption: ~$500/month at 65, based on ~20 years of median-income contributions
-# (same as demo/fire_3pct_modest_cpp.yml). The portfolio carries the full $40K/year for
-# 20 years before CPP kicks in.
+# CPP assumption: ~$500/month at 65, based on ~20 years of median-income contributions.
+# The portfolio carries the full $60K/year for 20 years before CPP kicks in.
 #
 # Compare to demo/tfsa_drawdown_fire_contrib.yml to see if TFSA contributions matter more
 # over a 50-year horizon than they did in the 30-year standard retirement case.
@@ -11,7 +11,7 @@
 total_runs: 1000
 retirement_age: 45
 max_age: 95
-desired_spending: 40000
+desired_spending: 60000
 annual_tfsa_contribution: 0
 province_code: ONT
 success_factor: 1
@@ -25,14 +25,18 @@ annual_growth_rate:
   savings: 0.005
 
 accounts:
-  rrsp: 685800
-  taxable: 228600
-  tfsa: 228600
-  cash_cushion: 40000
+  rrsp: 1028400
+  taxable: 342800
+  tfsa: 342800
+  cash_cushion: 60000
 
 cpp:
   start_age: 65
   monthly_amount: 500
+
+oas:
+  start_age: 65
+  years_in_canada_after_18: 40
 
 taxes:
   rrsp_withholding_rate: 0.3

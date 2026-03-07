@@ -1,0 +1,19 @@
+# OAS configuration as of Q1 2026
+# Source: https://www.canada.ca/en/services/benefits/publicpensions/old-age-security/payments.html
+# Amounts are CPI-indexed quarterly; these represent today's purchasing power.
+# The simulator works in real (after-inflation) terms so these stay fixed.
+base_monthly_amounts:
+  ages_65_to_74: 742.31
+  ages_75_plus: 816.54    # includes the permanent 10% enhancement applied at age 75
+
+full_pension_residency_years: 40
+minimum_residency_years: 10
+
+deferral:
+  eligible_start_age: 65
+  maximum_deferral_age: 70
+  bonus_per_month: 0.006    # 0.6% per month, maximum +36% at age 70
+
+clawback:
+  rate: 0.15
+  threshold: 95323    # 2026 net income threshold; update annually

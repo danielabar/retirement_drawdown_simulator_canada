@@ -1,11 +1,11 @@
-# Same as demo/cash_cushion_fire_with.yml but the $40,000 cash cushion is moved into
-# the investable accounts instead — $1,183,000 fully invested, no cash buffer.
+# Same as demo/cash_cushion_fire_with.yml but the $60,000 cash cushion is moved into
+# the investable accounts instead — $1,560,000 fully invested, no cash buffer.
 # Accounts keep the same 60/20/20 RRSP/Taxable/TFSA split as the cushion scenario.
 # mode: success_rate
 total_runs: 1000
 retirement_age: 45
 max_age: 95
-desired_spending: 40000
+desired_spending: 60000
 annual_tfsa_contribution: 0
 province_code: ONT
 success_factor: 1
@@ -19,14 +19,18 @@ annual_growth_rate:
   savings: 0.005
 
 accounts:
-  rrsp: 709800
-  taxable: 236600
-  tfsa: 236600
+  rrsp: 936000
+  taxable: 312000
+  tfsa: 312000
   cash_cushion: 0
 
 cpp:
   start_age: 65
   monthly_amount: 500
+
+oas:
+  start_age: 65
+  years_in_canada_after_18: 40
 
 taxes:
   rrsp_withholding_rate: 0.3

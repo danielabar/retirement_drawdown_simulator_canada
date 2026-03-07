@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class WithdrawalAmounts
+class WithdrawalAmounts # rubocop:disable Metrics/ClassLength
   ACCOUNT_WITHDRAWAL_METHODS = {
     "rrsp" => :annual_rrsp,
     "taxable" => :annual_taxable,
@@ -17,18 +17,18 @@ class WithdrawalAmounts
     @app_config = app_config
     @reverse_tax_calculator = Tax::ReverseIncomeTaxCalculator.new
     @tax_calculator = Tax::IncomeTaxCalculator.new
+    @oas_config = OasConfig.new
   end
 
   def annual_rrsp(exclude_tfsa_contribution: false)
-    return reverse_tax_results(exclude_tfsa_contribution: exclude_tfsa_contribution)[:gross_income] unless cpp_used?
+    unless cpp_used? || oas_used?
+      return reverse_tax_results(exclude_tfsa_contribution: exclude_tfsa_contribution)[:gross_income]
+    end
 
-    # Upper and lower bounds based on CPP and RRSP withdrawal
-    # The upper bound is as if we didn't have CPP at all
-    # The lower bound is as if we could subtract off the full gross CPP
-    # but we can't actually do this since both rrsp withdrawal and CPP are taxable
-    # so the real number lies somewhere in between these two.
     candidate_rrsp_withdrawal_upper = reverse_tax_results[:gross_income]
-    candidate_rrsp_withdrawal_lower = reverse_tax_results[:gross_income] - cpp_annual_gross_income
+    candidate_rrsp_withdrawal_lower = reverse_tax_results[:gross_income] \
+      - cpp_annual_gross_income \
+      - oas_annual_gross_income
 
     binary_search_rrsp_withdrawal(candidate_rrsp_withdrawal_upper,
                                   candidate_rrsp_withdrawal_lower)
@@ -42,6 +42,21 @@ class WithdrawalAmounts
     app_config.cpp["monthly_amount"].positive? && current_age >= app_config.cpp["start_age"]
   end
 
+  def oas_annual_gross_income
+    return 0 unless oas_used?
+
+    oas = app_config.oas
+    years = [oas["years_in_canada_after_18"], @oas_config.full_pension_residency_years].min
+    (years.to_f / @oas_config.full_pension_residency_years) *
+      @oas_config.base_monthly_amount(current_age) *
+      @oas_config.deferral_multiplier(oas["start_age"]) * 12
+  end
+
+  def oas_used?
+    years = app_config.oas&.dig("years_in_canada_after_18").to_i
+    years >= @oas_config.minimum_residency_years && current_age >= app_config.oas["start_age"]
+  end
+
   # TODO: At some point will have to deal with capital gains tax
   # but for now, assume whatever amount of ETFs selling for income from taxable account
   # isn't high enough to trigger any additional taxes.
@@ -51,17 +66,25 @@ class WithdrawalAmounts
                   else
                     app_config["desired_spending"] + app_config["annual_tfsa_contribution"]
                   end
-    cpp_used? ? interim_amt - cpp_annual_net_income : interim_amt
+    interim_amt -= cpp_annual_net_income if cpp_used?
+    interim_amt -= oas_annual_net_income if oas_used?
+    interim_amt
   end
 
   def annual_tfsa
-    cpp_used? ? app_config["desired_spending"] - cpp_annual_net_income : app_config["desired_spending"]
+    result = app_config["desired_spending"]
+    result -= cpp_annual_net_income if cpp_used?
+    result -= oas_annual_net_income if oas_used?
+    result
   end
 
   # If we're withdrawing from the cash cushion, it's because of a severe market downturn,
   # so we won't be making the optional TFSA contributions during this time.
   def annual_cash_cushion
-    cpp_used? ? app_config["desired_spending"] - cpp_annual_net_income : app_config["desired_spending"]
+    result = app_config["desired_spending"]
+    result -= cpp_annual_net_income if cpp_used?
+    result -= oas_annual_net_income if oas_used?
+    result
   end
 
   def desired_income
@@ -77,19 +100,15 @@ class WithdrawalAmounts
     candidate_rrsp_withdrawal = nil
 
     loop do
-      # Calculate the midpoint RRSP withdrawal
       candidate_rrsp_withdrawal = (upper_bound.to_f + lower_bound.to_f) / 2
 
-      # Check if take-home is close enough to desired spending
       difference = actual_take_home(candidate_rrsp_withdrawal) - desired_income
 
       break if difference.abs <= TOLERANCE_FOR_RRSP_WITH_CPP || iterations >= MAX_ITERATIONS_FOR_RRSP_WITH_CPP
 
       if difference.positive?
-        # Take-home is too high, adjust upper bound
         upper_bound = candidate_rrsp_withdrawal
       else
-        # Take-home is too low, adjust lower bound
         lower_bound = candidate_rrsp_withdrawal
       end
 
@@ -100,9 +119,10 @@ class WithdrawalAmounts
   end
 
   def actual_take_home(candidate_rrsp_withdrawal)
-    total_taxable_income = cpp_annual_gross_income + candidate_rrsp_withdrawal
-    forward_tax_details = @tax_calculator.calculate(total_taxable_income, app_config["province_code"])
-    forward_tax_details[:take_home]
+    total_taxable_income = candidate_rrsp_withdrawal
+    total_taxable_income += cpp_annual_gross_income if cpp_used?
+    total_taxable_income += oas_annual_gross_income if oas_used?
+    @tax_calculator.calculate(total_taxable_income, app_config["province_code"])[:take_home]
   end
 
   def reverse_tax_results(exclude_tfsa_contribution: false)
@@ -116,5 +136,9 @@ class WithdrawalAmounts
 
   def cpp_annual_net_income
     @tax_calculator.calculate(cpp_annual_gross_income, app_config["province_code"])[:take_home]
+  end
+
+  def oas_annual_net_income
+    @tax_calculator.calculate(oas_annual_gross_income, app_config["province_code"])[:take_home]
   end
 end

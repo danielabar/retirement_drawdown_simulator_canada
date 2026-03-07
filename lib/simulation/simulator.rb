@@ -64,6 +64,7 @@ module Simulation
         cash_cushion_balance: strategy.cash_cushion.balance,
         note: build_note(account_transactions),
         cpp: strategy.cpp_used?,
+        oas: strategy.oas_used?,
         rate_of_return: market_return,
         total_balance: strategy.total_balance,
         rrif_forced_net_excess: extract_rrif_forced_net_excess(account_transactions)

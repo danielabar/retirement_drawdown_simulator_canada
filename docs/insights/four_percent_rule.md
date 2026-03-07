@@ -7,7 +7,7 @@
   - [Where the "95% Safe" Figure Comes From](#where-the-95-safe-figure-comes-from)
   - [What This Simulator Shows](#what-this-simulator-shows)
     - [The Baseline Scenario](#the-baseline-scenario)
-    - [The Canadian Retiree: Adding CPP](#the-canadian-retiree-adding-cpp)
+    - [The Canadian Retiree: Adding CPP and OAS](#the-canadian-retiree-adding-cpp-and-oas)
   - [Longer Retirements: What FIRE Changes](#longer-retirements-what-fire-changes)
     - [FIRE at 3% with Modest CPP: What Does It Take?](#fire-at-3-with-modest-cpp-what-does-it-take)
     - [The Survivorship Problem](#the-survivorship-problem)
@@ -42,28 +42,28 @@ ruby main.rb success_rate demo/four_percent_rule.yml
 | | |
 |---|---|
 | **Withdrawal Rate** | 4.0% |
-| **Success Rate** | 70.8% |
+| **Success Rate** | 69.4% |
 
 | Percentile | Final Balance |
 |---|---|
-| 5th | $8,873 |
-| 10th | $16,965 |
-| 25th | $37,289 |
-| 50th (Median) | $414,694 |
-| 75th | $1,135,065 |
-| 90th | $2,161,059 |
-| 95th | $3,284,116 |
+| 5th | $8,218 |
+| 10th | $15,297 |
+| 25th | $36,212 |
+| 50th (Median) | $451,600 |
+| 75th | $1,272,092 |
+| 90th | $2,425,914 |
+| 95th | $3,221,758 |
 
-**Success rate: 70.8%**, compared to the commonly cited 95% from historical US data. That gap is significant — it means roughly 1 in 3 simulated retirees runs out of money before 95, not 1 in 20.
+**Success rate: 69.4%**, compared to the commonly cited 95% from historical US data. That gap is significant — it means roughly 1 in 3 simulated retirees runs out of money before 95, not 1 in 20.
 
-The distribution is highly skewed. The median survivor ends with ~$415K — about 40% of their starting portfolio, still in reasonable shape. But the 25th percentile ends with only $37K, and below that portfolios are effectively empty. Meanwhile, the luckiest scenarios (top quartile) see the portfolio grow substantially, ending with over $1M.
+The distribution is highly skewed. The median survivor ends with ~$452K — about 45% of their starting portfolio, still in reasonable shape. But the 25th percentile ends with only $36K, and below that portfolios are effectively empty. Meanwhile, the luckiest scenarios (top quartile) see the portfolio grow substantially, ending with over $1M.
 
 > [!NOTE]
 > The original 4% rule research considers reaching the end of the simulation period with even $1 remaining a "success." Most people would feel quite differently about reaching their late 80s with a rapidly dwindling portfolio, even if it technically lasts until the end. The `success_factor` setting lets you define a more meaningful success threshold — for example, finishing with at least 1x or 1.5x your annual spending still in the portfolio.
 
-### The Canadian Retiree: Adding CPP
+### The Canadian Retiree: Adding CPP and OAS
 
-The original 4% rule was designed without any government income — pure portfolio withdrawals only. A typical Canadian retiring at 65 would also receive CPP, which reduces the amount the portfolio needs to cover each year. This scenario uses the same setup as the baseline but adds a typical CPP benefit of $800/month — roughly the average for someone taking CPP at 65.
+The original 4% rule was designed without any government income — pure portfolio withdrawals only. A typical Canadian retiring at 65 would also receive CPP and OAS, both of which reduce the amount the portfolio needs to cover each year. This scenario uses the same setup as the baseline but adds a typical CPP benefit of $800/month (roughly the average for someone taking CPP at 65) and full OAS of ~$742/month — both starting at 65.
 
 ```bash
 ruby main.rb success_rate demo/canadian_retiree.yml
@@ -72,21 +72,21 @@ ruby main.rb success_rate demo/canadian_retiree.yml
 | | |
 |---|---|
 | **Withdrawal Rate** | 4.0% |
-| **Success Rate** | 87.0% |
+| **Success Rate** | 98.7% |
 
 | Percentile | Final Balance |
 |---|---|
-| 5th | $23,349 |
-| 10th | $34,777 |
-| 25th | $329,076 |
-| 50th (Median) | $834,851 |
-| 75th | $1,803,599 |
-| 90th | $3,131,754 |
-| 95th | $4,399,519 |
+| 5th | $221,137 |
+| 10th | $366,949 |
+| 25th | $759,405 |
+| 50th (Median) | $1,375,839 |
+| 75th | $2,391,878 |
+| 90th | $3,720,114 |
+| 95th | $4,654,795 |
 
-Adding $800/month CPP lifts the success rate from 70.8% to 87.0% — a substantial jump for what amounts to $9,600/year of guaranteed income, covering about 24% of the $40,000 spending need.
+Adding $800/month CPP and ~$742/month OAS lifts the success rate from 69.4% to 98.7% — a transformation, not just an improvement. Combined guaranteed income of ~$18,500/year covers about 46% of the $40,000 spending need, leaving the portfolio to fund only the remainder. At that level of coverage, poor market sequences rarely become fatal.
 
-The effect is most visible in the lower percentiles, which is exactly where it matters. The 25th percentile goes from $37K to $329K, and the median nearly doubles from $415K to $835K. CPP doesn't just improve the average outcome — it dramatically shores up the scenarios that would otherwise fail, because guaranteed income reduces how much the portfolio needs to deliver in bad years. Sequence-of-returns risk is the main threat to a retirement portfolio, and a predictable income stream that doesn't depend on market performance directly neutralizes part of that risk.
+The effect on the lower tail is dramatic. The 5th percentile balance jumps from $8K to $221K — scenarios that would have barely survived in the pure-portfolio case now end with more than five years of spending intact. The 25th percentile goes from $36K to $759K, and the median ends at $1.38M vs $452K in the baseline. This is the power of guaranteed income that doesn't depend on markets: CPP and OAS keep arriving regardless of what the portfolio is doing, directly neutralizing sequence-of-returns risk. A bad decade early in retirement drains the portfolio far less when nearly half of spending is covered by income the portfolio doesn't need to generate.
 
 ## Longer Retirements: What FIRE Changes
 
@@ -101,21 +101,21 @@ ruby main.rb success_rate demo/fire.yml
 | | |
 |---|---|
 | **Withdrawal Rate** | 4.0% |
-| **Success Rate** | 44.8% |
+| **Success Rate** | 47.4% |
 
 | Percentile | Final Balance |
 |---|---|
-| 5th | $3,839 |
-| 10th | $7,752 |
-| 25th | $18,426 |
-| 50th (Median) | $37,448 |
-| 75th | $2,848,178 |
-| 90th | $9,439,356 |
-| 95th | $16,006,758 |
+| 5th | $5,250 |
+| 10th | $9,553 |
+| 25th | $21,020 |
+| 50th (Median) | $38,753 |
+| 75th | $3,385,920 |
+| 90th | $10,365,396 |
+| 95th | $18,535,817 |
 
-**Success rate: 44.8%** — worse than a coin flip, down from 70.8% for the 30-year scenario.
+**Success rate: 47.4%** — worse than a coin flip, down from 69.4% for the 30-year scenario.
 
-The percentile distribution here is striking. The median final balance is only $37K, meaning more than half of all simulated retirees end up essentially empty. Yet the 75th percentile is $2.8M, the 90th is $9.4M, and the 95th is $16M. This is a much more extreme version of the skew seen in the 30-year scenario: with 50 years of 100% equity growth, the scenarios that survive tend to compound into very large numbers, while the failures are total.
+The percentile distribution here is striking. The median final balance is only $39K, meaning more than half of all simulated retirees end up essentially empty. Yet the 75th percentile is $3.4M, the 90th is $10.4M, and the 95th is $18.5M. This is a much more extreme version of the skew seen in the 30-year scenario: with 50 years of 100% equity growth, the scenarios that survive tend to compound into very large numbers, while the failures are total.
 
 There are two compounding reasons for the lower success rate:
 
@@ -125,7 +125,7 @@ There are two compounding reasons for the lower success rate:
 
 ### FIRE at 3% with Modest CPP: What Does It Take?
 
-Three adjustments FIRE researchers commonly suggest for long retirements: use a lower withdrawal rate, work a little longer, and count on some modest CPP. Applied together — retiring at 50 instead of 45, dropping to a 3% withdrawal rate, and factoring in ~$650/month CPP from 25 years of median-income contributions — the picture changes meaningfully.
+Three adjustments FIRE researchers commonly suggest for long retirements: use a lower withdrawal rate, work a little longer, and count on some modest government income. Applied together — retiring at 50 instead of 45, dropping to a 3% withdrawal rate, and factoring in ~$650/month CPP and full OAS (~$742/month) both arriving at 65 — the picture changes meaningfully.
 
 ```bash
 ruby main.rb success_rate demo/fire_3pct_modest_cpp_age50.yml
@@ -134,19 +134,19 @@ ruby main.rb success_rate demo/fire_3pct_modest_cpp_age50.yml
 | | |
 |---|---|
 | **Withdrawal Rate** | 3.0% |
-| **Success Rate** | 77.0% |
+| **Success Rate** | 83.9% |
 
 | Percentile | Final Balance |
 |---|---|
-| 5th | $5,328 |
-| 10th | $12,581 |
-| 25th | $187,489 |
-| 50th (Median) | $2,286,567 |
-| 75th | $6,673,226 |
-| 90th | $14,751,114 |
-| 95th | $25,138,525 |
+| 5th | $7,709 |
+| 10th | $15,008 |
+| 25th | $506,155 |
+| 50th (Median) | $2,276,049 |
+| 75th | $6,543,435 |
+| 90th | $16,550,582 |
+| 95th | $24,542,783 |
 
-From 44.8% with the pure 4% FIRE scenario to 77.0% here — a substantial improvement from pulling all three levers. The lower tail also shifts noticeably: the 25th percentile goes from $18K to $187K, meaning the scenarios that would have failed most badly are the ones that benefit most from the shorter horizon and slightly higher CPP arriving 15 years in rather than 20.
+From 47.4% with the pure 4% FIRE scenario to 83.9% here — a substantial improvement from pulling all three levers plus OAS. The lower tail shifts dramatically: the 25th percentile goes from $21K to $506K, meaning the scenarios that would have failed most badly are the ones that benefit most from the shorter horizon and CPP+OAS arriving 15 years in rather than 20.
 
 The bimodal character remains — the 5th and 10th percentiles are still essentially empty, while above the median the numbers are enormous. A fourth lever not captured here is spending flexibility: reducing withdrawals in bad years and spending more in good ones is probably the most practical tool available, since it doesn't require more capital or more working years.
 
@@ -164,6 +164,6 @@ There's also an obvious survivorship bias at work. The FIRE movement became cult
 
 1. **The "95% safe" number comes from US historical data and a 30-year window.** It may not apply to your situation.
 2. **This simulator tends to produce lower success rates than historical studies** — deliberately, because it can generate scenarios worse than history, including those with no mean reversion after crashes.
-3. **For a 30-year Canadian retirement, 4% looks closer to 71% safe** under this model — still not catastrophic, but meaningfully different from the widely cited figure.
-4. **For longer retirements (FIRE), success rates drop further.** A lower withdrawal rate, a few extra working years, and modest CPP each move the needle — pulling all three levers together gets from 44.8% to 77.0%.
+3. **For a 30-year Canadian retirement, 4% looks closer to 69% safe** under this model — still not catastrophic, but meaningfully different from the widely cited figure.
+4. **For longer retirements (FIRE), success rates drop further.** A lower withdrawal rate, a few extra working years, and modest CPP+OAS each move the needle — pulling all levers together gets from 47.4% to 83.9%.
 5. **The percentile distribution matters as much as the success rate.** A plan with 70% success and a $400K median final balance is very different from one with 70% success and a $0 median final balance. Look at both.

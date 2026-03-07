@@ -1,0 +1,37 @@
+# README sample scenario: $2,000,000 portfolio (RRSP $1.2M, Taxable $400K, TFSA $400K),
+# $80,000/year desired spending (4% withdrawal rate), retiring at 65 in Ontario, with
+# CPP (~$800/month) and full OAS. Portfolio is double the canadian_retiree.yml scenario
+# to illustrate a higher-spending retiree while keeping the same 4% withdrawal rate.
+# mode: success_rate
+total_runs: 1000
+retirement_age: 65
+max_age: 95
+desired_spending: 80000
+annual_tfsa_contribution: 0
+province_code: ONT
+success_factor: 1
+
+return_sequence_type: geometric_brownian_motion
+annual_growth_rate:
+  average: 0.04
+  min: -0.25
+  max: 0.35
+  downturn_threshold: -0.1
+  savings: 0.005
+
+accounts:
+  rrsp: 1200000
+  taxable: 400000
+  tfsa: 400000
+  cash_cushion: 80000
+
+cpp:
+  start_age: 65
+  monthly_amount: 800
+
+oas:
+  start_age: 65
+  years_in_canada_after_18: 40
+
+taxes:
+  rrsp_withholding_rate: 0.3

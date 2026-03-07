@@ -16,6 +16,8 @@ require_relative "config/environment"
 mode_arg   = ARGV.find { |a| %w[detailed success_rate].include?(a) }
 inputs_arg = ARGV.find { |a| a.end_with?(".yml") }
 
-puts "Main: Running with mode: #{mode_arg || '(from inputs file)'}, inputs file: #{inputs_arg || 'inputs.yml (default)'}"
+mode_label   = mode_arg || "(from inputs file)"
+inputs_label = inputs_arg || "inputs.yml (default)"
+puts "Main: Running with mode: #{mode_label}, inputs file: #{inputs_label}"
 
 Run::AppRunner.new(inputs_arg || "inputs.yml", mode_arg).run

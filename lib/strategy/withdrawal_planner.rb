@@ -85,18 +85,16 @@ module Strategy
 
       what_we_wanted_after_tax = withdrawal_amounts.desired_income
       actual_gross = mandatory_rrif_withdrawal
-      what_we_will_actually_have_after_tax = after_tax_withdrawal(gross_rrif_and_cpp)
+      what_we_will_actually_have_after_tax = after_tax_withdrawal(gross_rrif_cpp_oas)
       forced_net_excess = what_we_will_actually_have_after_tax - what_we_wanted_after_tax
 
       [actual_gross, forced_net_excess]
     end
 
-    def gross_rrif_and_cpp
-      if withdrawal_amounts.cpp_used?
-        mandatory_rrif_withdrawal + withdrawal_amounts.cpp_annual_gross_income
-      else
-        mandatory_rrif_withdrawal
-      end
+    def gross_rrif_cpp_oas
+      mandatory_rrif_withdrawal +
+        (withdrawal_amounts.cpp_used? ? withdrawal_amounts.cpp_annual_gross_income : 0) +
+        (withdrawal_amounts.oas_used? ? withdrawal_amounts.oas_annual_gross_income : 0)
     end
 
     def handle_sufficient_rrsp_funds(selected_accounts, actual_gross, forced_net_excess)

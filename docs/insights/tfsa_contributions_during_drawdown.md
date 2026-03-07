@@ -4,7 +4,7 @@
 
 - [Why It's Not Obvious](#why-its-not-obvious)
 - [The Setup](#the-setup)
-- [$40,000/year Spending](#40000year-spending)
+- [$60,000/year Spending (Realistic HCOL)](#60000year-spending-realistic-hcol)
   - [Without TFSA Contribution](#without-tfsa-contribution)
   - [With $7,000/year TFSA Contribution](#with-7000year-tfsa-contribution)
 - [$35,000/year Spending (Lower Tax Bracket)](#35000year-spending-lower-tax-bracket)
@@ -24,69 +24,79 @@ But the cost is immediate. Making a TFSA contribution on top of your spending me
 
 Whether that tradeoff improves your long-term success rate — not just your tax efficiency — is the question. A strategy that's good for minimizing taxes paid isn't necessarily good for your retirement survival odds. We're focused on the latter.
 
-One variable that matters: your tax bracket. If your spending is low enough that even with the TFSA contribution you stay in a relatively low bracket, the upfront tax cost is smaller and the tradeoff might look different than for someone whose total withdrawal pushes into a higher bracket.
+One variable that matters: your tax bracket. If your spending is low enough that even with the TFSA contribution you stay in a relatively low bracket, the upfront tax cost is smaller and the tradeoff might look different than for someone whose total withdrawal is already in a higher bracket.
 
-To make that concrete for the scenarios below: in Ontario, the combined federal + provincial marginal rate sits at roughly 20.1% up to about $52,000 of gross income, then jumps to about 24.1%. CPP is taxable income, so the $9,600/year from the $800/month CPP assumption counts toward that threshold. At $40,000 spending *without* a TFSA contribution, total gross income needed is about $46,200 — inside the 20.1% bracket. Add the $7,000 TFSA contribution on top, and the total rises to about $55,100, which crosses into the 24.1% bracket. At $35,000 spending, neither scenario crosses: roughly $39,900 without the contribution and $48,700 with it — both stay at 20.1%. The two spending levels run at meaningfully different tax costs per dollar contributed to the TFSA.
+To make that concrete for the scenarios below: in Ontario, the combined federal + provincial marginal rate sits at roughly 20.1% up to about $52,000 of gross income, then jumps to about 24.1%. CPP and OAS are both taxable income, but they reduce the RRSP withdrawal needed to hit the same take-home target — so total gross income (RRSP + CPP + OAS) stays approximately the same as without OAS. What changes is composition, not total.
+
+At $60,000 spending, the gross income needed already sits well into the 24.1% bracket — roughly $75,000–$78,000 total — before any TFSA contribution is considered. Adding the $7,000 TFSA contribution on top pushes the required RRSP withdrawal higher, but stays within the same 24.1% bracket. The marginal tax cost of every dollar shifted to the TFSA is 24.1%.
+
+At $35,000 spending, both scenarios stay within the 20.1% bracket: roughly $39,900 gross without the contribution and $48,700 with it. The marginal tax cost of shifting money to the TFSA is 20.1% throughout.
+
+The result is a clean comparison: higher spending → higher marginal tax cost of the TFSA contribution → worse tradeoff. Lower spending (by design) → lower marginal tax cost → the contribution has a fighting chance.
 
 ## The Setup
 
-All scenarios use a Canadian retiree profile: retiring at 65, running to 95 (30-year horizon), CPP of $800/month (roughly the average for someone taking CPP at 65), and a 60/40 stock/bond portfolio. The withdrawal rate is set at 3.5% — slightly more conservative than the classic 4% rule — by sizing the portfolio accordingly. The TFSA contribution amount is $7,000/year, the 2024–2025 annual limit.
+All scenarios use a Canadian retiree profile: retiring at 65, running to 95 (30-year horizon), CPP of $800/month (roughly the average for someone taking CPP at 65) plus full OAS of ~$742/month, both starting at 65, and a 60/40 stock/bond portfolio. The withdrawal rate is set at 3.5% — slightly more conservative than the classic 4% rule — by sizing the portfolio accordingly. The TFSA contribution amount is $7,000/year, the 2024–2025 annual limit.
 
-## $40,000/year Spending
+## $60,000/year Spending (Realistic HCOL)
 
-Investable portfolio (RRSP + Taxable + TFSA) sized to a 3.5% withdrawal rate: $40,000 ÷ 0.035 = **$1,143,000**, plus a $40,000 cash cushion on top. With the TFSA contribution, the portfolio must effectively fund $47,000/year equivalent — the extra $7,000 gross RRSP withdrawal needed to cover the contribution after tax.
+Investable portfolio (RRSP + Taxable + TFSA) sized to a 3.5% withdrawal rate: $60,000 ÷ 0.035 ≈ **$1,714,000**, plus a $60,000 cash cushion on top. Combined guaranteed income from CPP and OAS of ~$1,542/month ($18,500/year) covers about 31% of the $60,000 spending need — the portfolio must carry the remaining 69%.
+
+With the TFSA contribution, the portfolio must effectively fund $67,000/year equivalent — the extra gross RRSP withdrawal needed to cover both spending and the contribution after tax, all drawn at the 24.1% marginal rate.
 
 ### Without TFSA Contribution
 
 ```bash
-ruby main.rb success_rate demo/tfsa_drawdown_40k.yml
+ruby main.rb success_rate demo/tfsa_drawdown_60k.yml
 ```
 
 | | |
 |---|---|
 | **Withdrawal Rate** | 3.5% |
-| **Success Rate** | 94.6% |
+| **Success Rate** | 97.2% |
 
 | Percentile | Final Balance |
 |---|---|
-| 5th | $41,923 |
-| 10th | $231,670 |
-| 25th | $620,906 |
-| 50th (Median) | $1,215,376 |
-| 75th | $2,332,383 |
-| 90th | $3,857,561 |
-| 95th | $5,262,451 |
+| 5th | $155,621 |
+| 10th | $402,291 |
+| 25th | $898,018 |
+| 50th (Median) | $1,862,412 |
+| 75th | $3,230,673 |
+| 90th | $5,589,856 |
+| 95th | $7,399,020 |
 
-A 94.6% success rate is a comfortable starting point — the combination of a conservative 3.5% withdrawal rate and CPP income leaves the portfolio under much less pressure than the 4% rule scenarios. The distribution is also notably well-behaved: the 5th percentile still has $41K remaining, and the median ends at $1.2M. Even bad sequences of returns don't wipe people out here — they just leave less.
+A 97.2% success rate is a solid baseline for a $60K HCOL retirement: roughly 1 in 36 retirees runs out before 95. The 5th percentile holds $156K — about 2.6 years of spending — and the median ends at $1.86M. CPP and OAS together cover 31% of annual spending, which meaningfully reduces sequence-of-returns exposure, but the portfolio still does the heavy lifting. With a conservative 3.5% withdrawal rate, the gap between the realistic worst and median outcomes is manageable.
 
 ### With $7,000/year TFSA Contribution
 
-Everything identical to the scenario above, except `annual_tfsa_contribution: 7000` is added on top of the $40,000 spending. The portfolio must now fund both.
+Everything identical to the scenario above, except `annual_tfsa_contribution: 7000` is added on top of the $60,000 spending. The portfolio must now fund both.
 
 ```bash
-ruby main.rb success_rate demo/tfsa_drawdown_40k_contrib.yml
+ruby main.rb success_rate demo/tfsa_drawdown_60k_contrib.yml
 ```
 
 | | |
 |---|---|
 | **Withdrawal Rate** | 3.5% |
-| **Success Rate** | 94.4% |
+| **Success Rate** | 96.0% |
 
 | Percentile | Final Balance |
 |---|---|
-| 5th | $37,346 |
-| 10th | $181,101 |
-| 25th | $553,963 |
-| 50th (Median) | $1,181,389 |
-| 75th | $2,367,017 |
-| 90th | $3,863,125 |
-| 95th | $5,171,437 |
+| 5th | $116,485 |
+| 10th | $341,211 |
+| 25th | $901,923 |
+| 50th (Median) | $1,795,526 |
+| 75th | $3,376,263 |
+| 90th | $6,112,017 |
+| 95th | $8,372,876 |
 
-The success rate moves from 94.6% to 94.4% — a difference that's within simulation noise and means nothing in practice. Every percentile is slightly lower with the contribution, which makes sense: the portfolio is being drawn on more each year to fund the TFSA, and the future tax-free benefit doesn't compensate enough within a 30-year window to show up in the survival odds. At this spending level, the TFSA contribution strategy doesn't improve your retirement security — it just moves money between accounts.
+The success rate drops from 97.2% to 96.0% — a 1.2 percentage point loss. The lower tail deteriorates: the 5th percentile falls from $156K to $116K (a 25% drop) and the 10th from $402K to $341K. The median slips from $1.86M to $1.80M. The portfolio is being drawn on more aggressively each year to fund the TFSA, and at the 24.1% marginal tax rate, the upfront cost is real. The future tax-free benefit doesn't compensate within a 30-year window for the scenarios that are already under pressure.
+
+The upper tail tells the opposite story: the 95th percentile rises from $7.4M to $8.4M. Tax-free compounding over 30 years delivers for the scenarios where the portfolio grows strongly and never faces a survival crisis. But those scenarios didn't need help — and the 1.2pp success rate loss shows the cost is paid by the retirees who could least afford it.
 
 ## $35,000/year Spending (Lower Tax Bracket)
 
-Investable portfolio (RRSP + Taxable + TFSA) sized to a 3.5% withdrawal rate: $35,000 ÷ 0.035 = **$1,000,000** exactly, plus a $35,000 cash cushion on top. With the TFSA contribution, total annual draw is the equivalent of $42,000. As described above, both the baseline and contribution scenarios stay within the 20.1% marginal bracket — unlike the $40K case, where adding the TFSA contribution crosses into 24.1%. If the bracket difference is going to show up anywhere, it should show up here.
+Investable portfolio sized to a 3.5% withdrawal rate: $35,000 ÷ 0.035 = **$1,000,000** exactly, plus a $35,000 cash cushion on top. This is an intentionally lower spending target — one that keeps total gross income in the 20.1% marginal bracket throughout, including when the TFSA contribution is added. As described above, both the baseline (~$39,900 gross) and the contribution scenario (~$48,700 gross) stay comfortably below the ~$52,000 bracket threshold. If the marginal tax rate argument has any force, it should show up here.
 
 ### Without TFSA Contribution
 
@@ -97,19 +107,19 @@ ruby main.rb success_rate demo/tfsa_drawdown_35k.yml
 | | |
 |---|---|
 | **Withdrawal Rate** | 3.5% |
-| **Success Rate** | 96.0% |
+| **Success Rate** | 99.7% |
 
 | Percentile | Final Balance |
 |---|---|
-| 5th | $65,276 |
-| 10th | $227,181 |
-| 25th | $590,156 |
-| 50th (Median) | $1,286,984 |
-| 75th | $2,179,829 |
-| 90th | $3,429,089 |
-| 95th | $4,529,104 |
+| 5th | $377,885 |
+| 10th | $536,014 |
+| 25th | $935,879 |
+| 50th (Median) | $1,639,826 |
+| 75th | $2,674,115 |
+| 90th | $4,080,824 |
+| 95th | $5,320,303 |
 
-A 96.0% success rate — slightly better than the $40K scenario's 94.6%, which makes sense. Spending $5,000 less per year means CPP covers a larger fraction of the need, the portfolio is drawn on less aggressively, and a smaller portfolio (sized to $35K spending) is required in the first place. The lower tail is also more comfortable: the 5th percentile has $65K remaining versus $42K in the $40K case.
+A 99.7% success rate — the combination of low spending, a conservative 3.5% withdrawal rate, and CPP+OAS covering a larger fraction of expenses pushes the outcome very close to the ceiling. The 5th percentile holds $378K — more than ten years of spending — and the median is $1.64M. Sequence-of-returns risk has relatively little room to cause damage when guaranteed income handles most of the annual need.
 
 ### With $7,000/year TFSA Contribution
 
@@ -122,25 +132,27 @@ ruby main.rb success_rate demo/tfsa_drawdown_35k_contrib.yml
 | | |
 |---|---|
 | **Withdrawal Rate** | 3.5% |
-| **Success Rate** | 95.6% |
+| **Success Rate** | 99.8% |
 
 | Percentile | Final Balance |
 |---|---|
-| 5th | $60,024 |
-| 10th | $188,944 |
-| 25th | $560,590 |
-| 50th (Median) | $1,187,282 |
-| 75th | $2,111,475 |
-| 90th | $3,317,603 |
-| 95th | $4,484,542 |
+| 5th | $310,343 |
+| 10th | $509,662 |
+| 25th | $879,711 |
+| 50th (Median) | $1,553,805 |
+| 75th | $2,733,859 |
+| 90th | $4,218,227 |
+| 95th | $5,338,255 |
 
-The success rate falls from 96.0% to 95.6% — the same marginal pattern as the $40K case (94.6% → 94.4%). Staying in the same marginal bracket didn't change the result. The TFSA contribution still costs more each year than the future tax-free benefit returns within the simulation window, regardless of whether you crossed a bracket or not. The small drop in every percentile tells the same story as before: the portfolio is being drawn on more each year, and the model doesn't recover that cost through future tax savings within 30 years.
+The success rate is essentially unchanged at 99.8% — both scenarios are at the ceiling and the 0.1pp difference is within simulation noise. The lower-tail percentiles show some variability: the 5th percentile fell from $378K to $310K in this run, which reflects the noisiness of outcomes near the ceiling rather than a meaningful signal. At 99.7%/99.8%, both strategies are in the same territory — the distribution of final balances is the more useful lens.
+
+The median and upper percentiles are slightly lower with the contribution, which is expected: more RRSP is drawn each year, so the compounding base is smaller. But with the contribution staying in the 20.1% bracket, the upfront tax cost is lower than the $60K scenario, and the survival odds don't suffer. The key contrast with the $60K case is the marginal rate: here, every dollar shifted to the TFSA costs 20.1% in immediate tax, not 24.1%. At the ceiling, that difference doesn't move the survival needle — but it doesn't hurt it either.
 
 ## Early Retirement (FIRE): Does the Longer Horizon Change Things?
 
 The two scenarios above use a 30-year retirement horizon (age 65 to 95). What about retiring at 45 with a 50-year horizon? The extra decades of tax-free compounding could change the calculus significantly — and the question of whether the benefit eventually outstrips the upfront tax cost becomes much more plausible when there are 50 years for it to play out.
 
-Same $40,000 spending and $1,143,000 investable portfolio as the first section (3.5% withdrawal rate), but retiring at 45 with 100% equity returns and modest CPP of $500/month at 65 — roughly what 20 years of median-income work earns. The portfolio carries the full $40K/year load for 20 years before CPP arrives.
+Same $60,000 spending and $1,714,000 investable portfolio as the first section (3.5% withdrawal rate), but retiring at 45 with 100% equity returns and modest CPP of $500/month at 65 plus OAS of ~$742/month from 65 — roughly what 20 years of median-income work earns. The portfolio carries the full $60K/year load for 20 years before CPP and OAS arrive together, at which point government income covers only ~25% of spending ($14,900/year combined).
 
 ### Without TFSA Contribution
 
@@ -151,23 +163,23 @@ ruby main.rb success_rate demo/tfsa_drawdown_fire.yml
 | | |
 |---|---|
 | **Withdrawal Rate** | 3.5% |
-| **Success Rate** | 59.6% |
+| **Success Rate** | 64.0% |
 
 | Percentile | Final Balance |
 |---|---|
-| 5th | $4,305 |
-| 10th | $8,848 |
-| 25th | $21,635 |
-| 50th (Median) | $764,556 |
-| 75th | $4,815,576 |
-| 90th | $14,199,368 |
-| 95th | $22,950,739 |
+| 5th | $7,735 |
+| 10th | $15,254 |
+| 25th | $32,467 |
+| 50th (Median) | $1,514,390 |
+| 75th | $9,002,704 |
+| 90th | $24,617,202 |
+| 95th | $38,565,810 |
 
-A 59.6% success rate — much lower than either standard retirement scenario, which is expected. A 50-year horizon with no income support for the first 20 years is a much harder problem than a 30-year horizon with CPP from day one. The distribution has the extreme bimodality typical of long FIRE simulations: the 25th percentile is essentially empty ($22K) while the 75th is $4.8M. With 50 years of 100% equity returns, the scenarios that survive tend to compound into very large numbers; the ones that fail tend to fail decisively.
+A 64.0% success rate — much lower than either standard retirement scenario, which is expected. A 50-year horizon with no income support for the first 20 years and $60K spending is a significantly harder problem than a 30-year horizon with CPP and OAS from day one. The distribution shows the extreme bimodality of long 100% equity simulations: the 25th percentile is $32K while the 75th is $9M. The scenarios that survive compound into very large numbers over 50 years; the ones that fail tend to fail decisively in the first decade.
 
 ### With $7,000/year TFSA Contribution
 
-Everything identical, with `annual_tfsa_contribution: 7000` added on top of $40,000 spending.
+Everything identical, with `annual_tfsa_contribution: 7000` added on top of $60,000 spending.
 
 ```bash
 ruby main.rb success_rate demo/tfsa_drawdown_fire_contrib.yml
@@ -176,35 +188,36 @@ ruby main.rb success_rate demo/tfsa_drawdown_fire_contrib.yml
 | | |
 |---|---|
 | **Withdrawal Rate** | 3.5% |
-| **Success Rate** | 61.8% |
+| **Success Rate** | 60.1% |
 
 | Percentile | Final Balance |
 |---|---|
-| 5th | $5,701 |
-| 10th | $10,534 |
-| 25th | $24,713 |
-| 50th (Median) | $823,620 |
-| 75th | $5,209,428 |
-| 90th | $13,747,721 |
-| 95th | $25,681,998 |
+| 5th | $6,611 |
+| 10th | $12,786 |
+| 25th | $31,061 |
+| 50th (Median) | $1,230,414 |
+| 75th | $7,300,169 |
+| 90th | $18,500,941 |
+| 95th | $34,105,414 |
 
-The direction flips. The success rate rises from 59.6% to 61.8% — a +2.2 percentage point improvement, compared to the slight *declines* seen in both 30-year scenarios. Every percentile improves, with the median up from $765K to $824K. The TFSA contribution actually helps here.
+The success rate falls from 64.0% to 60.1% — a 3.9 percentage point drop. At 1,000 simulation runs, this is outside noise range and represents a genuine signal: the TFSA contribution meaningfully hurts FIRE survival odds at $60K spending. The median falls from $1.51M to $1.23M, and the upper percentiles are lower across the board (95th: $38.6M → $34.1M). Even the best-case survivors end up with less.
 
-Two things work together to produce this reversal. First, the tax cost is lower: with no CPP income in the first 20 years, the gross RRSP withdrawal needed to fund $40K spending is lower than in the standard retirement case, which means the TFSA contribution adds less additional taxable income. Second — and more importantly — money moved into the TFSA at age 45 has up to 50 years to compound tax-free before the simulation ends. The crossover point where future tax savings outweigh today's upfront cost actually lands within the window this time.
-
-The improvement is real but modest. The 5th percentile goes from $4K to $6K — both are effectively zero, and the strategy doesn't rescue the people who were going to fail anyway. What it does is shift the already-surviving scenarios to slightly better outcomes across the board.
+The mechanism is the same one that shows up in the standard retirement case, but amplified by two factors. First, the portfolio must carry the full $60K/year for 20 years with zero income support — each extra dollar of RRSP withdrawal for the TFSA contribution represents compounding foregone during exactly the most damaging window for sequence-of-returns risk. Second, at $60K spending the RRSP withdrawal already sits at the 24.1% marginal rate from the start, so the TFSA contribution has a high immediate tax cost throughout those 20 critical years. The 50 years of tax-free compounding on the money that makes it to the TFSA is not enough to overcome a 3.9pp survival penalty in the scenarios that need it most.
 
 ## What We Found
 
-In standard retirement (30-year horizon, CPP from day one), adding a $7,000/year TFSA contribution produces essentially the same result regardless of spending level or whether it crosses a marginal tax bracket: the success rate is flat to marginally lower, and every percentile shifts slightly downward. The bracket crossing at $40K spending (20.1% → 24.1%) didn't make it meaningfully worse than the $35K scenario that stayed within the bracket. The tax cost isn't the deciding factor.
+The picture across three spending levels is coherent and the pattern is clear.
 
-The deciding factor is the time horizon. In the early retirement scenario — 50 years, no CPP for 20 years — the direction reverses. The strategy adds +2.2 percentage points to the success rate and improves every percentile. Fifty years is long enough for the tax-free compounding benefit to outweigh the upfront cost within the simulation window. Thirty years isn't.
+In the **30-year standard retirement at $60K** (realistic HCOL), the TFSA contribution costs 1.2 percentage points of success rate (97.2% → 96.0%) and worsens the lower tail — the 5th percentile drops from $156K to $116K. The portfolio is already drawing at the 24.1% marginal rate without the contribution, so every dollar shifted to the TFSA carries that full immediate tax cost. Over 30 years, the tax-free compounding benefit doesn't recoup it in the scenarios under stress.
 
-The underlying tradeoff is the same in every case: more RRSP withdrawn today, more tax paid today, less in the portfolio compounding now — in exchange for tax-free growth and withdrawals later. The question is whether "later" arrives within your planning horizon. For a 65-year-old, the payoff is far enough out that it doesn't move survival odds. For a 45-year-old, it's close enough to matter.
+In the **30-year standard retirement at $35K** (intentional low-bracket strategy), success rates are statistically identical — 99.7% vs 99.8%, both at the ceiling. At the 20.1% marginal rate, the TFSA contribution is cheaper per dollar shifted, and the lower spending means the portfolio is under far less pressure to begin with. The strategy is neutral on survival odds, which means the legitimate non-survival reasons to contribute (RRIF reduction, OAS clawback management, estate planning) can drive the decision without worrying about a survival cost.
+
+In the **50-year FIRE scenario at $60K**, the TFSA contribution produces a clear -3.9pp drop in success rate (64.0% → 60.1%) — a meaningful signal beyond simulation noise. The 20-year period without any CPP or OAS income means the portfolio's full drawdown burden falls on the invested accounts alone, and funding an annual TFSA contribution on top of $60K spending adds a compounding drag precisely when the portfolio is most vulnerable. The 50-year horizon does not redeem the strategy — the tax-free growth over decades is outweighed by the higher portfolio exposure in the critical first two decades.
 
 ## Key Takeaways
 
-1. **In standard retirement (30-year horizon), TFSA contributions during drawdown don't improve survival odds.** At both spending levels tested, the success rate was flat to marginally lower — not higher. Bracket differences between scenarios didn't change the pattern.
-2. **In early retirement (50-year horizon), the strategy helps.** The success rate rose +2.2 percentage points, and every percentile improved. The longer horizon is what makes the difference — not the spending level or the tax bracket.
-3. **The cost is immediate; the benefit is future.** The tradeoff is the same in every case. What changes is whether your planning horizon is long enough for the future benefit to arrive. Thirty years isn't. Fifty years is.
-4. **This doesn't mean avoiding the strategy in standard retirement.** There are legitimate reasons to shift money from RRSP to TFSA during drawdown: reducing RRIF forced withdrawals at 71, minimizing OAS clawback, estate planning, or tax diversification (none of which this simulator models). Those benefits are real — they just don't show up in a success rate metric. If one of those goals matters to you, the marginal survival cost is small enough that it needn't be a barrier.
+1. **At higher spending ($60K), the TFSA contribution hurts survival odds in standard retirement.** The -1.2pp success rate gap and the deteriorating lower tail reflect the 24.1% marginal tax cost of drawing extra RRSP income at this spending level. The upper tail benefits — tax-free compounding does pay off for the scenarios that never face a survival crisis — but the cost falls on the retirees who need protection most.
+2. **At lower spending ($35K), the TFSA contribution is neutral on survival odds.** Both scenarios sit at the ceiling (~99.7–99.8%). At the 20.1% marginal rate, the upfront tax cost is lower and the strategy neither helps nor hurts survival odds. The legitimate non-survival reasons to contribute — reducing RRIF forced withdrawals at 71, managing OAS clawback, estate planning, or tax diversification — can drive the decision without a survival penalty.
+3. **In FIRE at $60K, the TFSA contribution clearly hurts.** The -3.9pp drop is outside simulation noise. During the 20-year window before CPP and OAS arrive, each extra dollar of RRSP withdrawal for the contribution compounds the drawdown burden at the worst possible time.
+4. **The tax bracket is the key lever.** Lower spending → lower marginal rate on RRSP withdrawals → cheaper to fund the TFSA → survival odds unaffected. Higher spending → already in the upper bracket → higher immediate cost → survival penalty. The question isn't whether the TFSA contribution is a good idea in isolation; it's what marginal tax rate you pay to fund it.
+5. **This doesn't mean avoiding the strategy.** There are legitimate reasons to shift money from RRSP to TFSA during drawdown: reducing RRIF forced withdrawals at 71, minimizing OAS clawback (not yet modelled by this simulator), estate planning, or tax diversification. Those benefits are real — they just don't show up in a success rate metric. If one of those goals matters to you, the survival cost at lower spending levels is small enough that it needn't be a barrier. At higher spending levels, weigh the cost consciously.
