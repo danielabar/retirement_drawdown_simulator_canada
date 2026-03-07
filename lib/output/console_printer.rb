@@ -55,7 +55,7 @@ module Output
     end
 
     def formatted_header
-      ["Age", "RRSP", "Taxable", "TFSA", "Cash Cushion", "CPP Used", "Total Balance", "RRIF Net Excess", "Note", "RoR"]
+      ["Age", "RRSP", "Taxable", "TFSA", "Cash Cushion", "Benefits", "Total Balance", "RRIF Net Excess", "Note", "RoR"]
     end
 
     def formatted_yearly_results
@@ -71,7 +71,7 @@ module Output
         format_currency(record[:taxable_balance]),
         format_currency(record[:tfsa_balance]),
         format_currency(record[:cash_cushion_balance]),
-        cpp_value(record),
+        benefits_value(record),
         format_currency(record[:total_balance]),
         format_currency(record[:rrif_forced_net_excess]),
         record[:note],
@@ -87,8 +87,11 @@ module Output
       NumericFormatter.format_percentage(value)
     end
 
-    def cpp_value(record)
-      record[:cpp] ? "Yes" : "No"
+    def benefits_value(record)
+      active = []
+      active << "CPP" if record[:cpp]
+      active << "OAS" if record[:oas]
+      active.empty? ? "-" : active.join(", ")
     end
 
     def print_simulation_evaluation

@@ -123,6 +123,16 @@ cpp:
   start_age: 65
   monthly_amount: 0
 
+# Old Age Security (OAS)
+# Enter the age at which you plan to start OAS (65–70).
+# Deferring past 65 increases the payment by 0.6% per month (max +36% at age 70).
+# Enter the number of years you have lived in Canada after age 18.
+# You need at least 10 years to qualify. 40 years gives the full pension.
+# Set years_in_canada_after_18 to 0 to run without OAS.
+oas:
+  start_age: 65
+  years_in_canada_after_18: 40
+
 # Taxes
 # Withholding tax may be greater than your actual tax bill, you'll get a refund when you file your taxes.
 # In the first year of retirement, you'll have to have some extra cash available to "float" the difference.

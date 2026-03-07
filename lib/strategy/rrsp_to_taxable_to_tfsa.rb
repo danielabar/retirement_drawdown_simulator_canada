@@ -48,6 +48,10 @@ module Strategy
       withdrawal_amounts.cpp_used?
     end
 
+    def oas_used?
+      withdrawal_amounts.oas_used?
+    end
+
     private
 
     def ran_out_of_money?(account_transactions)

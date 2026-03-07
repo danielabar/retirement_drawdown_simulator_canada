@@ -1,0 +1,39 @@
+# Canadian retiree baseline: $60,000/year spending (single, modest Vancouver/Toronto)
+# at a 3.5% withdrawal rate. Portfolio of $1,714,000 is sized so that $60,000 represents
+# ~3.5% ($60,000 / 0.035). CPP $800/month at 65 (typical average). No TFSA contribution
+# during drawdown.
+# Used as the baseline in docs/insights/tfsa_contributions_during_drawdown.md —
+# compare to demo/tfsa_drawdown_60k_contrib.yml to see the effect of contributing.
+# mode: success_rate
+total_runs: 1000
+retirement_age: 65
+max_age: 95
+desired_spending: 60000
+annual_tfsa_contribution: 0
+province_code: ONT
+success_factor: 1
+
+return_sequence_type: geometric_brownian_motion
+annual_growth_rate:
+  average: 0.04
+  min: -0.25
+  max: 0.35
+  downturn_threshold: -0.1
+  savings: 0.005
+
+accounts:
+  rrsp: 1028400
+  taxable: 342800
+  tfsa: 342800
+  cash_cushion: 60000
+
+cpp:
+  start_age: 65
+  monthly_amount: 800
+
+oas:
+  start_age: 65
+  years_in_canada_after_18: 40
+
+taxes:
+  rrsp_withholding_rate: 0.3

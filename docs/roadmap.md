@@ -5,12 +5,8 @@
 - Assuming all accounts invested in the same thing, therefore growing at the same rate
 - Transaction costs (RRSP withdrawal fee, TFSA withdrawal fee, ETF selling commission)
 - Support choice of multiple drawdown strategies (eg: TFSA first, taxable first)
+- OAS clawback (affects high-income retirees with net income above ~$95K; see https://www.canada.ca/en/services/benefits/publicpensions/old-age-security/benefit-amount.html)
 - Other [enhancements](https://github.com/danielabar/retirement_drawdown_simulator_canada/issues?q=is%3Aissue%20state%3Aopen%20label%3Aenhancement)
-
-### OAS
-
-- OAS (make the value an input config as it could change)
-- Clawback: https://www.canada.ca/en/services/benefits/publicpensions/old-age-security/benefit-amount.html
 
 ### Cash Cushion
 

@@ -30,6 +30,10 @@ RSpec.describe AppConfig do
         "start_age" => 65,
         "monthly_amount" => 0
       },
+      "oas" => {
+        "start_age" => 65,
+        "years_in_canada_after_18" => 40
+      },
       "taxes" => {
         "rrsp_withholding_rate" => 0.3
       }
@@ -62,6 +66,15 @@ RSpec.describe AppConfig do
       expect(app_config.cpp).to eq(
         "start_age" => 65,
         "monthly_amount" => 0
+      )
+    end
+  end
+
+  describe "#oas" do
+    it "returns the OAS values" do
+      expect(app_config.oas).to eq(
+        "start_age" => 65,
+        "years_in_canada_after_18" => 40
       )
     end
   end

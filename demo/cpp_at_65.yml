@@ -1,14 +1,15 @@
 # CPP timing comparison — taking CPP at the standard age (65).
-# $1,000,000 portfolio ($600K RRSP / $200K Taxable / $200K TFSA) plus a $40,000 cash cushion,
-# retiring at 60 with $40,000/year spending, running to 95 (35-year horizon), Ontario.
+# $1,500,000 portfolio ($900K RRSP / $300K Taxable / $300K TFSA) plus a $60,000 cash cushion,
+# retiring at 60 with $60,000/year spending (single, modest Vancouver/Toronto),
+# running to 95 (35-year horizon), Ontario.
+# Portfolio sized at 4% rule: $60,000 / 0.04 = $1,500,000 (cash cushion excluded from calculation).
 # CPP at 65 pays $1,524/month — delayed 5 years for a 70% higher monthly benefit.
 # Compare to demo/cpp_at_60.yml and demo/cpp_at_70.yml.
-# Used in docs/insights/when_to_take_cpp.md.
 # mode: success_rate
 total_runs: 1000
 retirement_age: 60
 max_age: 95
-desired_spending: 40000
+desired_spending: 60000
 annual_tfsa_contribution: 0
 province_code: ONT
 success_factor: 1
@@ -22,14 +23,18 @@ annual_growth_rate:
   savings: 0.005
 
 accounts:
-  rrsp: 600000
-  taxable: 200000
-  tfsa: 200000
-  cash_cushion: 40000
+  rrsp: 900000
+  taxable: 300000
+  tfsa: 300000
+  cash_cushion: 60000
 
 cpp:
   start_age: 65
   monthly_amount: 1524
+
+oas:
+  start_age: 65
+  years_in_canada_after_18: 40
 
 taxes:
   rrsp_withholding_rate: 0.3

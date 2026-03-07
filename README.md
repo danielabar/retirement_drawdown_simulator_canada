@@ -22,7 +22,7 @@
 
 *A Canadian retirement stress-tester.*
 
-**Retirement Drawdown Simulator** is a Canadian-specific Monte Carlo retirement simulator. It models realistic market volatility, applies federal and provincial income tax to RRSP withdrawals, handles CPP as taxable income, enforces RRIF mandatory withdrawal rules starting at age 71, and runs your scenario hundreds or thousands of times to show a *distribution* of outcomes — not just one optimistic number.
+**Retirement Drawdown Simulator** is a Canadian-specific Monte Carlo retirement simulator. It models realistic market volatility, applies federal and provincial income tax to RRSP withdrawals, handles CPP and OAS as taxable income, enforces RRIF mandatory withdrawal rules starting at age 71, and runs your scenario hundreds or thousands of times to show a *distribution* of outcomes — not just one optimistic number.
 
 Professional retirement planning software costs thousands of dollars to have a CFP run a single plan for you, and you can't buy it yourself. This is a free, transparent, open-source tool for those who want to better understand how long their savings might realistically last under a straightforward withdrawal strategy — not a replacement for professional advice, but a useful starting point.
 
@@ -37,7 +37,7 @@ When I started looking for a basic tool to simulate a retirement drawdown in Can
 
 - **Tax-aware RRSP withdrawals.** RRSP withdrawals are taxable income. If you want $40,000 to spend, you have to withdraw significantly more. This simulator does a reverse tax calculation to find the exact gross withdrawal needed. For example, $40,000 after-tax in Ontario requires withdrawing approximately $46,200.
 
-- **CPP as taxable income, handled correctly.** CPP and RRSP withdrawals are both taxable income that interact in a non-linear way. The simulator uses binary search to find the exact RRSP withdrawal where combined after-tax income hits your target. Naively subtracting CPP from your spending needs will give you the wrong answer.
+- **CPP and OAS as taxable income, handled correctly.** CPP, OAS, and RRSP withdrawals are all taxable income that interact in a non-linear way. The simulator uses binary search to find the exact RRSP withdrawal where combined after-tax income hits your target. Naively subtracting CPP or OAS from your spending needs will give you the wrong answer. OAS increases 10% at age 75 and can be deferred from 65 to 70 for a bonus of up to +36%.
 
 - **RRIF mandatory withdrawals.** Your RRSP must convert to a RRIF by age 71, after which the government requires you to withdraw a rising percentage each year. The simulator enforces these rules and deposits any forced excess (after tax) into the taxable account.
 
@@ -110,78 +110,75 @@ Argument order doesn't matter — the mode and file path are detected independen
 
 ## Sample Output
 
-A sample Canadian retiree scenario: $1,000,000 portfolio (RRSP $600K, Taxable $200K, TFSA $200K), $40,000/year desired spending (4% withdrawal rate), retiring at 65 in Ontario, running to age 95. CPP of $800/month starts at 65 — roughly the average for someone taking CPP at 65. Returns are modelled as a balanced 60/40 portfolio (4% real average, min -25%, max +35%). A $40,000 cash cushion is held in reserve for downturns.
+A sample Canadian retiree scenario: $2,000,000 portfolio (RRSP $1.2M, Taxable $400K, TFSA $400K), $80,000/year desired spending (4% withdrawal rate), retiring at 65 in Ontario, running to age 95. CPP of $800/month starts at 65 — roughly the average for someone taking CPP at 65 — along with full OAS at 65 (40 years of Canadian residency). Returns are modelled as a balanced 60/40 portfolio (4% real average, min -25%, max +35%). An $80,000 cash cushion is held in reserve for downturns.
 
 ```sh
-ruby main.rb demo/canadian_retiree.yml
+ruby main.rb demo/readme_canadian_retiree.yml
 ```
 
 ![demo canadian retiree](docs/images/demo_canadian_retiree.jpg "demo canadian retiree")
 
 A few things to notice in this run:
 
-- **The gross RRSP withdrawal is $46,200, not $40,000.** The first-year cash flow table shows why: RRSP withdrawals are taxable income, so the simulator works backwards from the $40,000 desired spending to find the gross amount needed after tax. The withholding tax is $13,860 upfront, but the actual tax bill is only $6,200 — so a $7,660 refund is expected. This is the cash flow nuance explained in [First Year of RRSP Withdrawals](docs/first_year.md).
-- **CPP is active from day one, but the gross RRSP withdrawal still reflects the combined tax on both.** CPP and RRSP withdrawals are both taxable income and interact non-linearly. The simulator uses binary search to find the RRSP amount that, combined with CPP, nets exactly $40,000 after tax.
-- **The RRSP is exhausted around age 79**, after about 14 years of drawdown. From that point withdrawals shift to the taxable account, visible in the Note column switching from `rrsp` to `taxable`.
-- **The TFSA compounds untouched from $200K to a peak of ~$835K** while the RRSP and taxable accounts are drawn down first. This is the tax-free compounding benefit of preserving the TFSA as long as possible.
-- **The cash cushion was never triggered in this run.** The worst year (-22.47% at age 71) did not draw from the cushion because age 71 is when RRIF mandatory withdrawals begin — mandatory RRSP withdrawals take precedence over the cash cushion strategy.
-- **RRIF Net Excess is $0 throughout.** By the time the RRSP converts to a RRIF at age 71, the balance has already been drawn down to ~$360K. The mandatory RRIF minimum at age 71 is 5.28% of the balance — roughly $19,000 — which is well below the ~$46,000 gross withdrawal needed to net $40,000. So the mandatory minimum never forces out more than is already being withdrawn, and there is no excess to deposit into the taxable account.
-- **The Note column shows which account is being withdrawn from each year.** For most of retirement it reads `rrsp`, but at age 79 it switches to `rrsp, taxable` — meaning there wasn't enough left in the RRSP to cover the full year's spending, so the simulator combined the remaining RRSP balance with a top-up from the taxable account. From age 80 onward it's `taxable` only.
-- **At age 95 the taxable account is nearly exhausted** (down to $6,383 the year before), so the Note switches to `taxable, tfsa` as the simulator draws the last of the taxable balance and takes the remainder from the TFSA — which has been compounding untouched for years and still holds $747,210 at the end.
-- **This particular run ends with $793,898** — a successful outcome. A different random return sequence would produce a different result, which is why success rate mode runs the simulation thousands of times.
+- **The first-year cash flow table shows the withholding mechanics for an $80K spending plan.** The simulator works backwards from $80,000 desired spending to find the gross RRSP withdrawal needed after tax. At this income level in Ontario, the withholding tax is $30,539 upfront and the actual tax bill is $21,795 — so an $8,743 refund is expected. This is the cash flow nuance explained in [First Year of RRSP Withdrawals](docs/first_year.md).
+- **CPP and OAS are both active from day one**, visible in the Benefits column throughout. All three income sources — RRSP withdrawals, CPP, and OAS — are taxable and interact non-linearly. The simulator uses binary search to find the RRSP withdrawal that, combined with CPP and OAS, nets exactly $80,000 after tax. Together CPP (~$9,600/year) and OAS (~$8,500/year) cover roughly $18,000 of annual spending — about 22% of the spending target — reducing but not eliminating the annual draw on the portfolio.
+- **The cash cushion was triggered in the very first year** (age 65, -11.35%, well below the -10% threshold). Rather than selling RRSP shares at a loss, the simulator drew from the cushion to fund the portfolio-funded portion of spending, reducing it from $80,000 to ~$18,600. It partially replenished via the 0.5% annual savings rate and remained around $18–20K for the rest of retirement.
+- **The RRSP lasts until age 87** — 22 years of drawdown. The Note column shows `rrsp` from age 66 through 86, switching to `rrsp, taxable` at age 87 when the final RRSP balance is combined with a taxable top-up, then `taxable` from age 88 onward.
+- **RRIF mandatory withdrawals begin at age 71.** The mandatory minimum is always below the gross withdrawal already being taken — no excess is produced and RRIF Net Excess is $0 throughout.
+- **The TFSA and taxable accounts grow in parallel** while the RRSP is drawn down. The TFSA is never touched, growing from $400K to $1,319,414 by age 95. The taxable account reaches $665,753. The RRSP funds the full retirement through age 87 before the taxable account takes over for the final years.
+- **This particular run ends with $2,006,769** — a successful outcome, finishing above the $2,080,000 starting balance despite 30 years of withdrawals. A different random return sequence would produce a different result, which is why success rate mode runs the simulation thousands of times.
 
 Here is a different run of the exact same scenario — same inputs, different random return sequence — that fails three years short of the target:
 
 ![demo canadian retiree failure](docs/images/demo_canadian_retiree_failure.jpg "demo canadian retiree failure")
 
-- **The average return was actually 4.46%** — slightly above the 4% target average. This plan didn't fail because of poor average returns. It failed because of the *sequence* of those returns.
-- **Five negative years between ages 69 and 75**, several severe: -11.76%, -12.65%, -27.79%, -15.51%. This cluster of bad years in the critical early retirement window is exactly what sequence-of-returns risk looks like. Selling investments at depressed prices to fund spending leaves less capital to recover when returns improve.
-- **The cash cushion was triggered at age 69** (-11.76%, below the -10% threshold), drawing it down from ~$41K to ~$10K in one year. After that it was too depleted to cover a full year's spending, so it couldn't be used again in the subsequent bad years at 71, 73, and 75.
-- **The TFSA never had a chance to compound.** In the success run above, the TFSA grew from $200K to a peak of ~$835K because it was left untouched for decades. Here, the taxable account runs dry by age 84 — over a decade earlier — forcing the simulator into the TFSA much sooner. With the TFSA being drawn from age 84 onward instead of accumulating, it runs to zero at age 92.
+- **The average return was -1.03%** — not just below the 4% target but negative on average. This plan didn't fail because spending was reckless. It failed because of an extraordinarily bad sequence of returns.
+- **The early years were the problem**: -8.67% at age 65, near-flat at 66 and 67, then -12.46% at age 68. Four consecutive weak or negative years at the start of retirement is exactly the sequence-of-returns risk scenario — selling depreciated assets to fund spending leaves less capital to recover when markets eventually improve.
+- **The cash cushion was triggered at age 68** (-12.46%, below the -10% threshold), drawing it down from ~$80,000 to ~$19,800. Too depleted afterward to absorb the continued string of poor years that followed.
+- **The RRSP was exhausted at age 79** — only 14 years of drawdown vs 22 in the success run. Repeated selling at depressed prices compounded into a much faster depletion. Withdrawals shifted to the taxable account, which itself ran dry by age 86.
+- **The TFSA never had a chance to compound.** In the success run above, the TFSA was left untouched for all 30 years, growing to $1.3M. Here, the simulator was forced into the TFSA by age 87 with only ~$452K left — less than a third of the success-run TFSA — and it ran to zero at age 92.
 - **Money runs out at age 92**, three years short of the target age of 95.
 
 > [!NOTE]
-> In practice, a real retiree watching their savings shrink would likely adapt — reducing discretionary spending, downsizing, or considering a life annuity to convert some savings into guaranteed income. Canadians also have a safety net the simulator doesn't currently model: **Old Age Security (OAS)**, available to most Canadians at 65, and the **Guaranteed Income Supplement (GIS)**, which provides additional support to low-income seniors. A retiree in financial difficulty would likely qualify for GIS before their savings hit zero. These programs are on the [roadmap](docs/roadmap.md). In the meantime, treat a simulated failure as a signal to pressure-test your plan — not a prediction that you will literally run out of money with no recourse.
+> In practice, a real retiree watching their savings shrink would likely adapt — reducing discretionary spending, downsizing, or considering a life annuity to convert some savings into guaranteed income. Canadians also have a safety net worth noting: **Old Age Security (OAS)**, available to most Canadians at 65, is now modelled by this simulator — it is treated as taxable income and reduces required RRSP withdrawals accordingly. The **Guaranteed Income Supplement (GIS)**, which provides additional support to low-income seniors, is not yet modelled. A retiree in financial difficulty would likely qualify for GIS before their savings hit zero. In the meantime, treat a simulated failure as a signal to pressure-test your plan — not a prediction that you will literally run out of money with no recourse.
 
 ## Determining Your Success Rate
 
 Run the simulation in `success_rate` mode to see how your plan holds up across many different random return sequences. Using the same Canadian retiree scenario from above:
 
 ```bash
-ruby main.rb success_rate demo/canadian_retiree.yml
+ruby main.rb success_rate demo/readme_canadian_retiree.yml
 ```
 
 | | |
 |---|---|
 | **Withdrawal Rate** | 4.0% |
-| **Success Rate** | 89.2% |
-| **Average Final Balance** | $1,314,143 |
+| **Success Rate** | 85.5% |
+| **Average Final Balance** | $2,369,294 |
 
 | Percentile | Final Balance |
 |---|---|
-| 5th | $26,616 |
-| 10th | $40,295 |
-| 25th | $324,435 |
-| 50th (Median) | $829,747 |
-| 75th | $1,723,511 |
-| 90th | $3,018,513 |
-| 95th | $4,190,952 |
+| 5th | $42,973 |
+| 10th | $66,260 |
+| 25th | $485,400 |
+| 50th (Median) | $1,449,133 |
+| 75th | $3,167,311 |
+| 90th | $5,331,443 |
+| 95th | $8,311,033 |
 
 The output shows:
 - **Success rate** — what percentage of simulated retirements reached `max_age` with at least `success_factor × desired_spending` remaining
 - **Average final balance** — the mean balance across all runs
 - **Final balance percentiles** — the distribution from the worst 5% of outcomes to the best 95%
 
-For this scenario, **89.2% of simulated retirements succeeded** — meaning roughly 1 in 9 runs out of money before age 95. The $800/month CPP benefit does significant work here: the same 4% scenario without CPP produces a success rate around 71% (see [Is the 4% Rule Actually Safe?](docs/insights/four_percent_rule.md)). Guaranteed income that doesn't depend on market performance directly reduces sequence-of-returns risk, which is the main threat to a retirement portfolio.
+For this scenario, **85.5% of simulated retirements succeeded** — meaning roughly 1 in 7 runs out of money before age 95. The CPP and OAS benefits (~$18,000/year combined) reduce the annual portfolio draw, but at $80,000/year spending the portfolio still carries most of the load. Guaranteed income that doesn't depend on market performance directly reduces sequence-of-returns risk, which is the main threat to a retirement portfolio.
 
-The percentile spread tells the rest of the story. The median survivor ends with ~$830K — roughly 20x annual spending, still comfortably funded. But the 5th and 10th percentiles ($27K and $40K) are essentially empty, meaning the roughly 1-in-10 scenarios that go badly go very badly. The upper tail is wide too: the top quartile ends with over $1.7M, and the best 5% exceed $4M, driven by compounding in the TFSA over decades of untouched growth.
+The percentile spread tells the rest of the story. The median survivor ends with ~$1.45M — roughly 18x annual spending, still comfortably funded. But the 5th and 10th percentiles ($43K and $66K) are essentially empty: the failure scenario above isn't a fluke, it's what roughly 1-in-7 runs looks like. The upper tail is very wide: the top quartile ends with over $3.1M, and the best 5% exceed $8.3M, driven by decades of untouched TFSA compounding in runs where returns cooperated.
 
-You control what "success" means via the `success_factor` setting in `inputs.yml`. A `success_factor` of `1` means ending with at least one year's spending left; `1.5` means one and a half years' worth, and so on. For example, with `max_age: 95`, `desired_spending: 40000`, and `success_factor: 1.5`, success means having at least $60,000 left at age 95. See [Configuration](docs/configuration.md) for details.
-
-The percentile table is as informative as the success rate. The spread between the 5th and 95th percentile shows how wide the range of outcomes is, and the low percentiles show what your situation might look like in the scenarios where things go badly — which is precisely the information you need to pressure-test a plan.
+You control what "success" means via the `success_factor` setting in `inputs.yml`. A `success_factor` of `1` means ending with at least one year's spending left; `1.5` means one and a half years' worth, and so on. For example, with `max_age: 95`, `desired_spending: 80000`, and `success_factor: 1.5`, success means having at least $120,000 left at age 95. See [Configuration](docs/configuration.md) for details.
 
 > [!NOTE]
-> The 4% rule is often cited as having a "95% success rate" — but that figure comes from US historical data replayed over past sequences. This simulator uses Geometric Brownian Motion without mean reversion, intentionally modelling futures that could be worse than history. For the same 4% scenario, this simulator produces a success rate closer to **70%**. See [How It Works](docs/how-it-works.md#geometric_brownian_motion-recommended) for why, and [Is the 4% Rule Actually Safe?](docs/insights/four_percent_rule.md) for a detailed analysis of what this means in practice.
+> The 4% rule is often cited as having a "95% success rate" — but that figure comes from US historical data replayed over past sequences. This simulator uses Geometric Brownian Motion without mean reversion, intentionally modelling futures that could be worse than history. For the same 4% scenario, this simulator produces lower success rates. See [How It Works](docs/how-it-works.md#geometric_brownian_motion-recommended) for why, and [Is the 4% Rule Actually Safe?](docs/insights/four_percent_rule.md) for a detailed analysis of what this means in practice.
 
 ## Documentation
 

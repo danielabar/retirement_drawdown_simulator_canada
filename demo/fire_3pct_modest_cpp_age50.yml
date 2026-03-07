@@ -36,5 +36,9 @@ cpp:
   start_age: 65
   monthly_amount: 650
 
+oas:
+  start_age: 65
+  years_in_canada_after_18: 40
+
 taxes:
   rrsp_withholding_rate: 0.3

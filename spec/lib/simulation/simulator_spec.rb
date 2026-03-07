@@ -40,6 +40,11 @@ RSpec.describe Simulation::Simulator do
       let!(:simulation_output) { described_class.new(app_config).run }
       let!(:yearly_results) { simulation_output[:yearly_results] }
 
+      it "includes oas as false in yearly results when oas is not configured" do
+        row = yearly_results.find { |r| r[:age] == 65 }
+        expect(row[:oas]).to be(false)
+      end
+
       it "simulation runs up to age 69" do
         expect(yearly_results.last[:age]).to eq(69)
       end
