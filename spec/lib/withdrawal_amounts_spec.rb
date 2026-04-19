@@ -231,6 +231,191 @@ RSpec.describe WithdrawalAmounts do
     end
   end
 
+  context "when user has an annuity active (no CPP, no OAS)" do
+    before do
+      app_config.data["annuity"] = { "purchase_age" => 65, "lump_sum" => 200_000, "monthly_payment" => 1_000 }
+      withdrawal_amounts.annuity_active = true
+      withdrawal_amounts.current_age = 65
+    end
+
+    # annuity_gross = 1_000 * 12 = 12_000
+    # 12_000 is within the basic personal credit so net annuity = 12_000 (zero tax)
+    # lower bound = 33_704.73 - 12_000 = 21_704.73
+    # take_home(21_704.73 + 12_000) = take_home(33_704.73) = 30_010 ✓
+    describe "#annuity_used?" do
+      it "returns true" do
+        expect(withdrawal_amounts.annuity_used?).to be(true)
+      end
+    end
+
+    describe "#annuity_annual_gross_income" do
+      it "returns monthly_payment * 12" do
+        expect(withdrawal_amounts.annuity_annual_gross_income).to eq(12_000)
+      end
+    end
+
+    describe "#annual_rrsp" do
+      it "adjusts RRSP withdrawals to account for annuity income and taxes" do
+        expect(withdrawal_amounts.annual_rrsp).to be_within(2.0).of(21_704.73)
+      end
+    end
+
+    describe "#annual_taxable" do
+      it "reduces taxable withdrawals by net annuity income" do
+        # 30_010 - 12_000 = 18_010
+        expect(withdrawal_amounts.annual_taxable).to eq(18_010)
+      end
+    end
+
+    describe "#annual_tfsa" do
+      it "reduces TFSA withdrawals by net annuity income" do
+        # 30_000 - 12_000 = 18_000
+        expect(withdrawal_amounts.annual_tfsa).to eq(18_000)
+      end
+    end
+
+    describe "#annual_cash_cushion" do
+      it "reduces cash cushion withdrawals by net annuity income" do
+        expect(withdrawal_amounts.annual_cash_cushion).to eq(18_000)
+      end
+    end
+  end
+
+  context "when user has annuity and CPP (no OAS)" do
+    before do
+      app_config.cpp["monthly_amount"] = 1_000
+      app_config.data["annuity"] = { "purchase_age" => 65, "lump_sum" => 200_000, "monthly_payment" => 500 }
+      withdrawal_amounts.annuity_active = true
+      withdrawal_amounts.current_age = 65
+    end
+
+    # cpp_gross = 12_000, annuity_gross = 6_000
+    # lower bound = 33_704.73 - 12_000 - 6_000 = 15_704.73
+    describe "#annual_rrsp" do
+      it "adjusts RRSP withdrawals to account for both CPP and annuity" do
+        expect(withdrawal_amounts.annual_rrsp).to be_within(2.0).of(15_704.73)
+      end
+    end
+
+    describe "#annual_taxable" do
+      it "reduces taxable withdrawals by net CPP and annuity income" do
+        # 30_010 - 12_000 - 6_000 = 12_010
+        expect(withdrawal_amounts.annual_taxable).to eq(12_010)
+      end
+    end
+  end
+
+  context "when user has annuity, CPP, and OAS (all three)" do
+    before do
+      app_config.cpp["monthly_amount"] = 1_000
+      app_config.data["oas"] = { "start_age" => 65, "years_in_canada_after_18" => 40 }
+      app_config.data["annuity"] = { "purchase_age" => 65, "lump_sum" => 200_000, "monthly_payment" => 500 }
+      withdrawal_amounts.annuity_active = true
+      withdrawal_amounts.current_age = 65
+    end
+
+    # cpp_gross = 12_000, oas_gross = 8_907.72, annuity_gross = 6_000
+    # lower bound = 33_704.73 - 12_000 - 8_907.72 - 6_000 = 6_797.01
+    describe "#annual_rrsp" do
+      it "adjusts RRSP withdrawals to account for CPP, OAS, and annuity" do
+        expect(withdrawal_amounts.annual_rrsp).to be_within(2.0).of(6_797.01)
+      end
+    end
+
+    describe "#annual_taxable" do
+      it "reduces taxable withdrawals by all three net incomes" do
+        # 30_010 - 12_000 - 8_907.72 - 6_000 = 3_102.28
+        expect(withdrawal_amounts.annual_taxable).to be_within(0.01).of(3_102.28)
+      end
+    end
+  end
+
+  context "when annuity is not yet active (current_age < purchase_age)" do
+    before do
+      app_config.data["annuity"] = { "purchase_age" => 70, "lump_sum" => 200_000, "monthly_payment" => 1_000 }
+      withdrawal_amounts.annuity_active = true
+      withdrawal_amounts.current_age = 65
+    end
+
+    describe "#annuity_used?" do
+      it "returns false" do
+        expect(withdrawal_amounts.annuity_used?).to be(false)
+      end
+    end
+
+    describe "#annual_rrsp" do
+      it "returns the RRSP amount as if there were no annuity" do
+        expect(withdrawal_amounts.annual_rrsp).to eq(33_704.73)
+      end
+    end
+
+    describe "#annual_taxable" do
+      it "returns desired spending plus TFSA contribution" do
+        expect(withdrawal_amounts.annual_taxable).to eq(30_010)
+      end
+    end
+  end
+
+  context "when no annuity section in config" do
+    before { withdrawal_amounts.current_age = 65 }
+
+    describe "#annuity_used?" do
+      it "returns false" do
+        expect(withdrawal_amounts.annuity_used?).to be(false)
+      end
+    end
+  end
+
+  context "when annuity is configured but annuity_active is false (purchase was skipped)" do
+    before do
+      app_config.data["annuity"] = { "purchase_age" => 65, "lump_sum" => 200_000, "monthly_payment" => 1_000 }
+      withdrawal_amounts.current_age = 65
+    end
+
+    describe "#annuity_used?" do
+      it "returns false" do
+        expect(withdrawal_amounts.annuity_used?).to be(false)
+      end
+    end
+
+    describe "#annual_rrsp" do
+      it "returns the RRSP amount as if there were no annuity" do
+        expect(withdrawal_amounts.annual_rrsp).to eq(33_704.73)
+      end
+    end
+
+    describe "#annual_taxable" do
+      it "returns desired spending plus TFSA contribution" do
+        expect(withdrawal_amounts.annual_taxable).to eq(30_010)
+      end
+    end
+
+    describe "#annual_tfsa" do
+      it "returns the desired spending amount" do
+        expect(withdrawal_amounts.annual_tfsa).to eq(30_000)
+      end
+    end
+
+    describe "#annual_cash_cushion" do
+      it "returns the desired spending amount" do
+        expect(withdrawal_amounts.annual_cash_cushion).to eq(30_000)
+      end
+    end
+  end
+
+  context "when annuity has monthly_payment of 0" do
+    before do
+      app_config.data["annuity"] = { "purchase_age" => 65, "lump_sum" => 200_000, "monthly_payment" => 0 }
+      withdrawal_amounts.current_age = 65
+    end
+
+    describe "#annuity_used?" do
+      it "returns false" do
+        expect(withdrawal_amounts.annuity_used?).to be(false)
+      end
+    end
+  end
+
   context "when user is taking CPP but is under the CPP start age" do
     before do
       app_config.cpp["monthly_amount"] = 1_000

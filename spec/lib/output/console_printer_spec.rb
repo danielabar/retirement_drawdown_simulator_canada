@@ -96,6 +96,75 @@ RSpec.describe Output::ConsolePrinter do
     expect { simulator_formatter.print_all }.to output(expected_output).to_stdout
   end
 
+  context "when annuity purchase was skipped" do
+    let(:skip_config) do
+      AppConfig.new(
+        "retirement_age" => 65,
+        "max_age" => 70,
+        "province_code" => "ONT",
+        "annual_tfsa_contribution" => 0,
+        "desired_spending" => 30_000,
+        "annual_growth_rate" => {
+          "average" => 0.01,
+          "min" => -0.1,
+          "max" => 0.1,
+          "downturn_threshold" => -0.1
+        },
+        "return_sequence_type" => "constant",
+        "accounts" => {
+          "rrsp" => 80_000,
+          "taxable" => 60_000,
+          "tfsa" => 30_000,
+          "cash_cushion" => 0
+        },
+        "taxes" => {
+          "rrsp_withholding_rate" => 0.3
+        },
+        "cpp" => {
+          "start_age" => 65,
+          "monthly_amount" => 0
+        },
+        "annuity" => {
+          "purchase_age" => 65,
+          "lump_sum" => 200_000,
+          "monthly_payment" => 1_160
+        }
+      )
+    end
+
+    it "includes annuity skip warning in output" do
+      allow(TTY::Screen).to receive(:width).and_return(200)
+
+      simulation_output = Simulation::Simulator.new(skip_config).run
+      evaluator_results = Simulation::SimulationEvaluator.new(simulation_output[:yearly_results],
+                                                              skip_config).evaluate
+      first_year_cash_flow_results = FirstYearCashFlow.new(skip_config).calculate
+      printer = described_class.new(skip_config.summary, simulation_output, first_year_cash_flow_results,
+                                    evaluator_results, visual: false)
+
+      output = capture_output { printer.print_all }
+      expect(output).to include("Annuity purchase was skipped")
+      expect(output).to include("RRSP balance was insufficient at purchase age")
+    end
+
+    it "includes 'annuity purchase skipped' in the note at purchase age" do
+      allow(TTY::Screen).to receive(:width).and_return(200)
+
+      simulation_output = Simulation::Simulator.new(skip_config).run
+      purchase_row = simulation_output[:yearly_results].find { |r| r[:age] == 65 }
+      expect(purchase_row[:note]).to include("annuity purchase skipped")
+    end
+
+    def capture_output
+      original_stdout = $stdout
+      $stdout = StringIO.new
+      yield
+      $stdout.string
+    ensure
+      $stdout = original_stdout
+    end
+  end
+
   it "prints charts" do
     simulation_output = Simulation::Simulator.new(app_config).run
     evaluator_results = Simulation::SimulationEvaluator.new(simulation_output[:yearly_results], app_config).evaluate

@@ -33,6 +33,48 @@ RSpec.describe SuccessRateResults do
     end
   end
 
+  describe "#total_runs" do
+    it "returns the total number of runs" do
+      expect(results.total_runs).to eq(4)
+    end
+  end
+
+  describe "#annuity_skip_count" do
+    context "when some runs had annuity skipped" do
+      let(:simulation_results) do
+        [
+          { success: true, withdrawal_rate: 0.04, final_balance: 900_000, annuity_skipped: true },
+          { success: true, withdrawal_rate: 0.04, final_balance: 1_500_000, annuity_skipped: false },
+          { success: false, withdrawal_rate: 0.04, final_balance: 1_200_000, annuity_skipped: true },
+          { success: true, withdrawal_rate: 0.04, final_balance: 2_100_000, annuity_skipped: false }
+        ]
+      end
+
+      it "returns the count of runs where annuity was skipped" do
+        expect(results.annuity_skip_count).to eq(2)
+      end
+    end
+
+    context "when no annuity_skipped key is present" do
+      it "returns 0" do
+        expect(results.annuity_skip_count).to eq(0)
+      end
+    end
+
+    context "when all runs have annuity_skipped as false" do
+      let(:simulation_results) do
+        [
+          { success: true, withdrawal_rate: 0.04, final_balance: 900_000, annuity_skipped: false },
+          { success: true, withdrawal_rate: 0.04, final_balance: 1_500_000, annuity_skipped: false }
+        ]
+      end
+
+      it "returns 0" do
+        expect(results.annuity_skip_count).to eq(0)
+      end
+    end
+  end
+
   describe "#percentiles" do
     it "calculates correct percentiles for final balances" do
       expect(results.percentiles).to eq(

@@ -153,6 +153,33 @@ oas:
   start_age: 65
   years_in_canada_after_18: 40
 
+# Life Annuity (optional)
+# A non-indexed life annuity purchased with RRSP funds.
+# At purchase_age, the lump_sum is withdrawn from the RRSP and converted
+# to a guaranteed monthly payment for life.
+# Since this is funded from RRSP, all payments are 100% taxable income —
+# the simulator accounts for this in the tax calculation alongside CPP and OAS.
+#
+# Get a quote for monthly_payment based on your age, sex, and preferred guarantee
+# period from one of these sources, then enter the resulting monthly amount below:
+#   https://lifeannuities.com/annuity-rates/
+#   https://www.sunlife.ca/en/tools-and-resources/tools-and-calculators/annuity-calculator/
+#
+# Note: a life annuity pays until death regardless of the guarantee period you choose.
+# The guarantee period only protects your beneficiary if you die early (e.g. with a
+# 10-year guarantee, they receive remaining payments for that 10-year window).
+# A longer guarantee period slightly reduces the monthly payout.
+#
+# To run without an annuity, set monthly_payment to 0 or remove this section.
+#
+# If the RRSP balance is less than lump_sum at purchase_age (possible in simulation
+# mode with variable market returns), the annuity purchase is skipped and the
+# simulation continues without annuity income.
+annuity:
+  purchase_age: 65
+  lump_sum: 200000
+  monthly_payment: 1160
+
 # Taxes
 # Withholding tax may be greater than your actual tax bill — you'll get a refund when
 # you file your return. In the first year of retirement, you'll need extra cash to float

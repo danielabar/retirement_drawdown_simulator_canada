@@ -262,6 +262,88 @@ RSpec.describe Strategy::RrspToTaxableToTfsa do
     end
   end
 
+  describe "annuity purchase" do
+    context "when annuity is configured and current_age reaches purchase_age" do
+      before do
+        app_config.data["annuity"] = { "purchase_age" => 65, "lump_sum" => 30_000, "monthly_payment" => 175 }
+      end
+
+      it "withdraws lump sum from RRSP at purchase age" do
+        strategy.current_age = 65
+        expect(strategy.rrsp_account.balance).to eq(50_000) # 80_000 - 30_000
+      end
+
+      it "does not withdraw lump sum before purchase age" do
+        app_config.data["annuity"]["purchase_age"] = 66
+        strategy.current_age = 65
+        expect(strategy.rrsp_account.balance).to eq(80_000)
+      end
+
+      it "does not withdraw lump sum again after purchase age" do
+        strategy.current_age = 65
+        strategy.current_age = 66
+        expect(strategy.rrsp_account.balance).to eq(50_000) # Only one withdrawal
+      end
+
+      it "reports annuity_used? as true at and after purchase age" do
+        strategy.current_age = 65
+        expect(strategy.annuity_used?).to be(true)
+      end
+
+      it "reports annuity_used? as false before purchase age" do
+        app_config.data["annuity"]["purchase_age"] = 66
+        strategy.current_age = 65
+        expect(strategy.annuity_used?).to be(false)
+      end
+
+      it "reports annuity_purchase_skipped? as false after successful purchase" do
+        strategy.current_age = 65
+        expect(strategy.annuity_purchase_skipped?).to be(false)
+      end
+    end
+
+    context "when RRSP balance is insufficient for annuity purchase" do
+      before do
+        app_config.data["annuity"] = { "purchase_age" => 65, "lump_sum" => 100_000, "monthly_payment" => 580 }
+      end
+
+      it "skips the annuity purchase without error" do
+        strategy.current_age = 65
+        expect(strategy.rrsp_account.balance).to eq(80_000)
+      end
+
+      it "reports annuity_purchase_skipped? as true" do
+        strategy.current_age = 65
+        expect(strategy.annuity_purchase_skipped?).to be(true)
+      end
+
+      it "reports annuity_used? as false" do
+        strategy.current_age = 65
+        expect(strategy.annuity_used?).to be(false)
+      end
+
+      it "keeps annuity inactive in subsequent years after skip" do
+        strategy.current_age = 65
+        strategy.current_age = 66
+        expect(strategy.annuity_used?).to be(false)
+        expect(strategy.annuity_purchase_skipped?).to be(true)
+        expect(strategy.rrsp_account.balance).to eq(80_000)
+      end
+    end
+
+    context "when no annuity is configured" do
+      it "does not perform any annuity-related withdrawal" do
+        strategy.current_age = 65
+        expect(strategy.rrsp_account.balance).to eq(80_000)
+      end
+
+      it "reports annuity_used? as false" do
+        strategy.current_age = 65
+        expect(strategy.annuity_used?).to be(false)
+      end
+    end
+  end
+
   describe "#total_balance" do
     it "includes the cash cushion balance in the total balance" do
       # 80,000 (RRSP) + 60,000 (Taxable) + 30,000 (TFSA) + 30,000 (Cash Cushion)

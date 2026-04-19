@@ -88,6 +88,55 @@ The My Service Canada estimate assumes you keep working until you take CPP. If y
 
 ---
 
+## Life Annuity
+
+A life annuity is a contract with an insurance company: you pay a lump sum from your RRSP, and in return you receive a guaranteed fixed monthly payment for life. The simulator models a non-indexed, single-life annuity purchased with RRSP funds.
+
+### How the simulator models it
+
+The annuity has two events:
+
+1. **One-time purchase** at `purchase_age`: the `lump_sum` is withdrawn from the RRSP account before normal withdrawal planning for that year. This simply reduces the RRSP balance — the existing withdrawal planner then works against the smaller balance. If the RRSP balance is insufficient at `purchase_age` (e.g. due to poor market returns), the annuity purchase is skipped and the simulation continues without annuity income. In detailed mode, a warning appears after the simulation results. In success_rate mode, the output reports how many runs had the annuity purchase skipped.
+
+2. **Annual income stream** from `purchase_age` onward: `monthly_payment * 12` of gross taxable income per year. This follows the exact same pattern as CPP and OAS — it reduces how much needs to be withdrawn from accounts, and it participates in the tax calculation (binary search for RRSP withdrawal amount, forward tax calculation for net income offset).
+
+### Tax treatment
+
+Since the annuity is funded from RRSP (a tax-free rollover within the registered system), all payments are **100% taxable as ordinary income** — identical to CPP and OAS. The simulator correctly accounts for this: annuity income is combined with RRSP withdrawals, CPP, and OAS in the tax calculation, so it pushes you into higher marginal tax brackets just like any other taxable income. When the annuity reduces your withdrawal needs from taxable/TFSA/cash cushion accounts, it uses the **after-tax** (net) annuity amount, not the gross.
+
+```
+Total taxable income = RRSP withdrawal + CPP (if active) + OAS (if active) + Annuity (if active)
+```
+
+### Interaction with RRIF
+
+The annuity does not reduce the RRSP balance for RRIF minimum calculation purposes — the lump sum purchase already reduced the balance at `purchase_age`. After that, RRIF minimums are calculated on the remaining (smaller) RRSP balance, which is correct.
+
+### Non-indexed payments
+
+Annuity payments are fixed in nominal terms — there is no inflation adjustment. If you entered real (after-inflation) returns, the annuity income effectively erodes in real terms over the simulation. This is realistic: real non-indexed annuities work exactly this way. True CPI-linked annuities do not exist in Canada.
+
+### Which quote to enter
+
+The simulator doesn't care which annuity variant you choose — you get a quote externally and enter the resulting `monthly_payment`. When getting a quote, you'll typically see options for:
+
+- **Guarantee period** (0, 10, or 20 years): A life annuity always pays until death regardless of the guarantee period. The guarantee period only affects what happens if you die early — with a 10-year guarantee, your beneficiary receives the remaining payments for that 10-year window. A longer guarantee period slightly reduces the monthly payout. Choose whatever suits your estate planning needs and enter the corresponding monthly amount.
+- **Single vs. joint life**: The simulator currently models single life only.
+
+Two good sources for quotes:
+- [LifeAnnuities.com](https://lifeannuities.com/annuity-rates/) — multi-insurer comparison, updated monthly
+- [Sun Life calculator](https://www.sunlife.ca/en/tools-and-resources/tools-and-calculators/annuity-calculator/) — single insurer, easy to use
+
+### Current limitations
+
+- Only RRSP-funded annuities (non-registered prescribed annuity taxation is not modelled)
+- Only single-life (no joint-and-survivor)
+- Only non-indexed (no annual increase)
+- User must provide the quote externally (no built-in annuity rate calculator)
+- If the RRSP balance falls below the configured `lump_sum` by `purchase_age`, the annuity is not purchased — there is no partial purchase or fallback to a smaller annuity
+
+---
+
 ## RRIF Mandatory Withdrawals
 
 ### What is a RRIF?
@@ -199,6 +248,6 @@ A few simplifications are worth knowing about:
 
 - **No inflation modeling.** The spending amount is fixed throughout — there is no built-in inflation adjustment. To preserve purchasing power, enter real (after-inflation) returns for `average`: e.g. if your portfolio returns 8% nominally and inflation is 3%, enter 0.05. If you enter nominal returns instead, spending will silently lose purchasing power over time, making results overly optimistic.
 - **No capital gains tax on taxable account withdrawals.** Selling ETFs in a taxable account triggers capital gains, half of which is taxable income. For many retirees with broadly diversified ETFs and reinvested dividends, the gain per dollar sold may be small enough that it falls under the basic personal amount — but this isn't always true and the simulator doesn't model it.
-- **No OAS.** Old Age Security is not yet modeled. It's on the [roadmap](roadmap.md).
+- **Annuity: RRSP-funded only.** Non-registered (prescribed) annuity taxation, joint-and-survivor, indexed, and ALDA products are not modelled. See [Life Annuity](#life-annuity) above.
 - **All accounts invested in the same thing.** The simulator applies a single market return to all accounts each year. It doesn't model different asset allocations per account.
 - **Quebec not supported.** See [Tax Engine](#tax-engine) above.

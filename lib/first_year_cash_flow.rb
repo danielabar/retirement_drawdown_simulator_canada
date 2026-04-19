@@ -7,8 +7,11 @@ class FirstYearCashFlow
   end
 
   def calculate
-    [
-      ["Desired Income Including TFSA Contribution", desired_income],
+    rows = [
+      ["Desired Income Including TFSA Contribution", desired_income]
+    ]
+    rows << ["Annuity Annual Income (gross, taxable)", annuity_annual_gross_income] if annuity_active_at_retirement?
+    rows + [
       ["RRSP Withdrawal Amount (higher due to income tax)", annual_withdrawal_amount_rrsp],
       ["RRSP Withholding Tax", rrsp_withholding_tax],
       ["Actual Tax Bill", actual_tax_bill],
@@ -54,5 +57,16 @@ class FirstYearCashFlow
 
   def reverse_tax_results
     @reverse_tax_results ||= @reverse_tax_calculator.calculate(desired_income, app_config["province_code"])
+  end
+
+  def annuity_active_at_retirement?
+    annuity = app_config.annuity
+    return false unless annuity
+
+    annuity["monthly_payment"]&.positive? == true && app_config["retirement_age"] >= annuity["purchase_age"]
+  end
+
+  def annuity_annual_gross_income
+    app_config.annuity["monthly_payment"] * 12
   end
 end

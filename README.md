@@ -22,7 +22,7 @@
 
 *A Canadian retirement stress-tester.*
 
-**Retirement Drawdown Simulator** is a Canadian-specific Monte Carlo retirement simulator. It models realistic market volatility, applies federal and provincial income tax to RRSP withdrawals, handles CPP and OAS as taxable income, enforces RRIF mandatory withdrawal rules starting at age 71, and runs your scenario hundreds or thousands of times to show a *distribution* of outcomes — not just one optimistic number.
+**Retirement Drawdown Simulator** is a Canadian-specific Monte Carlo retirement simulator. It models realistic market volatility, applies federal and provincial income tax to RRSP withdrawals, handles CPP, OAS, and life annuity income as taxable income, enforces RRIF mandatory withdrawal rules starting at age 71, and runs your scenario hundreds or thousands of times to show a *distribution* of outcomes — not just one optimistic number.
 
 Professional retirement planning software costs thousands of dollars to have a CFP run a single plan for you, and you can't buy it yourself. This is a free, transparent, open-source tool for those who want to better understand how long their savings might realistically last under a straightforward withdrawal strategy — not a replacement for professional advice, but a useful starting point.
 
@@ -37,7 +37,9 @@ When I started looking for a basic tool to simulate a retirement drawdown in Can
 
 - **Tax-aware RRSP withdrawals.** RRSP withdrawals are taxable income. If you want $40,000 to spend, you have to withdraw significantly more. This simulator does a reverse tax calculation to find the exact gross withdrawal needed. For example, $40,000 after-tax in Ontario requires withdrawing approximately $46,200.
 
-- **CPP and OAS as taxable income, handled correctly.** CPP, OAS, and RRSP withdrawals are all taxable income that interact in a non-linear way. The simulator uses binary search to find the exact RRSP withdrawal where combined after-tax income hits your target. Naively subtracting CPP or OAS from your spending needs will give you the wrong answer. OAS increases 10% at age 75 and can be deferred from 65 to 70 for a bonus of up to +36%.
+- **CPP, OAS, and life annuity as taxable income, handled correctly.** CPP, OAS, annuity payments, and RRSP withdrawals are all taxable income that interact in a non-linear way. The simulator uses binary search to find the exact RRSP withdrawal where combined after-tax income hits your target. Naively subtracting these from your spending needs will give you the wrong answer. OAS increases 10% at age 75 and can be deferred from 65 to 70 for a bonus of up to +36%.
+
+- **Optional life annuity.** Model converting a portion of your RRSP to a guaranteed income stream. At a configured age, the lump sum is withdrawn from the RRSP and converted to fixed monthly payments for life — reducing sequence-of-returns risk on the annuitized portion. You provide a quote from an insurer; the simulator handles the tax interaction with RRSP, CPP, and OAS.
 
 - **RRIF mandatory withdrawals.** Your RRSP must convert to a RRIF by age 71, after which the government requires you to withdraw a rising percentage each year. The simulator enforces these rules and deposits any forced excess (after tax) into the taxable account.
 
@@ -140,7 +142,7 @@ Here is a different run of the exact same scenario — same inputs, different ra
 - **Money runs out at age 92**, three years short of the target age of 95.
 
 > [!NOTE]
-> In practice, a real retiree watching their savings shrink would likely adapt — reducing discretionary spending, downsizing, or considering a life annuity to convert some savings into guaranteed income. Canadians also have a safety net worth noting: **Old Age Security (OAS)**, available to most Canadians at 65, is now modelled by this simulator — it is treated as taxable income and reduces required RRSP withdrawals accordingly. The **Guaranteed Income Supplement (GIS)**, which provides additional support to low-income seniors, is not yet modelled. A retiree in financial difficulty would likely qualify for GIS before their savings hit zero. In the meantime, treat a simulated failure as a signal to pressure-test your plan — not a prediction that you will literally run out of money with no recourse.
+> In practice, a real retiree watching their savings shrink would likely adapt — reducing discretionary spending, downsizing, or considering a [life annuity](docs/insights/annuity_vs_no_annuity.md) to convert some savings into guaranteed income (which this simulator now supports). Canadians also have a safety net worth noting: **Old Age Security (OAS)**, available to most Canadians at 65, is modelled by this simulator — it is treated as taxable income and reduces required RRSP withdrawals accordingly. The **Guaranteed Income Supplement (GIS)**, which provides additional support to low-income seniors, is not yet modelled. A retiree in financial difficulty would likely qualify for GIS before their savings hit zero. In the meantime, treat a simulated failure as a signal to pressure-test your plan — not a prediction that you will literally run out of money with no recourse.
 
 ## Determining Your Success Rate
 
@@ -196,6 +198,7 @@ Deep dives from running thousands of retirement simulations. These explore how d
 - [Is the 4% Rule Actually Safe?](docs/insights/four_percent_rule.md) — where the "95% safe" figure comes from and why the real answer is more nuanced
 - [TFSA Contributions During Drawdown](docs/insights/tfsa_contributions_during_drawdown.md) — does shifting money into the TFSA during RRSP drawdown improve outcomes?
 - [Cash Cushion vs. Keeping It Invested](docs/insights/cash_cushion_vs_invested.md) — is the sequence-of-returns protection worth the opportunity cost?
+- [Does a Life Annuity Actually Help?](docs/insights/annuity_vs_no_annuity.md) — how converting part of your RRSP to guaranteed income affects success rates for stressed plans
 
 ## Disclaimer
 

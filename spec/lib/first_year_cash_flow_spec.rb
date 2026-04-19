@@ -46,5 +46,41 @@ RSpec.describe FirstYearCashFlow do
 
       expect(first_year_cash_flow).to match_array(expected_output)
     end
+
+    context "when annuity is active at retirement age" do
+      before do
+        app_config.data["retirement_age"] = 65
+        app_config.data["annuity"] = { "purchase_age" => 65, "lump_sum" => 200_000, "monthly_payment" => 1_160 }
+      end
+
+      it "includes annuity annual income line item" do
+        labels = first_year_cash_flow.map(&:first)
+        expect(labels).to include("Annuity Annual Income (gross, taxable)")
+      end
+
+      it "shows correct annuity gross annual amount" do
+        annuity_row = first_year_cash_flow.find { |label, _| label == "Annuity Annual Income (gross, taxable)" }
+        expect(annuity_row[1]).to eq(13_920) # 1_160 * 12
+      end
+    end
+
+    context "when annuity purchase_age is after retirement age" do
+      before do
+        app_config.data["retirement_age"] = 60
+        app_config.data["annuity"] = { "purchase_age" => 65, "lump_sum" => 200_000, "monthly_payment" => 1_160 }
+      end
+
+      it "does not include annuity line item" do
+        labels = first_year_cash_flow.map(&:first)
+        expect(labels).not_to include("Annuity Annual Income (gross, taxable)")
+      end
+    end
+
+    context "when no annuity is configured" do
+      it "does not include annuity line item" do
+        labels = first_year_cash_flow.map(&:first)
+        expect(labels).not_to include("Annuity Annual Income (gross, taxable)")
+      end
+    end
   end
 end
