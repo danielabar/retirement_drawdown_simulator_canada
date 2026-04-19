@@ -102,6 +102,7 @@ The loop breaks early (returning a truncated results array) if `select_account_t
 
 **`RrspToTaxableToTfsa`** is the top-level strategy. It owns the four `Account` instances (rrsp, taxable, tfsa, cash_cushion) and a `WithdrawalAmounts` instance. Each year it decides whether to withdraw from the cash cushion or from investment accounts:
 
+- **Annuity purchase:** when `current_age` is set to the annuity's `purchase_age`, the lump sum is withdrawn from the RRSP before any withdrawal planning — unless the RRSP balance is insufficient, in which case the purchase is skipped and the simulation continues without annuity income. This is a one-time event — subsequent years just receive the annuity income (if purchased).
 - **Cash cushion path:** if `market_return < downturn_threshold` and the cash cushion has enough balance *and* no mandatory RRIF withdrawal is required, it returns a single cash cushion transaction.
 - **Normal path:** delegates to `WithdrawalPlanner` to plan investment account withdrawals.
 
@@ -119,12 +120,12 @@ For RRSP withdrawals specifically, it handles two cases:
 
 ### Withdrawal Amounts — `lib/withdrawal_amounts.rb`
 
-`WithdrawalAmounts` calculates how much to withdraw from each account type, given the current age, desired spending, and whether CPP is active. This is where the per-account math lives:
+`WithdrawalAmounts` calculates how much to withdraw from each account type, given the current age, desired spending, and whether CPP, OAS, or annuity income is active. The `annuity_used?` method requires both the config checks (monthly_payment > 0, current_age >= purchase_age) AND an `annuity_active` flag set by the strategy after a successful purchase. This prevents the withdrawal math from subtracting annuity income when the purchase was skipped due to insufficient RRSP balance. This is where the per-account math lives:
 
-- **`annual_rrsp`:** calls `ReverseIncomeTaxCalculator` to find the gross RRSP withdrawal needed to net the desired spending. If CPP is active, runs binary search (see below) because CPP and RRSP withdrawals interact in the tax calculation.
-- **`annual_taxable` / `annual_tfsa` / `annual_cash_cushion`:** desired spending minus CPP net income (if CPP is active), since taxable/TFSA/cash withdrawals aren't taxed further.
+- **`annual_rrsp`:** calls `ReverseIncomeTaxCalculator` to find the gross RRSP withdrawal needed to net the desired spending. If CPP, OAS, or annuity income is active, runs binary search (see below) because these income sources and RRSP withdrawals interact in the tax calculation.
+- **`annual_taxable` / `annual_tfsa` / `annual_cash_cushion`:** desired spending minus net income from CPP, OAS, and annuity (whichever are active), since taxable/TFSA/cash withdrawals aren't taxed further.
 
-**CPP binary search:** when CPP is active, the combined taxable income is `rrsp_withdrawal + cpp_gross`. The correct RRSP amount is the value where `tax(rrsp_withdrawal + cpp_gross) - rrsp_withdrawal - cpp_gross = -desired_spending`. Binary search bounds: upper = gross RRSP needed without CPP; lower = upper minus full gross CPP. Converges to within $1 in under 100 iterations.
+**Binary search:** when CPP, OAS, or annuity income is active, the combined taxable income is `rrsp_withdrawal + cpp_gross + oas_gross + annuity_gross`. Binary search bounds: upper = gross RRSP needed without any other income; lower = upper minus total other gross income. Converges to within $1 in under 100 iterations.
 
 ---
 
@@ -167,7 +168,7 @@ Both calculators load from `config/tax.yml` in production, or `config/tax_fixed.
 
 **`Account`** holds a balance and supports `withdraw(amount)`, `deposit(amount)`, and `apply_growth(rate)`. Cash cushion accounts use a separate savings rate rather than the market return.
 
-**`AppConfig`** wraps the `inputs.yml` hash with typed accessors (`accounts`, `cpp`, `taxes`, `annual_growth_rate`). Accepts either a file path string or a hash directly (used in tests to pass fixture hashes inline).
+**`AppConfig`** wraps the `inputs.yml` hash with typed accessors (`accounts`, `cpp`, `oas`, `annuity`, `taxes`, `annual_growth_rate`). Accepts either a file path string or a hash directly (used in tests to pass fixture hashes inline).
 
 **`FirstYearCashFlow`** calculates the withholding tax gap in the first year of RRSP withdrawals — the difference between what the bank withholds (30%) and what you'll actually owe (~15%), and the expected refund timing.
 

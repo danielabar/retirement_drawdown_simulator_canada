@@ -23,6 +23,10 @@ class AppConfig
     data["oas"]
   end
 
+  def annuity
+    data["annuity"]
+  end
+
   def taxes
     data["taxes"]
   end

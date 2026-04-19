@@ -1,0 +1,42 @@
+# Annuity insight scenario: same retiree, converts $100K RRSP to annuity at 65
+# RRSP drops from $700K to $600K after purchase, total portfolio effectively $1.05M.
+# Annuity provides $6,960/year of guaranteed income.
+# Combined guaranteed income: CPP + OAS + Annuity covers ~51% of $50K spending.
+# mode: success_rate
+total_runs: 1000
+retirement_age: 65
+max_age: 95
+desired_spending: 50000
+annual_tfsa_contribution: 0
+province_code: ONT
+success_factor: 1
+
+return_sequence_type: geometric_brownian_motion
+annual_growth_rate:
+  average: 0.04
+  min: -0.25
+  max: 0.35
+  downturn_threshold: -0.1
+  savings: 0.005
+
+accounts:
+  rrsp: 700000
+  taxable: 250000
+  tfsa: 150000
+  cash_cushion: 50000
+
+cpp:
+  start_age: 65
+  monthly_amount: 800
+
+oas:
+  start_age: 65
+  years_in_canada_after_18: 40
+
+annuity:
+  purchase_age: 65
+  lump_sum: 100000
+  monthly_payment: 580
+
+taxes:
+  rrsp_withholding_rate: 0.3

@@ -94,7 +94,8 @@ module Strategy
     def gross_rrif_cpp_oas
       mandatory_rrif_withdrawal +
         (withdrawal_amounts.cpp_used? ? withdrawal_amounts.cpp_annual_gross_income : 0) +
-        (withdrawal_amounts.oas_used? ? withdrawal_amounts.oas_annual_gross_income : 0)
+        (withdrawal_amounts.oas_used? ? withdrawal_amounts.oas_annual_gross_income : 0) +
+        (withdrawal_amounts.annuity_used? ? withdrawal_amounts.annuity_annual_gross_income : 0)
     end
 
     def handle_sufficient_rrsp_funds(selected_accounts, actual_gross, forced_net_excess)

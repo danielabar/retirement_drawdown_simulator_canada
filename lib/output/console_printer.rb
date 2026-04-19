@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Output
-  class ConsolePrinter
+  class ConsolePrinter # rubocop:disable Metrics/ClassLength
     def initialize(summary, simulation_output, first_year_cash_flow_results, evaluator_results, visual: true)
       @summary = summary
       @yearly_results = simulation_output[:yearly_results]
@@ -15,6 +15,7 @@ module Output
       print_first_year_cash_flow
       print_yearly_results
       print_simulation_evaluation
+      print_annuity_skip_warning
       print_charts if @visual
     end
 
@@ -91,6 +92,7 @@ module Output
       active = []
       active << "CPP" if record[:cpp]
       active << "OAS" if record[:oas]
+      active << "Annuity" if record[:annuity]
       active.empty? ? "-" : active.join(", ")
     end
 
@@ -102,6 +104,12 @@ module Output
       puts @evaluator_results[:explanation]
       puts "Withdrawal Rate: #{NumericFormatter.format_percentage(@evaluator_results[:withdrawal_rate])}"
       puts "Average Rate of Return: #{NumericFormatter.format_percentage(@evaluator_results[:average_rate_of_return])}"
+    end
+
+    def print_annuity_skip_warning
+      return unless @yearly_results.any? { |r| r[:annuity_purchase_skipped] }
+
+      puts "\u26a0\ufe0f  Annuity purchase was skipped \u2014 RRSP balance was insufficient at purchase age."
     end
 
     def print_charts

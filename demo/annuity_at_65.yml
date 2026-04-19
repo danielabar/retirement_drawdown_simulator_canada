@@ -1,0 +1,42 @@
+# Annuity at 65: typical Canadian retiree who converts $200K of their $600K RRSP
+# to a life annuity at age 65, receiving ~$1,160/month (~$580 per $100K, male age 65,
+# based on April 2026 annuity rates). With CPP and full OAS for realism.
+# Compare to demo/canadian_retiree.yml (same scenario without annuity).
+# mode: success_rate
+total_runs: 1000
+retirement_age: 65
+max_age: 95
+desired_spending: 40000
+annual_tfsa_contribution: 0
+province_code: ONT
+success_factor: 1
+
+return_sequence_type: geometric_brownian_motion
+annual_growth_rate:
+  average: 0.04
+  min: -0.25
+  max: 0.35
+  downturn_threshold: -0.1
+  savings: 0.005
+
+accounts:
+  rrsp: 600000
+  taxable: 200000
+  tfsa: 200000
+  cash_cushion: 40000
+
+cpp:
+  start_age: 65
+  monthly_amount: 800
+
+oas:
+  start_age: 65
+  years_in_canada_after_18: 40
+
+annuity:
+  purchase_age: 65
+  lump_sum: 200000
+  monthly_payment: 1160
+
+taxes:
+  rrsp_withholding_rate: 0.3

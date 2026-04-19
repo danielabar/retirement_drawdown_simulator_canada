@@ -30,16 +30,20 @@ class SuccessRateResults
     }
   end
 
+  def total_runs
+    simulation_results.size
+  end
+
+  def annuity_skip_count
+    simulation_results.count { |result| result[:annuity_skipped] }
+  end
+
   private
 
   attr_reader :simulation_results
 
   def successful_runs
     simulation_results.count { |result| result[:success] }
-  end
-
-  def total_runs
-    simulation_results.size
   end
 
   def final_balances

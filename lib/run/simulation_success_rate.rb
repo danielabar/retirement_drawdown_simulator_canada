@@ -13,8 +13,9 @@ module Run
 
       total_runs.times do
         # Collect results from each run
-        success, withdrawal_rate, final_balance = simulate_once
-        @simulation_results << { success: success, withdrawal_rate: withdrawal_rate, final_balance: final_balance }
+        success, withdrawal_rate, final_balance, annuity_skipped = simulate_once
+        @simulation_results << { success: success, withdrawal_rate: withdrawal_rate, final_balance: final_balance,
+                                 annuity_skipped: annuity_skipped }
         progress_bar.advance
       end
 
@@ -39,11 +40,13 @@ module Run
     def simulate_once
       simulation_results = Simulation::Simulator.new(app_config).run
       evaluator_results = Simulation::SimulationEvaluator.new(simulation_results[:yearly_results], app_config).evaluate
+      annuity_skipped = simulation_results[:yearly_results].any? { |r| r[:annuity_purchase_skipped] }
 
       [
         evaluator_results[:success] ? true : false,
         evaluator_results[:withdrawal_rate],
-        simulation_results[:yearly_results].last[:total_balance]
+        simulation_results[:yearly_results].last[:total_balance],
+        annuity_skipped
       ]
     end
   end

@@ -37,12 +37,13 @@ The `inputs.yml` file (gitignored) holds user financial inputs. Copy from `input
 ### Withdrawal strategy
 
 `Strategy::WithdrawalPlanner` handles the RRSP → Taxable → TFSA ordering:
-- **RRSP**: requires a *reverse* tax calculation to determine the gross withdrawal needed to achieve desired after-tax spending. If CPP is active, uses binary search to find the right RRSP amount (since both RRSP withdrawals and CPP are taxable income and interact non-linearly).
+- **RRSP**: requires a *reverse* tax calculation to determine the gross withdrawal needed to achieve desired after-tax spending. If CPP, OAS, or annuity income is active, uses binary search to find the right RRSP amount (since all are taxable income and interact non-linearly).
 - **RRIF**: mandatory minimum withdrawals start at age 71 (`config/rrif.yml`). If the mandatory amount exceeds desired withdrawal, the after-tax excess is deposited into the taxable account.
+- **Life annuity**: optional one-time RRSP lump sum purchase at `purchase_age`; from that age onward, annuity payments are treated as taxable income alongside CPP/OAS. If RRSP balance is insufficient at `purchase_age`, the purchase is skipped and the simulation continues without annuity income.
 - Taxable and TFSA withdrawals are at face value (no extra tax modelling currently).
 - Optional TFSA contributions during RRSP/taxable drawdown phase are skipped when drawing from cash cushion or TFSA.
 
-`WithdrawalAmounts` centralises per-account withdrawal amount calculation, including CPP offset logic.
+`WithdrawalAmounts` centralises per-account withdrawal amount calculation, including CPP/OAS/annuity offset logic.
 
 ### Tax calculations
 
@@ -54,7 +55,7 @@ The `inputs.yml` file (gitignored) holds user financial inputs. Copy from `input
 
 ### Config
 
-`AppConfig` wraps the YAML inputs file and provides typed accessors (`accounts`, `cpp`, `taxes`, `annual_growth_rate`). RRIF rates live in `config/rrif.yml` (`config/rrif_fixed.yml` for tests).
+`AppConfig` wraps the YAML inputs file and provides typed accessors (`accounts`, `cpp`, `oas`, `annuity`, `taxes`, `annual_growth_rate`). RRIF rates live in `config/rrif.yml` (`config/rrif_fixed.yml` for tests).
 
 ### Testing conventions
 

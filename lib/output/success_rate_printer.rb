@@ -11,6 +11,7 @@ module Output
       puts "=== Simulation Results ==="
       print_summary_section
       print_percentiles_section
+      print_annuity_skip_section
     end
 
     private
@@ -47,6 +48,16 @@ module Output
       table = TTY::Table.new(%w[Description Amount], data)
       puts "\n#{title}:"
       puts table.render(:unicode, alignment: %i[left right], padding: [0, 1, 0, 1])
+    end
+
+    def print_annuity_skip_section
+      return unless results.annuity_skip_count.positive?
+
+      skip_count = results.annuity_skip_count
+      total = results.total_runs
+      percentage = format_percentage(skip_count.to_f / total)
+      puts "\n\u26a0\ufe0f  Annuity purchase skipped in #{skip_count} of #{total} runs (#{percentage}) " \
+           "\u2014 RRSP balance was insufficient at purchase age."
     end
 
     def format_percentage(value)

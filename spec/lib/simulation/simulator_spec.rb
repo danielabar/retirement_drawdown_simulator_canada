@@ -184,6 +184,199 @@ RSpec.describe Simulation::Simulator do
       end
     end
 
+    context "when annuity is purchased at retirement age" do
+      let(:app_config) do
+        AppConfig.new(
+          "retirement_age" => 65,
+          "max_age" => 75,
+          "province_code" => "ONT",
+          "annual_tfsa_contribution" => 0,
+          "desired_spending" => 30_000,
+          "annual_growth_rate" => {
+            "average" => 0.01,
+            "min" => -0.1,
+            "max" => 0.1,
+            "downturn_threshold" => -0.1
+          },
+          "return_sequence_type" => "constant",
+          "accounts" => {
+            "rrsp" => 200_000,
+            "taxable" => 60_000,
+            "tfsa" => 30_000,
+            "cash_cushion" => 0
+          },
+          "taxes" => {
+            "rrsp_withholding_rate" => 0.3
+          },
+          "cpp" => {
+            "start_age" => 65,
+            "monthly_amount" => 0
+          },
+          "annuity" => {
+            "purchase_age" => 65,
+            "lump_sum" => 50_000,
+            "monthly_payment" => 290
+          }
+        )
+      end
+
+      let!(:simulation_output) { described_class.new(app_config).run }
+      let!(:yearly_results) { simulation_output[:yearly_results] }
+
+      it "records annuity as true in yearly results from purchase age onward" do
+        yearly_results.each do |row|
+          expect(row[:annuity]).to be(true)
+        end
+      end
+
+      it "shows RRSP balance reduced by lump sum plus withdrawal at age 65" do
+        row = yearly_results.find { |r| r[:age] == 65 }
+        # RRSP starts at 200K, lump sum of 50K taken out, then normal withdrawal occurs
+        # RRSP after purchase: 150_000, then withdrawal + growth
+        expect(row[:rrsp_balance]).to be < 150_000
+      end
+
+      it "records annuity as false when not configured" do
+        no_annuity_config = AppConfig.new(app_config.data.except("annuity"))
+        results = described_class.new(no_annuity_config).run[:yearly_results]
+        results.each do |row|
+          expect(row[:annuity]).to be(false)
+        end
+      end
+    end
+
+    context "when annuity is purchased mid-retirement" do
+      let(:app_config) do
+        AppConfig.new(
+          "retirement_age" => 60,
+          "max_age" => 75,
+          "province_code" => "ONT",
+          "annual_tfsa_contribution" => 0,
+          "desired_spending" => 30_000,
+          "annual_growth_rate" => {
+            "average" => 0.03,
+            "min" => -0.1,
+            "max" => 0.1,
+            "downturn_threshold" => -0.1
+          },
+          "return_sequence_type" => "constant",
+          "accounts" => {
+            "rrsp" => 400_000,
+            "taxable" => 100_000,
+            "tfsa" => 50_000,
+            "cash_cushion" => 0
+          },
+          "taxes" => {
+            "rrsp_withholding_rate" => 0.3
+          },
+          "cpp" => {
+            "start_age" => 65,
+            "monthly_amount" => 0
+          },
+          "annuity" => {
+            "purchase_age" => 65,
+            "lump_sum" => 100_000,
+            "monthly_payment" => 580
+          }
+        )
+      end
+
+      let!(:yearly_results) { described_class.new(app_config).run[:yearly_results] }
+
+      it "records annuity as false before purchase age" do
+        pre_purchase = yearly_results.select { |r| r[:age] < 65 }
+        pre_purchase.each do |row|
+          expect(row[:annuity]).to be(false)
+        end
+      end
+
+      it "records annuity as true from purchase age onward" do
+        post_purchase = yearly_results.select { |r| r[:age] >= 65 }
+        post_purchase.each do |row|
+          expect(row[:annuity]).to be(true)
+        end
+      end
+    end
+
+    context "when annuity purchase is skipped due to insufficient RRSP" do
+      let(:app_config) do
+        AppConfig.new(
+          "retirement_age" => 60,
+          "max_age" => 70,
+          "province_code" => "ONT",
+          "annual_tfsa_contribution" => 0,
+          "desired_spending" => 30_000,
+          "annual_growth_rate" => {
+            "average" => 0.01,
+            "min" => -0.1,
+            "max" => 0.1,
+            "downturn_threshold" => -0.1
+          },
+          "return_sequence_type" => "constant",
+          "accounts" => {
+            "rrsp" => 200_000,
+            "taxable" => 100_000,
+            "tfsa" => 50_000,
+            "cash_cushion" => 0
+          },
+          "taxes" => {
+            "rrsp_withholding_rate" => 0.3
+          },
+          "cpp" => {
+            "start_age" => 65,
+            "monthly_amount" => 0
+          },
+          "annuity" => {
+            "purchase_age" => 65,
+            "lump_sum" => 500_000,
+            "monthly_payment" => 2_900
+          }
+        )
+      end
+
+      let!(:yearly_results) { described_class.new(app_config).run[:yearly_results] }
+
+      it "completes without error" do
+        expect(yearly_results).not_to be_empty
+      end
+
+      it "records annuity as false in all yearly results" do
+        yearly_results.each do |row|
+          expect(row[:annuity]).to be(false)
+        end
+      end
+
+      it "records annuity_purchase_skipped as false before purchase age" do
+        pre_purchase = yearly_results.select { |r| r[:age] < 65 }
+        pre_purchase.each do |row|
+          expect(row[:annuity_purchase_skipped]).to be(false)
+        end
+      end
+
+      it "records annuity_purchase_skipped as true from purchase age onward" do
+        post_purchase = yearly_results.select { |r| r[:age] >= 65 }
+        post_purchase.each do |row|
+          expect(row[:annuity_purchase_skipped]).to be(true)
+        end
+      end
+
+      it "includes 'annuity purchase skipped' in the note at purchase age only" do
+        purchase_row = yearly_results.find { |r| r[:age] == 65 }
+        expect(purchase_row[:note]).to include("annuity purchase skipped")
+
+        yearly_results.select { |r| r[:age] > 65 }.each do |row|
+          expect(row[:note]).not_to include("annuity purchase skipped")
+        end
+      end
+
+      it "does not reduce RRSP balance by the lump sum at purchase age" do
+        before_purchase = yearly_results.find { |r| r[:age] == 64 }
+        at_purchase = yearly_results.find { |r| r[:age] == 65 }
+        # RRSP should not drop by 500K — it only decreases from normal withdrawals
+        expect(before_purchase[:rrsp_balance] - at_purchase[:rrsp_balance]).to be < 500_000
+      end
+    end
+
     context "when there is a high growth rate" do
       let(:app_config) do
         AppConfig.new(

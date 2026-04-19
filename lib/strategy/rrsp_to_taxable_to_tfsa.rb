@@ -8,12 +8,14 @@ module Strategy
     def initialize(app_config)
       @app_config = app_config
       @withdrawal_amounts = WithdrawalAmounts.new(app_config)
+      @annuity_purchase_skipped = false
       load_accounts
     end
 
     def current_age=(age)
       @current_age = age
       @withdrawal_amounts.current_age = age
+      purchase_annuity if annuity_purchase_year?(age)
     end
 
     def select_account_transactions(market_return)
@@ -52,7 +54,32 @@ module Strategy
       withdrawal_amounts.oas_used?
     end
 
+    def annuity_used?
+      withdrawal_amounts.annuity_used?
+    end
+
+    def annuity_purchase_skipped?
+      @annuity_purchase_skipped
+    end
+
     private
+
+    def annuity_purchase_year?(age)
+      annuity_config = app_config.annuity
+      return false unless annuity_config
+
+      annuity_config["purchase_age"] == age && annuity_config["monthly_payment"]&.positive?
+    end
+
+    def purchase_annuity
+      lump_sum = app_config.annuity["lump_sum"]
+      if rrsp_account.balance < lump_sum
+        @annuity_purchase_skipped = true
+        return
+      end
+      rrsp_account.withdraw(lump_sum)
+      @withdrawal_amounts.annuity_active = true
+    end
 
     def ran_out_of_money?(account_transactions)
       account_transactions.nil? || account_transactions.empty?

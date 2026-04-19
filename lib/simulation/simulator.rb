@@ -65,6 +65,8 @@ module Simulation
         note: build_note(account_transactions),
         cpp: strategy.cpp_used?,
         oas: strategy.oas_used?,
+        annuity: strategy.annuity_used?,
+        annuity_purchase_skipped: strategy.annuity_purchase_skipped?,
         rate_of_return: market_return,
         total_balance: strategy.total_balance,
         rrif_forced_net_excess: extract_rrif_forced_net_excess(account_transactions)
@@ -76,7 +78,16 @@ module Simulation
     end
 
     def build_note(account_transactions)
-      account_transactions.map { |act| act[:account].name }.join(", ")
+      parts = account_transactions.map { |act| act[:account].name }
+      parts << "annuity purchase skipped" if strategy.annuity_purchase_skipped? && at_annuity_purchase_age?
+      parts.join(", ")
+    end
+
+    def at_annuity_purchase_age?
+      annuity_config = app_config.annuity
+      return false unless annuity_config
+
+      annuity_config["purchase_age"] == strategy.current_age
     end
 
     def extract_rrif_forced_net_excess(account_transactions)
