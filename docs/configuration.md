@@ -102,7 +102,16 @@ annual_growth_rate:
 #   (mean reversion), but this model does not simulate that — every year is drawn
 #   independently. Think of it as: "if the future is somewhat worse than history, will
 #   my plan survive?" rather than: "how often has this worked historically?"
+#
+# `recorded`: replays a previously-captured return sequence from disk instead of
+#   generating one. Only valid in `detailed` mode. Used to inspect a single failed
+#   run from a prior `success_rate` invocation year-by-year. See README:
+#   "Inspecting Why Scenarios Fail".
 return_sequence_type: geometric_brownian_motion
+
+# When `return_sequence_type: recorded`, points to the saved YAML file to replay —
+# typically one of the files generated under `failed_runs/` by a `success_rate` run.
+# recorded_sequence_file: failed_runs/run_0001.yml
 
 # Optionally continue to make TFSA contributions during RRSP and Taxable drawdown phases.
 # If you don't want to make any TFSA contributions during drawdown, set this to 0.
@@ -194,6 +203,20 @@ taxes:
 ```
 
 ---
+
+## Replaying a Captured Failure
+
+When `return_sequence_type: recorded`, set `recorded_sequence_file` to the path of a saved YAML file under `failed_runs/`. Detailed mode loads that file and replays its `{age => return}` map year by year — same printer, same charts, same evaluation as a normal detailed run, but driven by deterministic captured data.
+
+Each saved run also stores a SHA256 digest of the inputs that produced it (the `inputs_digest` field). On replay, the simulator compares this stored digest to a digest of the *current* `inputs.yml`. If they differ, you'll see this note:
+
+> Note: inputs.yml has changed since this run was captured. The original failure may not reproduce exactly.
+
+This is informational only — the run is not blocked. The mismatch is itself useful: it lets you pair a captured "bad sequence" with modified inputs (e.g. lower spending, an added annuity) to test whether the plan would have survived under different assumptions.
+
+One field deserves special mention: `retirement_age`. Replay is **age-aligned**, not retirement-aligned — the year you simulate at age N uses whatever return the captured sequence had at age N. If you raise `retirement_age` above the original capture's value, you're replaying the *back half* of the original sequence (skipping the early years), not the same return pattern shifted in time. If you lower `retirement_age` below the captured range — or raise `max_age` above it — the requested ages fall outside the saved data, and the simulator exits at startup with an error pointing at the mismatch. To replay the same return pattern from a later starting balance, you'd need to re-capture under the new `retirement_age` rather than re-pointing at an old file.
+
+The digest covers fields that affect simulation outcome when the return sequence is fixed: balances, ages, spending, taxes, CPP/OAS/annuity, success factor, and the cash-cushion `downturn_threshold` and `savings` rate. It deliberately excludes `mode`, `total_runs`, `return_sequence_type`, `recorded_sequence_file`, and the GBM/mean parameters (`average`/`min`/`max`) — toggling between modes or pointing at a different recorded file does not invalidate the digest.
 
 ## First Year Cash Flow
 

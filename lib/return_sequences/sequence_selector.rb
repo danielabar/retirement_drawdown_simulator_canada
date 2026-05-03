@@ -11,27 +11,32 @@ module ReturnSequences
     end
 
     def select
-      klass = determine_return_sequence_class
-      instantiate_return_sequence(klass)
+      sequence_type = app_config["return_sequence_type"] || DEFAULT_RETURN_SEQUENCE_TYPE
+      case sequence_type
+      when "mean" then instantiate_generative(ReturnSequences::MeanReturnSequence)
+      when "geometric_brownian_motion" then instantiate_generative(ReturnSequences::GeometricBrownianMotionSequence)
+      when "constant" then instantiate_generative(ReturnSequences::ConstantReturnSequence)
+      when "recorded" then instantiate_recorded
+      else raise "Unknown return_sequence_type: #{sequence_type}"
+      end
     end
 
     private
 
     attr_reader :app_config, :retirement_age, :max_age
 
-    def determine_return_sequence_class
-      sequence_type = app_config["return_sequence_type"] || DEFAULT_RETURN_SEQUENCE_TYPE
-      case sequence_type
-      when "mean" then ReturnSequences::MeanReturnSequence
-      when "geometric_brownian_motion" then ReturnSequences::GeometricBrownianMotionSequence
-      when "constant" then ReturnSequences::ConstantReturnSequence
-      else raise "Unknown return_sequence_type: #{app_config['return_sequence_type']}"
-      end
-    end
-
-    def instantiate_return_sequence(klass)
+    def instantiate_generative(klass)
       klass.new(retirement_age, max_age, app_config.annual_growth_rate["average"],
                 app_config.annual_growth_rate["min"], app_config.annual_growth_rate["max"])
+    end
+
+    def instantiate_recorded
+      file_path = app_config["recorded_sequence_file"]
+      if file_path.nil? || file_path.empty?
+        raise "return_sequence_type: recorded requires recorded_sequence_file in inputs"
+      end
+
+      ReturnSequences::RecordedSequence.new(retirement_age, max_age, file_path)
     end
   end
 end

@@ -49,6 +49,14 @@ RSpec.describe Simulation::Simulator do
         expect(yearly_results.last[:age]).to eq(69)
       end
 
+      it "exposes return_sequence with one entry per simulated age matching yearly :rate_of_return" do
+        return_sequence = simulation_output[:return_sequence]
+        expect(return_sequence).to be_a(Hash)
+        yearly_results.each do |row|
+          expect(return_sequence[row[:age]]).to eq(row[:rate_of_return])
+        end
+      end
+
       it "verifies withdrawals for age 65" do
         row = yearly_results.find { |r| r[:age] == 65 }
         expect(row).to match(

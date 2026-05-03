@@ -61,8 +61,9 @@ annual_growth_rate:
   downturn_threshold: -0.1
   savings: 0.005
 
-# Choose the return sequence generator: mean, geometric_brownian_motion, constant
-# If using `success_rate` mode, then choose either `mean` or `geometric_brownian_motion`
+# Choose the return sequence generator: mean, geometric_brownian_motion, constant, recorded
+# If using `success_rate` mode, then choose either `mean` or `geometric_brownian_motion`.
+# `recorded` is only valid in `detailed` mode — see "Inspecting why scenarios fail" in the README.
 #
 # `constant`: every year returns exactly the average. Easy to understand and produces
 #   clean, predictable results, but completely unrealistic — markets don't do this.
@@ -85,6 +86,14 @@ annual_growth_rate:
 #   Think of it as: "if the future is somewhat worse than history, will my plan survive?"
 #   rather than: "how often has this worked historically?"
 return_sequence_type: geometric_brownian_motion
+
+# When `return_sequence_type: recorded`, this points to a saved YAML file
+# containing a previously-captured return sequence — typically one of the
+# files generated under `failed_runs/` by a `success_rate` run. Replays the
+# stored year-by-year returns through detailed mode, so you can inspect the
+# scenario that made the plan fail.
+#
+# recorded_sequence_file: failed_runs/run_0001.yml
 
 # Optionally continue to make TFSA contributions during RRSP and Taxable drawdown phases
 # If you don't want to make any TFSA contributions during drawdown, set this to 0.

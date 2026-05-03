@@ -14,10 +14,12 @@ lib/
   simulation/             # Core simulation loop and success evaluator
   strategy/               # Withdrawal planning and account selection
   tax/                    # Forward and reverse income tax calculations
-  return_sequences/       # Market return generators (constant, mean, GBM)
+  return_sequences/       # Market return generators (constant, mean, GBM, recorded)
+  failed_runs/            # Capture machinery for failed success_rate runs
   output/                 # Console printing and formatting
   account.rb              # Account model (balance, withdraw, deposit, grow)
   app_config.rb           # Typed wrapper around inputs.yml
+  inputs_digest.rb        # Stable hash of replay-relevant inputs
   withdrawal_amounts.rb   # Per-account withdrawal amount calculations
   withdrawal_rate_calculator.rb
   first_year_cash_flow.rb
@@ -28,6 +30,7 @@ config/
   tax_fixed.yml           # Fixed tax config used in tests (deterministic)
   rrif.yml                # CRA prescribed RRIF withdrawal factors by age
   rrif_fixed.yml          # Fixed RRIF config used in tests
+failed_runs/              # Captured failed sequences from success_rate mode (gitignored)
 spec/                     # RSpec tests
   fixtures/               # YAML files used as AppConfig inputs in specs
 ```
@@ -73,11 +76,11 @@ flowchart TD
 
 ### Entry Points — `lib/run/`
 
-**`AppRunner`** reads `inputs.yml`, resolves the run mode (`detailed` or `success_rate`), and delegates to the appropriate run class. The mode can be overridden via `ARGV[0]` (used by the `ruby main.rb success_rate` command).
+**`AppRunner`** reads `inputs.yml`, resolves the run mode (`detailed` or `success_rate`), and delegates to the appropriate run class. The mode can be overridden via `ARGV[0]` (used by the `ruby main.rb success_rate` command). Validation: `mode: success_rate` combined with `return_sequence_type: recorded` errors at startup, since a deterministic sequence run N times would produce N identical results.
 
 **`SimulationDetailed`** orchestrates a single run: creates a `Simulator`, runs it, feeds the results to `SimulationEvaluator` and `FirstYearCashFlow`, then prints everything via `ConsolePrinter`.
 
-**`SuccessRateSimulation`** runs `Simulator` N times (default 500), collects `{success, withdrawal_rate, final_balance}` from each, aggregates into `SuccessRateResults`, and prints via `SuccessRatePrinter`.
+**`SuccessRateSimulation`** runs `Simulator` N times (default 500), collects `{success, withdrawal_rate, final_balance}` from each, aggregates into `SuccessRateResults`, and prints via `SuccessRatePrinter`. It also drives the `FailedRuns::Writer`: prepares the `failed_runs/` directory before the loop, offers each failed run to a reservoir sampler, and flushes the kept runs (plus a manifest) at the end.
 
 ---
 
@@ -151,6 +154,22 @@ Both calculators load from `config/tax.yml` in production, or `config/tax_fixed.
 - `drift` = `log(1 + average) - 0.5 × sigma²` (Itô correction to prevent drift above intended average)
 - `sigma` = derived from `min`/`max` via three-sigma rule: `(max - min) / 6`
 - `shock` = drawn from a Student-t distribution (df=10) for fat tails
+
+**`RecordedSequence`** — loads a previously-saved `{age => return}` map from disk instead of generating one. Used by detailed mode to replay a failed run captured by `success_rate` mode. Exposes the saved summary and inputs digest so `SimulationDetailed` can announce the replay and warn on digest mismatch.
+
+---
+
+### Failed Runs Capture — `lib/failed_runs/`
+
+**`ReservoirSampler`** — generic K-of-N reservoir (Algorithm R). Streaming-with-unknown-N selection so every failure that ever occurred has equal probability `K / total_seen` of ending up in the saved set, regardless of when it streamed past.
+
+**`Serializer`** — read/write for the per-run YAML schema (`id`, `captured_at`, `inputs_digest`, `outcome`, `return_sequence`).
+
+**`Manifest`** — writes `failed_runs/index.md`: header, capture timestamp, source digest, and one bullet per saved run with its summary.
+
+**`Writer`** — orchestrator. `prepare!` wipes prior `run_*.yml` and `index.md` (preserves `.gitkeep`); `offer(simulation_output, evaluator_results)` builds a payload from a single run and feeds it to the reservoir; `flush!` writes each kept payload to `run_NNNN.yml` and writes the manifest. Capacity hardcoded to 50.
+
+**`InputsDigest`** (in `lib/inputs_digest.rb`) — SHA256 over the *replay-relevant* subset of inputs: those that affect outcome when the return sequence is fixed. Excludes `mode`, `total_runs`, `return_sequence_type`, `recorded_sequence_file`, and the GBM/mean parameters (`average`/`min`/`max`) since the sequence comes from disk.
 
 ---
 
