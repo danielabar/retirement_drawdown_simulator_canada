@@ -2,13 +2,15 @@
 
 module Run
   class SuccessRateSimulation
-    def initialize(app_config)
+    def initialize(app_config, failed_runs_writer: nil)
       @app_config = app_config
       @total_runs = app_config["total_runs"] || 500
       @simulation_results = []
+      @failed_runs_writer = failed_runs_writer || FailedRuns::Writer.new(app_config)
     end
 
     def run
+      @failed_runs_writer.prepare!
       progress_bar = create_progress_bar
 
       total_runs.times do
@@ -19,6 +21,7 @@ module Run
         progress_bar.advance
       end
 
+      @failed_runs_writer.flush!
       results = SuccessRateResults.new(simulation_results)
       Output::SuccessRatePrinter.new(results).print_summary
     end
@@ -38,14 +41,15 @@ module Run
     end
 
     def simulate_once
-      simulation_results = Simulation::Simulator.new(app_config).run
-      evaluator_results = Simulation::SimulationEvaluator.new(simulation_results[:yearly_results], app_config).evaluate
-      annuity_skipped = simulation_results[:yearly_results].any? { |r| r[:annuity_purchase_skipped] }
+      simulation_output = Simulation::Simulator.new(app_config).run
+      evaluator_results = Simulation::SimulationEvaluator.new(simulation_output[:yearly_results], app_config).evaluate
+      annuity_skipped = simulation_output[:yearly_results].any? { |r| r[:annuity_purchase_skipped] }
+      @failed_runs_writer.offer(simulation_output, evaluator_results)
 
       [
         evaluator_results[:success] ? true : false,
         evaluator_results[:withdrawal_rate],
-        simulation_results[:yearly_results].last[:total_balance],
+        simulation_output[:yearly_results].last[:total_balance],
         annuity_skipped
       ]
     end

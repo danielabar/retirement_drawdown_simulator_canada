@@ -74,7 +74,7 @@ module Simulation
     end
 
     def build_results
-      { yearly_results: results }
+      { yearly_results: results, return_sequence: return_sequence.returns_by_age }
     end
 
     def build_note(account_transactions)

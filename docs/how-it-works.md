@@ -221,6 +221,14 @@ This is the realistic option. Each year gets an independently drawn return — m
 
 **No mean reversion — by design:** Real markets tend to recover after crashes — cheap prices attract buyers and push returns back up. This model does not simulate that. Every year is drawn independently, with no memory of previous years. This means the model can generate extended bad stretches that real markets would typically recover from faster. The result is more conservative success rates than historical studies (like the original 4% rule research) produce for the same withdrawal rate. This is intentional: the goal is to stress-test your plan against futures that could be worse than history, not to reproduce historical outcomes.
 
+### `recorded`
+
+Loads a previously-saved sequence from a YAML file rather than generating one. Used in detailed mode to replay a failure that was captured during a prior `success_rate` run. See [Inspecting Why Scenarios Fail](../README.md#inspecting-why-scenarios-fail) for the workflow.
+
+### Inspecting failed runs
+
+`success_rate` mode persists a sample of failed return sequences to `failed_runs/`, with a one-line summary per run in `failed_runs/index.md`. Each saved file contains the `{age => return}` map plus a digest of the inputs that produced it, so the same scenario can be replayed year-by-year through detailed mode — answering "what *kind* of bad luck does my 5% failure rate look like?" rather than just "5% of runs fail." See the README for the full workflow.
+
 ---
 
 ## Cash Cushion

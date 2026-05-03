@@ -12,6 +12,7 @@
   - [Running the Simulation](#running-the-simulation)
   - [Sample Output](#sample-output)
   - [Determining Your Success Rate](#determining-your-success-rate)
+  - [Inspecting Why Scenarios Fail](#inspecting-why-scenarios-fail)
   - [Documentation](#documentation)
   - [Insights](#insights)
   - [Disclaimer](#disclaimer)
@@ -181,6 +182,44 @@ You control what "success" means via the `success_factor` setting in `inputs.yml
 
 > [!NOTE]
 > The 4% rule is often cited as having a "95% success rate" — but that figure comes from US historical data replayed over past sequences. This simulator uses Geometric Brownian Motion without mean reversion, intentionally modelling futures that could be worse than history. For the same 4% scenario, this simulator produces lower success rates. See [How It Works](docs/how-it-works.md#geometric_brownian_motion-recommended) for why, and [Is the 4% Rule Actually Safe?](docs/insights/four_percent_rule.md) for a detailed analysis of what this means in practice.
+
+## Inspecting Why Scenarios Fail
+
+A success rate of 85% answers *how often* a plan succeeds, but not *what the failures look like*. To make failures inspectable, every `success_rate` run captures a sample of the failed sequences to disk and produces a manifest. You can then replay any individual failure year-by-year with detailed mode.
+
+**1. Run success_rate mode** — produces a `failed_runs/` directory:
+
+```sh
+ruby main.rb success_rate
+```
+
+A reservoir of up to 50 failed runs is saved as `failed_runs/run_0001.yml`, `run_0002.yml`, … alongside an `index.md` summarising each one. The directory is wiped at the start of every `success_rate` run, so the contents always reflect the most recent invocation.
+
+**2. Open `failed_runs/index.md`** and pick an interesting failure:
+
+```
+- run_0001.yml — ran out at age 79, final balance $0
+- run_0002.yml — reached max_age 95 with $12,400 (below threshold $40,000)
+- run_0003.yml — ran out at age 84, final balance $0
+```
+
+**3. Edit `inputs.yml`** to point detailed mode at that file:
+
+```yaml
+return_sequence_type: recorded
+recorded_sequence_file: failed_runs/run_0001.yml
+```
+
+**4. Run detailed mode** — replays the captured sequence year by year:
+
+```sh
+ruby main.rb
+```
+
+Because the saved file stores only the return sequence (and a digest of the inputs that produced it), you can also pair a captured failure with *modified* inputs — for example, "replay this exact bad sequence, but with $35,000 spending instead of $40,000". When the digest no longer matches, you'll see a one-line note on startup; the run itself is not blocked, since the mismatch is the experiment.
+
+> [!WARNING]
+> `failed_runs/` contains a digest of your inputs and a year-by-year balance trajectory — same sensitivity class as `inputs.yml`. The directory is gitignored. If you want to preserve a particular failure across `success_rate` runs, copy it somewhere outside `failed_runs/` first; the next run will wipe and regenerate the directory.
 
 ## Documentation
 

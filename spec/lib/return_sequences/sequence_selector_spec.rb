@@ -42,5 +42,29 @@ RSpec.describe ReturnSequences::SequenceSelector do
         expect(sequence).to be_an_instance_of(ReturnSequences::ConstantReturnSequence)
       end
     end
+
+    context "when selecting a 'recorded' return sequence" do
+      let(:app_config) { AppConfig.new(File.join(base_fixture_path, "sequence_recorded.yml")) }
+      let!(:sequence) { described_class.new(app_config, 65, 69).select }
+
+      it "returns an instance of RecordedSequence" do
+        expect(sequence).to be_an_instance_of(ReturnSequences::RecordedSequence)
+      end
+    end
+
+    context "when 'recorded' is selected but recorded_sequence_file is missing" do
+      let(:app_config) do
+        AppConfig.new(
+          "return_sequence_type" => "recorded",
+          "annual_growth_rate" => { "average" => 0.05, "min" => -0.4, "max" => 0.45 }
+        )
+      end
+
+      it "raises a clear error" do
+        expect do
+          described_class.new(app_config, 65, 100).select
+        end.to raise_error(/recorded_sequence_file/)
+      end
+    end
   end
 end

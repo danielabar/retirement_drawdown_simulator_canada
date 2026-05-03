@@ -1,0 +1,15 @@
+id: run_sample
+captured_at: 2026-05-02T14:30:00Z
+inputs_digest: deadbeef
+outcome:
+  success: false
+  summary: "ran out at age 67, final balance $0"
+  final_age: 67
+  final_balance: 0
+  withdrawal_rate: 0.04
+return_sequence:
+  65: 0.05
+  66: -0.30
+  67: -0.20
+  68: 0.02
+  69: 0.04
